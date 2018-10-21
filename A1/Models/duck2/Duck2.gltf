@@ -1,0 +1,134 @@
+{
+    "accessors": [
+        {
+            "bufferView": 0,
+            "byteOffset": 0,
+            "componentType": 5126,
+            "count": 2503,
+            "max": [
+                0.48089948296546936,
+                0.819849967956543,
+                0.2696259915828705
+            ],
+            "min": [
+                -0.3464924991130829,
+                0.04964684695005417,
+                -0.30664098262786865
+            ],
+            "type": "VEC3"
+        },
+        {
+            "bufferView": 1,
+            "byteOffset": 12,
+            "componentType": 5126,
+            "count": 2503,
+            "max": [
+                0.9971618056297302,
+                0.99957275390625,
+                0.9985961318016052
+            ],
+            "min": [
+                -0.99993896484375,
+                -1.0,
+                -0.999847412109375
+            ],
+            "type": "VEC3"
+        },
+        {
+            "bufferView": 2,
+            "byteOffset": 32,
+            "componentType": 5126,
+            "count": 2503,
+            "max": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "min": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "type": "VEC3"
+        },
+        {
+            "bufferView": 3,
+            "byteOffset": 0,
+            "byteStride": 2,
+            "componentType": 5123,
+            "count": 12636,
+            "max": [
+                2502
+            ],
+            "min": [
+                0
+            ],
+            "type": "SCALAR"
+        }
+    ],
+    "asset": {
+        "version": "2.0"
+    },
+    "bufferViews": [
+        {
+            "buffer": 0,
+            "byteOffset": 0,
+            "byteStride": 44,
+            "byteLength": 110132,
+            "byteOffset": 0,
+            "target": 34962
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 0,
+            "byteStride": 44,
+            "byteLength": 110132,
+            "byteOffset": 0,
+            "target": 34962
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 0,
+            "byteStride": 44,
+            "byteLength": 110132,
+            "byteOffset": 0,
+            "target": 34962
+        },
+        {
+            "buffer": 0,
+            "byteLength": 25272,
+            "byteOffset": 110132,
+            "target": 34963
+        }
+    ],
+    "buffers": [
+        {
+            "byteLength": 135404,
+            "type": "arraybuffer",
+            "uri": "buffer_combined.bin"
+        }
+    ],
+    "cameras": {},
+    "materials": {},
+    "meshes": [
+        {
+            "name": "LOD3spShape",
+            "primitives": [
+                {
+                    "attributes": {
+                        "COLOR_0": 2,
+                        "NORMAL": 1,
+                        "POSITION": 0
+                    },
+                    "indices": 3,
+                    "material": "material_blinn3",
+                    "mode": 4
+                }
+            ]
+        }
+    ],
+    "nodes": [{"mesh":0}],
+    "samplers": [],
+    "scenes": [{"nodes":[0]}],
+    "textures": []
+}
