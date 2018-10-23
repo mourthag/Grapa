@@ -17,6 +17,17 @@ public:
     MainOpenGLWidget(QWidget *parent = 0);
     ~MainOpenGLWidget();
 
+    QMatrix4x4 getViewMat();
+public slots:
+    void resetCamera();
+    void setShininess(int s);
+    void setWireframe();
+    void setGouraud();
+    void setPhong();
+
+signals:
+    void cameraUpdated();
+
 protected:
     void initializeGL() override;
     void paintGL() override;
@@ -25,15 +36,27 @@ protected:
     void mouseMoveEvent(QMouseEvent *event ) override;
     void wheelEvent(QWheelEvent *event ) override;
 
-private:
+    void updateUniforms();
+
+    QPointF pixelPosToViewPos(const QPointF& point);
+private:    
+    int width;
+    int height;
+
+    QVector3D lightPos;
+    float lightInt;
+    int shininess;
+
     QMatrix4x4 m;
     QMatrix4x4 v;
     QMatrix4x4 p;
 
     QPointF dragStart;
-    QQuaternion quat;
 
-    QOpenGLShaderProgram *program;
+    QOpenGLShaderProgram **activeProgram;
+    QOpenGLShaderProgram *phongProgram;
+    QOpenGLShaderProgram *gouraudProgram;
+
     GLuint vao;
     //vertices
     GLuint vbo;

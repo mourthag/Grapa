@@ -26,14 +26,17 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
-    mainopenglwidget.cpp \
-    trackball.cpp
+    mainopenglwidget.cpp
 
 HEADERS += \
         mainwindow.h \
-    mainopenglwidget.h \
-    trackball.h
+    mainopenglwidget.h
 
 DISTFILES += \
-    simplefragshader.frag \
-    simplevertshader.vert
+    shader/simplefragshader.frag \
+    shader/simplevertshader.vert \
+    shader/phongfragshader.frag \
+    shader/phongvertshader.vert
+
+RESOURCES += \
+    hellogl.qrc

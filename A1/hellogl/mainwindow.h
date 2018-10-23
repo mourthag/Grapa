@@ -15,8 +15,10 @@ public:
 
 public slots:
     void showAboutBox();
+    void updateStatusBar();
 
 private:
+    QStatusBar *statusBar;
     MainOpenGLWidget *widget;
 };
 
