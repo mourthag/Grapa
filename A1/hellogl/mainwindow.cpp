@@ -1,5 +1,12 @@
 #include "mainwindow.h"
 #include <sstream>
+#define TINYGLTF_IMPLEMENTATION
+#define STB_IMAGE_IMPLEMENTATION
+#define TINYGLTF_NO_STB_IMAGE_WRITE
+
+#include "tiny_gltf.h"
+
+using namespace tinygltf;
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -9,6 +16,10 @@ MainWindow::MainWindow(QWidget *parent)
     QMenuBar *menuBar = new QMenuBar();
 
     QMenu *fileMenu = menuBar->addMenu("&File");
+
+    QAction *openModelAction = fileMenu->addAction("&Open model...");
+    connect(openModelAction, SIGNAL(triggered(bool)), this, SLOT(loadModel()));
+
     QAction *exitAction = fileMenu->addAction("E&xit");
     exitAction->setShortcut(QKeySequence("Ctrl+q"));
     connect(exitAction, SIGNAL(triggered()), this, SLOT(close()));
@@ -109,4 +120,20 @@ void MainWindow::updateStatusBar() {
 
 
     statusBar->showMessage(QString(message.str().c_str()), 0);
+}
+
+void MainWindow::loadModel() {
+    QString fileName = QFileDialog::getOpenFileName(this,
+            tr("Open Model"), "",
+            tr("Models (*.gltf);;All Files (*)"));
+    std::string err;
+    std::string warn;
+    TinyGLTF loader;
+    Model model;
+
+    loader.LoadASCIIFromFile(&model, &err, &warn, fileName.toStdString());
+    if(!err.empty()) {
+        printf("Err: %s\n", err.c_str());
+    }
+    widget->loadModel(&model);
 }

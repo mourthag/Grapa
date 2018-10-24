@@ -1,5 +1,6 @@
 #include "mainopenglwidget.h"
 #include <qmath.h>
+#define TINYGLTF_NO_STB_IMAGE_WRITE
 
 MainOpenGLWidget::MainOpenGLWidget(QWidget *parent) : QOpenGLWidget(parent)
 {
@@ -337,6 +338,38 @@ void MainOpenGLWidget::updateVBOs() {
     glBufferData(GL_ARRAY_BUFFER, 3 * num_verts * sizeof(GLfloat), &vertex_color[0], GL_STATIC_DRAW);
     gouraudProgram->setAttributeBuffer("fcolor", GL_FLOAT, 0, 3);
     phongProgram->setAttributeBuffer("fcolor", GL_FLOAT, 0, 3);
+}
+
+void MainOpenGLWidget::loadModel(tinygltf::Model* model) {
+//    int colorID = model->meshes[0].primitives[0].attributes["COLOR_0"];
+//    int normalID = model->meshes[0].primitives[0].attributes["NORMAL"];
+//    int posID = model->meshes[0].primitives[0].attributes["POSITION"];
+//    int indexID = model->meshes[0].primitives[0].indices;
+
+//    tinygltf::Accessor colorAccessor =  model->accessors[colorID];
+//    tinygltf::Accessor normalAccessor =  model->accessors[normalID];
+//    tinygltf::Accessor posAccessor =  model->accessors[posID];
+//    tinygltf::Accessor indexAccessor =  model->accessors[indexID];
+
+//    tinygltf::BufferView colorBV = model->bufferViews[colorAccessor.bufferView];
+//    tinygltf::BufferView nomalBV = model->bufferViews[normalAccessor.bufferView];
+//    tinygltf::BufferView posBV = model->bufferViews[posAccessor.bufferView];
+//    tinygltf::BufferView indexBV = model->bufferViews[indexAccessor.bufferView];
+
+//    tinygltf::Buffer buff = model->buffers[posBV.buffer];
+
+
+//    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+//    glBufferData(posBV.target, posBV.byteLength, &buff.data[0], GL_STATIC_DRAW);
+
+//    GLint posLoc = glGetAttribLocation(*activeProgram, "pos");
+
+//    glVertexAttribPointer(posLoc, posBV.byteLength, posAccessor.componentType, GL_FALSE, posBV.byteStride, posBV.byteOffset );
+//    glBindAttribLocation(*activeProgram, posLoc, "pos");
+//    glEnableVertexAttribArray(posLoc);
+
+//    glBufferData(indexBV.target, indexBV.byteLength, &buff.data[0], GL_STATIC_DRAW);
 }
 
 QMatrix4x4 MainOpenGLWidget::getViewMat() {

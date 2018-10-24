@@ -30,7 +30,10 @@ SOURCES += \
 
 HEADERS += \
         mainwindow.h \
-    mainopenglwidget.h
+    mainopenglwidget.h \
+    json.hpp \
+    tiny_gltf.h \
+    stb_image.h
 
 DISTFILES += \
     shader/simplefragshader.frag \

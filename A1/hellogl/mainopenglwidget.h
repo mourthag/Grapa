@@ -9,6 +9,9 @@
 #include <QMatrix4x4>
 #include <QQuaternion>
 
+#define TINYGLTF_NO_STB_IMAGE_WRITE
+#include <tiny_gltf.h>
+
 class MainOpenGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_4_0_Core
 {
     Q_OBJECT
@@ -18,6 +21,7 @@ public:
     ~MainOpenGLWidget();
 
     QMatrix4x4 getViewMat();
+    void loadModel(tinygltf::Model *model);
 public slots:
     void resetCamera();
     void setShininess(int s);
