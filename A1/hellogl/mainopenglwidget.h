@@ -21,6 +21,7 @@ public:
 public slots:
     void resetCamera();
     void setShininess(int s);
+    void setTesselation(int t);
     void setWireframe();
     void setGouraud();
     void setPhong();
@@ -37,6 +38,8 @@ protected:
     void wheelEvent(QWheelEvent *event ) override;
 
     void updateUniforms();
+    void updateVertices();
+    void updateVBOs();
 
     QPointF pixelPosToViewPos(const QPointF& point);
 private:    
@@ -47,6 +50,9 @@ private:
     float lightInt;
     int shininess;
 
+    int tesselation;
+    bool isWireframe;
+
     QMatrix4x4 m;
     QMatrix4x4 v;
     QMatrix4x4 p;
@@ -56,6 +62,14 @@ private:
     QOpenGLShaderProgram **activeProgram;
     QOpenGLShaderProgram *phongProgram;
     QOpenGLShaderProgram *gouraudProgram;
+
+    int num_tris;
+    int num_verts;
+
+    std::vector<GLfloat> vertex_position;
+    std::vector<GLuint> vertex_index;
+    std::vector<GLfloat> vertex_color;
+    std::vector<GLfloat> vertex_normal;
 
     GLuint vao;
     //vertices

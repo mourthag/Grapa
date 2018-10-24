@@ -51,6 +51,11 @@ MainWindow::MainWindow(QWidget *parent)
     shininessSlider->setOrientation(Qt::Horizontal);
     toolBar->addWidget(shininessSlider);
 
+    QSlider *tesselationSlider = new QSlider();
+    tesselationSlider->setMinimum(1);
+    tesselationSlider->setOrientation(Qt::Horizontal);
+    toolBar->addWidget(tesselationSlider);
+
     toolBar->addAction(wireframeAction);
     toolBar->addAction(gouraudAction);
     toolBar->addAction(phongAction);
@@ -66,7 +71,10 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(resetCameraAction, SIGNAL(triggered()), widget, SLOT(resetCamera()));
     connect(widget, SIGNAL(cameraUpdated()), this, SLOT(updateStatusBar()));
+
     connect(shininessSlider, SIGNAL(valueChanged(int)), widget, SLOT(setShininess(int)));
+    connect(tesselationSlider, SIGNAL(valueChanged(int)), widget, SLOT(setTesselation(int)));
+
     connect(wireframeAction, SIGNAL(triggered(bool)), widget, SLOT(setWireframe()));
     connect(gouraudAction, SIGNAL(triggered(bool)), widget, SLOT(setGouraud()));
     connect(phongAction, SIGNAL(triggered(bool)), widget, SLOT(setPhong()));
