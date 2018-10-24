@@ -67,6 +67,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(resetCameraAction, SIGNAL(triggered()), widget, SLOT(resetCamera()));
     connect(widget, SIGNAL(cameraUpdated()), this, SLOT(updateStatusBar()));
     connect(shininessSlider, SIGNAL(valueChanged(int)), widget, SLOT(setShininess(int)));
+    connect(wireframeAction, SIGNAL(triggered(bool)), widget, SLOT(setWireframe()));
+    connect(gouraudAction, SIGNAL(triggered(bool)), widget, SLOT(setGouraud()));
+    connect(phongAction, SIGNAL(triggered(bool)), widget, SLOT(setPhong()));
 
     shininessSlider->setValue(2);
     widget->resetCamera();

@@ -159,8 +159,6 @@ void MainOpenGLWidget::initializeGL() {
     gouraudProgram->enableAttributeArray("pos");
     gouraudProgram->setAttributeBuffer("pos", GL_FLOAT, 0, 3);
 
-    qDebug() << (*activeProgram)->isLinked();
-
     phongProgram->link();
     phongProgram->enableAttributeArray("pos");
     phongProgram->setAttributeBuffer("pos", GL_FLOAT, 0, 3);
@@ -303,13 +301,14 @@ void MainOpenGLWidget::setGouraud() {
 
 void MainOpenGLWidget::updateUniforms() {
 
-    QMatrix4x4 mvp = p * v *m;
+    QMatrix4x4 mv = v *m;
 
     (*activeProgram)->bind();
-    (*activeProgram)->setUniformValue("lightPos", mvp.map(lightPos));
+    (*activeProgram)->setUniformValue("lightPos", mv.map(lightPos));
     (*activeProgram)->setUniformValue("lightInt", lightInt);
-    (*activeProgram)->setUniformValue("mvp", mvp);
-    (*activeProgram)->setUniformValue("normalMat", mvp.normalMatrix());
+    (*activeProgram)->setUniformValue("mv", mv);
+    (*activeProgram)->setUniformValue("p", p);
+    (*activeProgram)->setUniformValue("normalMat", mv.normalMatrix());
     (*activeProgram)->setUniformValue("n", shininess);
 }
 
