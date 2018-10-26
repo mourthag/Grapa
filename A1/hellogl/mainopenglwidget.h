@@ -56,6 +56,9 @@ private:
 
     int tesselation;
     bool isWireframe;
+    bool modelLoaded;
+
+    size_t offset;
 
     QMatrix4x4 m;
     QMatrix4x4 v;

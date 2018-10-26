@@ -14,9 +14,11 @@ MainOpenGLWidget::MainOpenGLWidget(QWidget *parent) : QOpenGLWidget(parent)
     v.lookAt(QVector3D(2,2,3), QVector3D(0,0,0), QVector3D(0,1,0));
 
     isWireframe = false;
+    modelLoaded = false;
     tesselation = 1;
     updateVertices();
 
+    offset = 0;
     lightInt = 1.0;
     lightPos = QVector3D(-2.0,2.0,-1.0);
 
@@ -24,11 +26,19 @@ MainOpenGLWidget::MainOpenGLWidget(QWidget *parent) : QOpenGLWidget(parent)
 }
 
 MainOpenGLWidget::~MainOpenGLWidget() {
+    glDisableVertexAttribArray(vao);
+    glDeleteBuffers(1, &vbo);
+    glDeleteBuffers(1, &ibo);
+    glDeleteBuffers(1, &cbo);
+    glDeleteBuffers(1, &nbo);
 }
+
 
 void MainOpenGLWidget::initializeGL() {
 
     initializeOpenGLFunctions();
+
+    glEnable(GL_DEBUG_OUTPUT);
 
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
@@ -82,6 +92,7 @@ void MainOpenGLWidget::paintGL()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
 
+    glBindVertexArray(vao);
     if(isWireframe) {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     }
@@ -90,7 +101,11 @@ void MainOpenGLWidget::paintGL()
     }
 
     updateUniforms();
-    glDrawElements(GL_TRIANGLES, num_tris * 3, GL_UNSIGNED_INT, (void*)0);
+    if(modelLoaded == true) {
+
+        glDrawElements(GL_TRIANGLES, num_tris * 3, GL_UNSIGNED_SHORT, (void*)0);
+    }else
+        glDrawElements(GL_TRIANGLES, num_tris * 3, GL_UNSIGNED_INT, (void*)0);
 }
 
 void MainOpenGLWidget::resizeGL(int w, int h) {
@@ -224,6 +239,8 @@ void MainOpenGLWidget::updateUniforms() {
 }
 
 void MainOpenGLWidget::updateVertices() {
+    modelLoaded = false;
+
     num_verts = (1 + tesselation)  * (1+tesselation) * 6;
     num_tris = 6 * tesselation * tesselation * 2;
 
@@ -321,55 +338,98 @@ void MainOpenGLWidget::updateVertices() {
 
 void MainOpenGLWidget::updateVBOs() {
 
-
+    glBindVertexArray(vao);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, 3 * num_verts * sizeof(GLfloat), &vertex_position[0], GL_STATIC_DRAW);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, 3 * num_tris * sizeof(GLuint), &vertex_index[0], GL_STATIC_DRAW);
-    gouraudProgram->setAttributeBuffer("pos", GL_FLOAT, 0, 3);
-    phongProgram->setAttributeBuffer("pos", GL_FLOAT, 0, 3);
+//    gouraudProgram->setAttributeBuffer("pos", GL_FLOAT, 0, 3);
+//    phongProgram->setAttributeBuffer("pos", GL_FLOAT, 0, 3);
 
     glBindBuffer(GL_ARRAY_BUFFER, nbo);
     glBufferData(GL_ARRAY_BUFFER, 3 * num_verts * sizeof(GLfloat), &vertex_normal[0], GL_STATIC_DRAW);
-    gouraudProgram->setAttributeBuffer("fnormal", GL_FLOAT, 0, 3);
-    phongProgram->setAttributeBuffer("fnormal", GL_FLOAT, 0, 3);
+//    gouraudProgram->setAttributeBuffer("fnormal", GL_FLOAT, 0, 3);
+//    phongProgram->setAttributeBuffer("fnormal", GL_FLOAT, 0, 3);
 
     glBindBuffer(GL_ARRAY_BUFFER, cbo);
     glBufferData(GL_ARRAY_BUFFER, 3 * num_verts * sizeof(GLfloat), &vertex_color[0], GL_STATIC_DRAW);
-    gouraudProgram->setAttributeBuffer("fcolor", GL_FLOAT, 0, 3);
-    phongProgram->setAttributeBuffer("fcolor", GL_FLOAT, 0, 3);
+//    gouraudProgram->setAttributeBuffer("fcolor", GL_FLOAT, 0, 3);
+//    phongProgram->setAttributeBuffer("fcolor", GL_FLOAT, 0, 3);
 }
 
 void MainOpenGLWidget::loadModel(tinygltf::Model* model) {
-//    int colorID = model->meshes[0].primitives[0].attributes["COLOR_0"];
-//    int normalID = model->meshes[0].primitives[0].attributes["NORMAL"];
-//    int posID = model->meshes[0].primitives[0].attributes["POSITION"];
-//    int indexID = model->meshes[0].primitives[0].indices;
 
-//    tinygltf::Accessor colorAccessor =  model->accessors[colorID];
-//    tinygltf::Accessor normalAccessor =  model->accessors[normalID];
-//    tinygltf::Accessor posAccessor =  model->accessors[posID];
-//    tinygltf::Accessor indexAccessor =  model->accessors[indexID];
+    (*activeProgram)->bind();
+    glBindVertexArray(vao);
+    modelLoaded = true;
 
-//    tinygltf::BufferView colorBV = model->bufferViews[colorAccessor.bufferView];
-//    tinygltf::BufferView nomalBV = model->bufferViews[normalAccessor.bufferView];
-//    tinygltf::BufferView posBV = model->bufferViews[posAccessor.bufferView];
-//    tinygltf::BufferView indexBV = model->bufferViews[indexAccessor.bufferView];
+    int colorID = model->meshes[0].primitives[0].attributes["COLOR_0"];
+    int normalID = model->meshes[0].primitives[0].attributes["NORMAL"];
+    int posID = model->meshes[0].primitives[0].attributes["POSITION"];
+    int indexID = model->meshes[0].primitives[0].indices;
 
-//    tinygltf::Buffer buff = model->buffers[posBV.buffer];
+    tinygltf::Accessor colorAccessor =  model->accessors[colorID];
+    tinygltf::Accessor normalAccessor =  model->accessors[normalID];
+    tinygltf::Accessor posAccessor =  model->accessors[posID];
+    tinygltf::Accessor indexAccessor =  model->accessors[indexID];
+
+    tinygltf::BufferView colorBV = model->bufferViews[colorAccessor.bufferView];
+    tinygltf::BufferView normalBV = model->bufferViews[normalAccessor.bufferView];
+    tinygltf::BufferView posBV = model->bufferViews[posAccessor.bufferView];
+    tinygltf::BufferView indexBV = model->bufferViews[indexAccessor.bufferView];
+
+    tinygltf::Buffer buff = model->buffers[posBV.buffer];
+
+    GLuint program = (*activeProgram)->programId();
+    GLint attributeLoc = glGetAttribLocation(program, "pos");
+
+    //Debug Data
+    int j = 1;
+    std::vector<unsigned char> data = buff.data;
+
+    std::vector<GLfloat> vert_pos;
+
+//    for(int i=0; i < posBV.byteLength; i= i + posBV.byteStride) {
+//        qDebug() << "Vertex" << j;
+//        float vert[9];
+//        memcpy(&vert[0], &data[i], 9 * sizeof(float));
+//        qDebug() << vert[0] << vert[1] << vert[2];
+//        qDebug() << vert[3] << vert[4] << vert[5];
+//        qDebug() << vert[6] << vert[7] << vert[8];
+//        j++;
+//    }
+//    for(int i = 0; i < indexBV.byteLength; i = i+3 * sizeof(GLushort)) {
+//        GLushort index[3];
+//        memcpy(&index[0], &data[i + indexBV.byteOffset], 3 * sizeof(GLushort));
+//        qDebug() << index[0] << index[1] << index[2];
+//    }
+#define BUFFER_OFFSET(i) ((char *)NULL + (i))
+
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+    glBufferData(posBV.target, posBV.byteLength, &data[0], GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBV.byteLength, &data[indexBV.byteOffset], GL_STATIC_DRAW);
+
+    glEnableVertexAttribArray(attributeLoc);
+    glVertexAttribPointer(attributeLoc, 3, GL_FLOAT, GL_FALSE, 36, BUFFER_OFFSET(posAccessor.byteOffset));
+
+    glBindBuffer(normalBV.target, nbo);
+    glBufferData(normalBV.target, normalBV.byteLength , &data[0], GL_STATIC_DRAW);
+
+    attributeLoc = glGetAttribLocation(program, "fnormal");
+    glVertexAttribPointer(attributeLoc, 3, GL_FLOAT, GL_FALSE, 36, BUFFER_OFFSET(normalAccessor.byteOffset));
+
+    glBindBuffer(colorBV.target, cbo);
+    glBufferData(colorBV.target, colorBV.byteLength, &data[0], GL_STATIC_DRAW);
+
+    attributeLoc = glGetAttribLocation(program, "fcolor");
+    glVertexAttribPointer(attributeLoc, 3, GL_FLOAT, GL_FALSE, 36, BUFFER_OFFSET(colorAccessor.byteOffset));
+
+    offset = indexBV.byteOffset;
+    num_tris = indexAccessor.count;
+    update();
 
 
-//    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-//    glBufferData(posBV.target, posBV.byteLength, &buff.data[0], GL_STATIC_DRAW);
-
-//    GLint posLoc = glGetAttribLocation(*activeProgram, "pos");
-
-//    glVertexAttribPointer(posLoc, posBV.byteLength, posAccessor.componentType, GL_FALSE, posBV.byteStride, posBV.byteOffset );
-//    glBindAttribLocation(*activeProgram, posLoc, "pos");
-//    glEnableVertexAttribArray(posLoc);
-
-//    glBufferData(indexBV.target, indexBV.byteLength, &buff.data[0], GL_STATIC_DRAW);
 }
 
 QMatrix4x4 MainOpenGLWidget::getViewMat() {

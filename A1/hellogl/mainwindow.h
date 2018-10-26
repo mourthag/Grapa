@@ -21,6 +21,7 @@ public slots:
 private:
 
     QStatusBar *statusBar;
+    QSlider *tesselationSlider;
     MainOpenGLWidget *widget;
 };
 

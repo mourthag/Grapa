@@ -62,7 +62,7 @@ MainWindow::MainWindow(QWidget *parent)
     shininessSlider->setOrientation(Qt::Horizontal);
     toolBar->addWidget(shininessSlider);
 
-    QSlider *tesselationSlider = new QSlider();
+    tesselationSlider = new QSlider();
     tesselationSlider->setMinimum(1);
     tesselationSlider->setOrientation(Qt::Horizontal);
     toolBar->addWidget(tesselationSlider);
@@ -135,5 +135,6 @@ void MainWindow::loadModel() {
     if(!err.empty()) {
         printf("Err: %s\n", err.c_str());
     }
+    tesselationSlider->setDisabled(true);
     widget->loadModel(&model);
 }
