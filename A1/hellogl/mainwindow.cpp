@@ -24,10 +24,6 @@ MainWindow::MainWindow(QWidget *parent)
     exitAction->setShortcut(QKeySequence("Ctrl+q"));
     connect(exitAction, SIGNAL(triggered()), this, SLOT(close()));
 
-    QMenu *helpMenu = menuBar->addMenu("&Help");
-    QAction *showAboutAction = helpMenu->addAction("&About");
-    connect(showAboutAction, SIGNAL(triggered()), this, SLOT(showAboutBox()));
-
     QMenu *shadingMenu = menuBar->addMenu("&Shading");
     QActionGroup *shadingOptions = new QActionGroup(this);
 
@@ -52,10 +48,43 @@ MainWindow::MainWindow(QWidget *parent)
     shadingOptions->addAction(gouraudAction);
     shadingOptions->addAction(phongAction);
 
+
+    QMenu *helpMenu = menuBar->addMenu("&Help");
+    QAction *showAboutAction = helpMenu->addAction("&About");
+    connect(showAboutAction, SIGNAL(triggered()), this, SLOT(showAboutBox()));
+
     setMenuBar(menuBar);
 
     QToolBar *toolBar = new QToolBar();
     QAction *resetCameraAction = toolBar->addAction("&Reset Camera");
+
+    toolBar->addSeparator();
+
+    lightPosXInput = new QLineEdit();
+    lightPosYInput = new QLineEdit();
+    lightPosZInput = new QLineEdit();
+    QValidator *posValidator = new QDoubleValidator();
+    lightPosXInput->setValidator(posValidator);
+    lightPosXInput->setMaximumWidth(40);
+    lightPosXInput->setText("-2.00");
+    lightPosYInput->setValidator(posValidator);
+    lightPosYInput->setMaximumWidth(40);
+    lightPosYInput->setText("2.00");
+    lightPosZInput->setValidator(posValidator);
+    lightPosZInput->setMaximumWidth(40);
+    lightPosZInput->setText("1.00");
+
+    toolBar->addWidget(lightPosXInput);
+    toolBar->addWidget(lightPosYInput);
+    toolBar->addWidget(lightPosZInput);
+
+    QSlider *lightIntSlider = new QSlider();
+    lightIntSlider->setMaximum(100);
+    lightIntSlider->setValue(10);
+    lightIntSlider->setOrientation(Qt::Horizontal);
+    toolBar->addWidget(lightIntSlider);
+
+    toolBar->addSeparator();
 
     QSlider *shininessSlider = new QSlider();
     shininessSlider->setMaximum(10);
@@ -82,6 +111,11 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(resetCameraAction, SIGNAL(triggered()), widget, SLOT(resetCamera()));
     connect(widget, SIGNAL(cameraUpdated()), this, SLOT(updateStatusBar()));
+
+    connect(lightPosXInput, SIGNAL(returnPressed()), this, SLOT(updateLightPos()));
+    connect(lightPosYInput, SIGNAL(returnPressed()), this, SLOT(updateLightPos()));
+    connect(lightPosZInput, SIGNAL(returnPressed()), this, SLOT(updateLightPos()));
+    connect(lightIntSlider, SIGNAL(valueChanged(int)), widget, SLOT(setLightIntensity(int)));
 
     connect(shininessSlider, SIGNAL(valueChanged(int)), widget, SLOT(setShininess(int)));
     connect(tesselationSlider, SIGNAL(valueChanged(int)), widget, SLOT(setTesselation(int)));
@@ -122,10 +156,23 @@ void MainWindow::updateStatusBar() {
     statusBar->showMessage(QString(message.str().c_str()), 0);
 }
 
+void MainWindow::updateLightPos() {
+    QVector3D position = QVector3D(0,0,0);
+    position.setX(lightPosXInput->text().toFloat());
+    position.setY(lightPosYInput->text().toFloat());
+    position.setZ(lightPosZInput->text().toFloat());
+    widget->setLightPos(position);
+}
+
 void MainWindow::loadModel() {
     QString fileName = QFileDialog::getOpenFileName(this,
             tr("Open Model"), "",
             tr("Models (*.gltf);;All Files (*)"));
+
+    if(fileName.isEmpty() || fileName.isNull()){
+        return;
+    }
+
     std::string err;
     std::string warn;
     TinyGLTF loader;

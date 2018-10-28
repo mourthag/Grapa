@@ -17,11 +17,18 @@ public slots:
     void showAboutBox();
     void updateStatusBar();
     void loadModel();
+    void updateLightPos();
 
 private:
 
     QStatusBar *statusBar;
+
+    QLineEdit *lightPosXInput;
+    QLineEdit *lightPosYInput;
+    QLineEdit *lightPosZInput;
+
     QSlider *tesselationSlider;
+
     MainOpenGLWidget *widget;
 };
 

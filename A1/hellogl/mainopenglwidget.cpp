@@ -38,8 +38,6 @@ void MainOpenGLWidget::initializeGL() {
 
     initializeOpenGLFunctions();
 
-    glEnable(GL_DEBUG_OUTPUT);
-
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
 
@@ -92,7 +90,6 @@ void MainOpenGLWidget::paintGL()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
 
-    glBindVertexArray(vao);
     if(isWireframe) {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     }
@@ -208,6 +205,17 @@ void MainOpenGLWidget::setTesselation(int t) {
 
 void MainOpenGLWidget::setWireframe() {
     isWireframe = true;
+    update();
+}
+
+void MainOpenGLWidget::setLightPos(QVector3D v) {
+    qDebug() << v;
+    lightPos = v;
+    update();
+}
+
+void MainOpenGLWidget::setLightIntensity(int i) {
+    lightInt = (float)i/10.0;
     update();
 }
 
@@ -343,18 +351,18 @@ void MainOpenGLWidget::updateVBOs() {
     glBufferData(GL_ARRAY_BUFFER, 3 * num_verts * sizeof(GLfloat), &vertex_position[0], GL_STATIC_DRAW);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, 3 * num_tris * sizeof(GLuint), &vertex_index[0], GL_STATIC_DRAW);
-//    gouraudProgram->setAttributeBuffer("pos", GL_FLOAT, 0, 3);
-//    phongProgram->setAttributeBuffer("pos", GL_FLOAT, 0, 3);
+    gouraudProgram->setAttributeBuffer("pos", GL_FLOAT, 0, 3);
+    phongProgram->setAttributeBuffer("pos", GL_FLOAT, 0, 3);
 
     glBindBuffer(GL_ARRAY_BUFFER, nbo);
     glBufferData(GL_ARRAY_BUFFER, 3 * num_verts * sizeof(GLfloat), &vertex_normal[0], GL_STATIC_DRAW);
-//    gouraudProgram->setAttributeBuffer("fnormal", GL_FLOAT, 0, 3);
-//    phongProgram->setAttributeBuffer("fnormal", GL_FLOAT, 0, 3);
+    gouraudProgram->setAttributeBuffer("fnormal", GL_FLOAT, 0, 3);
+    phongProgram->setAttributeBuffer("fnormal", GL_FLOAT, 0, 3);
 
     glBindBuffer(GL_ARRAY_BUFFER, cbo);
     glBufferData(GL_ARRAY_BUFFER, 3 * num_verts * sizeof(GLfloat), &vertex_color[0], GL_STATIC_DRAW);
-//    gouraudProgram->setAttributeBuffer("fcolor", GL_FLOAT, 0, 3);
-//    phongProgram->setAttributeBuffer("fcolor", GL_FLOAT, 0, 3);
+    gouraudProgram->setAttributeBuffer("fcolor", GL_FLOAT, 0, 3);
+    phongProgram->setAttributeBuffer("fcolor", GL_FLOAT, 0, 3);
 }
 
 void MainOpenGLWidget::loadModel(tinygltf::Model* model) {
@@ -380,50 +388,61 @@ void MainOpenGLWidget::loadModel(tinygltf::Model* model) {
 
     tinygltf::Buffer buff = model->buffers[posBV.buffer];
 
-    GLuint program = (*activeProgram)->programId();
-    GLint attributeLoc = glGetAttribLocation(program, "pos");
-
-    //Debug Data
-    int j = 1;
     std::vector<unsigned char> data = buff.data;
+    std::vector<float> pos_data;
+    std::vector<float> nor_data;
+    std::vector<float> col_data;
+    std::vector<unsigned short> ind_data;
 
-    std::vector<GLfloat> vert_pos;
 
-//    for(int i=0; i < posBV.byteLength; i= i + posBV.byteStride) {
-//        qDebug() << "Vertex" << j;
-//        float vert[9];
-//        memcpy(&vert[0], &data[i], 9 * sizeof(float));
-//        qDebug() << vert[0] << vert[1] << vert[2];
-//        qDebug() << vert[3] << vert[4] << vert[5];
-//        qDebug() << vert[6] << vert[7] << vert[8];
-//        j++;
-//    }
-//    for(int i = 0; i < indexBV.byteLength; i = i+3 * sizeof(GLushort)) {
-//        GLushort index[3];
-//        memcpy(&index[0], &data[i + indexBV.byteOffset], 3 * sizeof(GLushort));
-//        qDebug() << index[0] << index[1] << index[2];
-//    }
+    for(int i = 0 ; i < posBV.byteLength; i = i + posBV.byteStride){
+        float val[9];
+        memcpy(&val, &data[i], 9 * sizeof(float));
+        pos_data.push_back(val[0]);
+        pos_data.push_back(val[1]);
+        pos_data.push_back(val[2]);
+        nor_data.push_back(val[3]);
+        nor_data.push_back(val[4]);
+        nor_data.push_back(val[5]);
+        col_data.push_back(val[6]);
+        col_data.push_back(val[7]);
+        col_data.push_back(val[8]);
+
+    }
+    for(int i = indexBV.byteOffset; i < indexBV.byteOffset + indexBV.byteLength; i = i + 2){
+        unsigned short val;
+        memcpy(&val, &data[i], sizeof(unsigned short));
+        ind_data.push_back(val);
+    }
+
+
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-    glBufferData(posBV.target, posBV.byteLength, &data[0], GL_STATIC_DRAW);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBV.byteLength, &data[indexBV.byteOffset], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, pos_data.size() * sizeof(float), &pos_data[0], GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBV.byteLength, &ind_data[0], GL_STATIC_DRAW);
 
-    glEnableVertexAttribArray(attributeLoc);
-    glVertexAttribPointer(attributeLoc, 3, GL_FLOAT, GL_FALSE, 36, BUFFER_OFFSET(posAccessor.byteOffset));
+    gouraudProgram->enableAttributeArray("pos");
+    phongProgram->enableAttributeArray("pos");
+    gouraudProgram->setAttributeBuffer("pos", GL_FLOAT, 0, 3, 0);
+    phongProgram->setAttributeBuffer("pos", GL_FLOAT, 0, 3, 0);
 
-    glBindBuffer(normalBV.target, nbo);
-    glBufferData(normalBV.target, normalBV.byteLength , &data[0], GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, nbo);
+    glBufferData(GL_ARRAY_BUFFER, nor_data.size() * sizeof(float) , &nor_data[0], GL_STATIC_DRAW);
 
-    attributeLoc = glGetAttribLocation(program, "fnormal");
-    glVertexAttribPointer(attributeLoc, 3, GL_FLOAT, GL_FALSE, 36, BUFFER_OFFSET(normalAccessor.byteOffset));
+    gouraudProgram->enableAttributeArray("fnormal");
+    phongProgram->enableAttributeArray("fnormal");
+    gouraudProgram->setAttributeBuffer("fnormal", GL_FLOAT, 0, 3, 0);
+    phongProgram->setAttributeBuffer("fnormal", GL_FLOAT, 0, 3, 0);
 
-    glBindBuffer(colorBV.target, cbo);
-    glBufferData(colorBV.target, colorBV.byteLength, &data[0], GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, cbo);
+    glBufferData(GL_ARRAY_BUFFER, col_data.size() * sizeof(float), &col_data[0], GL_STATIC_DRAW);
 
-    attributeLoc = glGetAttribLocation(program, "fcolor");
-    glVertexAttribPointer(attributeLoc, 3, GL_FLOAT, GL_FALSE, 36, BUFFER_OFFSET(colorAccessor.byteOffset));
+    gouraudProgram->enableAttributeArray("fcolor");
+    phongProgram->enableAttributeArray("fcolor");
+    gouraudProgram->setAttributeBuffer("fcolor", GL_FLOAT, 0, 3, 0);
+    phongProgram->setAttributeBuffer("fcolor", GL_FLOAT, 0, 3, 0);
 
     offset = indexBV.byteOffset;
     num_tris = indexAccessor.count;

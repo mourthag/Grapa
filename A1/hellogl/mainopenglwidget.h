@@ -25,10 +25,12 @@ public:
 public slots:
     void resetCamera();
     void setShininess(int s);
+    void setLightIntensity(int i);
     void setTesselation(int t);
     void setWireframe();
     void setGouraud();
     void setPhong();
+    void setLightPos(QVector3D v);
 
 signals:
     void cameraUpdated();
