@@ -134,13 +134,14 @@ void MainOpenGLWidget::mouseMoveEvent(QMouseEvent *event) {
 
     //Translate
     if(event->buttons() == Qt::RightButton) {
-        QPointF mappedP = v.map(p);
-        QPointF mappedLastP = v.map(dragStart);
 
-        QPointF drag = mappedP - mappedLastP;
 
-        drag = 0.005 * drag;
-        v.translate(drag.x(), -drag.y());
+        QPointF drag = pixelPosToViewPos( p) - pixelPosToViewPos( dragStart);
+        drag.setY(-drag.y());
+
+
+        QVector3D dragVec = v.inverted().mapVector(QVector3D(drag));
+        v.translate(dragVec);
     }
     //rotate
     if(event->buttons() == Qt::LeftButton) {
@@ -150,7 +151,7 @@ void MainOpenGLWidget::mouseMoveEvent(QMouseEvent *event) {
 
         //calculate 3d positions on the plane
 
-        QVector3D lastPos = QVector3D(lastP.x(), lastP.y(), 0.0);
+        QVector3D lastPos = QVector3D(lastP.x(), -lastP.y(), 0.0);
         float sqrZ = QVector3D::dotProduct(lastPos, lastPos);
         if(sqrZ  <= 1.0/2.0)
             lastPos.setZ(std::sqrt(1 - sqrZ));
@@ -158,7 +159,7 @@ void MainOpenGLWidget::mouseMoveEvent(QMouseEvent *event) {
             lastPos.setZ((1.0/2.0)/std::sqrt(sqrZ));
 
 
-        QVector3D curPos = QVector3D(curP.x(), curP.y(), 0.0);
+        QVector3D curPos = QVector3D(curP.x(), -curP.y(), 0.0);
         sqrZ = QVector3D::dotProduct(curPos, curPos);
 
         if(sqrZ  <= 1.0/2.0)
@@ -171,7 +172,7 @@ void MainOpenGLWidget::mouseMoveEvent(QMouseEvent *event) {
         float angle =  qRadiansToDegrees(std::asin(axis.length()));
 
         //transform rotation vector with current rotation
-        axis = v.mapVector(axis);
+        axis = v.inverted().mapVector(axis);
         axis.normalize();
 
         //create quaternion and rotate with it
@@ -201,8 +202,9 @@ void MainOpenGLWidget::wheelEvent(QWheelEvent *event) {
     cameraUpdated(&v);
 }
 
-QPointF MainOpenGLWidget::pixelPosToViewPos(const QPointF &p) {
-    return QPointF(2.0 * float(p.x() / width - 1.0), 2.0 * float(p.y() / height) - 1.0);
+QPointF MainOpenGLWidget::pixelPosToViewPos(const QPointF &point) {
+
+    return QPointF(2.0 * float(point.x() / width)  - 1.0, 2.0 * float(point.y() / height) - 1.0);
 }
 
 void MainOpenGLWidget::resetCamera() {
