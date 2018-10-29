@@ -36,10 +36,10 @@ HEADERS += \
     stb_image.h
 
 DISTFILES += \
-    shader/simplefragshader.frag \
-    shader/simplevertshader.vert \
     shader/phongfragshader.frag \
-    shader/phongvertshader.vert
+    shader/phongvertshader.vert \
+    shader/gouraudvertshader.vert \
+    shader/gouraudfragshader.frag
 
 RESOURCES += \
     hellogl.qrc

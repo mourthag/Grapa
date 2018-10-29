@@ -20,8 +20,7 @@ public:
     MainOpenGLWidget(QWidget *parent = 0);
     ~MainOpenGLWidget();
 
-    QMatrix4x4 getViewMat();
-    void loadModel(tinygltf::Model *model);
+
 public slots:
     void resetCamera();
     void setShininess(int s);
@@ -31,9 +30,10 @@ public slots:
     void setGouraud();
     void setPhong();
     void setLightPos(QVector3D v);
+    void loadModel(tinygltf::Model *model);
 
 signals:
-    void cameraUpdated();
+    void cameraUpdated(QMatrix4x4 *viewMat);
 
 protected:
     void initializeGL() override;
@@ -71,8 +71,11 @@ private:
     QOpenGLShaderProgram *phongProgram;
     QOpenGLShaderProgram *gouraudProgram;
 
+    //number of triangles and verts
     int num_tris;
     int num_verts;
+
+    GLenum index_type;
 
     std::vector<GLfloat> vertex_position;
     std::vector<GLuint> vertex_index;

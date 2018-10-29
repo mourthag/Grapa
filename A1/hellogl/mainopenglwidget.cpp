@@ -40,9 +40,19 @@ void MainOpenGLWidget::initializeGL() {
 
     initializeOpenGLFunctions();
 
+    gouraudProgram = new QOpenGLShaderProgram();
+    gouraudProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shader/gouraudvertshader.vert");
+    gouraudProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shader/gouraudfragshader.frag");
+
+    phongProgram = new QOpenGLShaderProgram();
+    phongProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shader/phongvertshader.vert");
+    phongProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shader/phongfragshader.frag");
+
+    //new VAO
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
 
+    //For each vbo generate buffer, buffer data, enable attribute array and set attribute layout
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, 3 * num_verts * sizeof(GLfloat), &vertex_position[0], GL_STATIC_DRAW);
@@ -50,14 +60,6 @@ void MainOpenGLWidget::initializeGL() {
     glGenBuffers(1, &ibo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, 3 * num_tris * sizeof(GLuint), &vertex_index[0], GL_STATIC_DRAW);
-
-    gouraudProgram = new QOpenGLShaderProgram();
-    gouraudProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shader/simplevertshader.vert");
-    gouraudProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shader/simplefragshader.frag");
-
-    phongProgram = new QOpenGLShaderProgram();
-    phongProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shader/phongvertshader.vert");
-    phongProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shader/phongfragshader.frag");
 
     gouraudProgram->link();
     gouraudProgram->enableAttributeArray("pos");
@@ -100,20 +102,22 @@ void MainOpenGLWidget::paintGL()
     }
 
     updateUniforms();
-    if(modelLoaded == true) {
 
-        glDrawElements(GL_TRIANGLES, num_tris * 3, GL_UNSIGNED_SHORT, (void*)0);
-    }else
-        glDrawElements(GL_TRIANGLES, num_tris * 3, GL_UNSIGNED_INT, (void*)0);
+    glDrawElements(GL_TRIANGLES, num_tris * 3, index_type, (void*)0);
 }
 
 void MainOpenGLWidget::resizeGL(int w, int h) {
+    //update viewport
     glViewport(0,0,w,h);
+
+    //for trackball calculations
     width = w;
     height = h;
+
+    //projection matrix
     p.setToIdentity();
     p.perspective(45.0, (float)w/(float)h, 0.1, 10);
-    cameraUpdated();
+    cameraUpdated(&v);
 }
 
 void MainOpenGLWidget::mousePressEvent(QMouseEvent *event) {
@@ -138,10 +142,13 @@ void MainOpenGLWidget::mouseMoveEvent(QMouseEvent *event) {
         drag = 0.005 * drag;
         v.translate(drag.x(), -drag.y());
     }
+    //rotate
     if(event->buttons() == Qt::LeftButton) {
 
         QPointF lastP = pixelPosToViewPos(dragStart);
         QPointF curP = pixelPosToViewPos(p);
+
+        //calculate 3d positions on the plane
 
         QVector3D lastPos = QVector3D(lastP.x(), lastP.y(), 0.0);
         float sqrZ = QVector3D::dotProduct(lastPos, lastPos);
@@ -159,31 +166,39 @@ void MainOpenGLWidget::mouseMoveEvent(QMouseEvent *event) {
         else
             curPos.setZ((1.0/2.0)/std::sqrt(sqrZ));
 
+        //calculate rotation axis and angle
         QVector3D axis = QVector3D::crossProduct(lastPos, curPos);
         float angle =  qRadiansToDegrees(std::asin(axis.length()));
 
+        //transform rotation vector with current rotation
         axis = v.mapVector(axis);
         axis.normalize();
 
+        //create quaternion and rotate with it
         QQuaternion q = QQuaternion::fromAxisAndAngle(axis, angle);
         v.rotate(q);
     }
 
     dragStart = event->pos();
+    //update screen and camera/statusbar
     update();
-    cameraUpdated();
+    cameraUpdated(&v);
 }
 
 void MainOpenGLWidget::wheelEvent(QWheelEvent *event) {
+    //slow zooming down, cause delta is in degrees
     float val = event->delta() / 360.0;
 
+    //calculate view direction
     QVector3D currentPos = v.inverted().map(QVector3D(0,0,0));
     QVector3D viewDir = currentPos.normalized();
 
+    //translate along viewdir
     v.translate(val*viewDir);
 
+    //update screen etc
     update();
-    cameraUpdated();
+    cameraUpdated(&v);
 }
 
 QPointF MainOpenGLWidget::pixelPosToViewPos(const QPointF &p) {
@@ -192,10 +207,11 @@ QPointF MainOpenGLWidget::pixelPosToViewPos(const QPointF &p) {
 
 void MainOpenGLWidget::resetCamera() {
 
+    //restore initial view matrix and update screen
     v.setToIdentity();
     v.lookAt(QVector3D(2,2,3), QVector3D(0,0,0), QVector3D(0,1,0));
     update();
-    cameraUpdated();
+    cameraUpdated(&v);
 }
 
 void MainOpenGLWidget::setShininess(int s) {
@@ -216,7 +232,6 @@ void MainOpenGLWidget::setWireframe() {
 }
 
 void MainOpenGLWidget::setLightPos(QVector3D v) {
-    qDebug() << v;
     lightPos = v;
     update();
 }
@@ -257,6 +272,7 @@ void MainOpenGLWidget::updateUniforms() {
 
 void MainOpenGLWidget::updateVertices() {
     modelLoaded = false;
+    index_type = GL_UNSIGNED_INT;
 
     //calculate number of vertices and number of triangles
     //each side has its own vertices and triangles
@@ -419,23 +435,20 @@ void MainOpenGLWidget::loadModel(tinygltf::Model* model) {
     std::vector<GLfloat> pos_data;
     std::vector<GLfloat> nor_data;
     std::vector<GLfloat> col_data;
-    std::vector<unsigned short> ind_data;
+
+    index_type = indexAccessor.componentType;
 
     //convert and split the buffer to their respective vertex attributes
+    //I really tried achieving this through glVertexAttribPointer or setAttributeBuffer but couldn't get it to work in any way
     convertBuffer(3, posAccessor.byteOffset, posBV.byteStride, posBV.byteLength, &buff.data, &pos_data);
     convertBuffer(3, normalAccessor.byteOffset, normalBV.byteStride, normalBV.byteLength, &buff.data, &nor_data);
     convertBuffer(3, colorAccessor.byteOffset, colorBV.byteStride, colorBV.byteLength, &buff.data, &col_data);
 
-    for(int i = 0; i < (int)indexBV.byteLength; i += sizeof(unsigned short)){
-        unsigned short val;
-        memcpy(&val, &buff.data[i + indexBV.byteOffset], sizeof(unsigned short));
-        ind_data.push_back(val);
-    }
-
+    //Buffer the new data
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
     glBufferData(GL_ARRAY_BUFFER, pos_data.size() * sizeof(GLfloat), &pos_data[0], GL_STATIC_DRAW);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBV.byteLength, &ind_data[0], GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBV.byteLength, &buff.data[indexBV.byteOffset], GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, nbo);
     glBufferData(GL_ARRAY_BUFFER, nor_data.size() * sizeof(GLfloat) , &nor_data[0], GL_STATIC_DRAW);
@@ -443,7 +456,7 @@ void MainOpenGLWidget::loadModel(tinygltf::Model* model) {
     glBindBuffer(GL_ARRAY_BUFFER, cbo);
     glBufferData(GL_ARRAY_BUFFER, col_data.size() * sizeof(GLfloat), &col_data[0], GL_STATIC_DRAW);
 
-    num_tris = indexAccessor.count / 3;
+    num_tris = indexAccessor.count ;
     update();
 
 
@@ -462,10 +475,6 @@ void MainOpenGLWidget::convertBuffer(int size, int offset, int stride, int lengt
         }
     }
 
-}
-
-QMatrix4x4 MainOpenGLWidget::getViewMat() {
-    return v;
 }
 
 

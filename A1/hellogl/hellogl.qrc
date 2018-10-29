@@ -4,9 +4,9 @@
         <file>img/gouraud.png</file>
         <file>img/phong.png</file>
         <file>img/wireframe.png</file>
-        <file>shader/simplefragshader.frag</file>
-        <file>shader/simplevertshader.vert</file>
         <file>shader/phongfragshader.frag</file>
         <file>shader/phongvertshader.vert</file>
+        <file>shader/gouraudfragshader.frag</file>
+        <file>shader/gouraudvertshader.vert</file>
     </qresource>
 </RCC>

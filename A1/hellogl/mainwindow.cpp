@@ -118,7 +118,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     //connect all the widget slots and signals for the interface
     connect(resetCameraAction, SIGNAL(triggered()), widget, SLOT(resetCamera()));
-    connect(widget, SIGNAL(cameraUpdated()), this, SLOT(updateStatusBar()));
+    connect(widget, SIGNAL(cameraUpdated(QMatrix4x4*)), this, SLOT(updateStatusBar(QMatrix4x4*)));
 
     connect(lightPosXInput, SIGNAL(returnPressed()), this, SLOT(updateLightPos()));
     connect(lightPosYInput, SIGNAL(returnPressed()), this, SLOT(updateLightPos()));
@@ -153,13 +153,15 @@ void MainWindow::showAboutBox()
     QMessageBox::about(this, "About Hello GL", QString(message.str().c_str()));
 }
 
-void MainWindow::updateStatusBar() {
-    QVector3D position = widget->getViewMat().inverted().map(QVector3D(0,0,0));
-    QVector3D viewDir = position.normalized();
+void MainWindow::updateStatusBar(QMatrix4x4 *viewMat) {
+    //calculate position by applying the inverse viewmatrix to a null vector
+    QVector3D position = viewMat->inverted().map(QVector3D(0,0,0));
+    //view dir is obviously the negative position but normalized
+    QVector3D viewDir = -position.normalized();
+
+    //wrap it into a string
     std::stringstream message;
     message  << position.x() << " " << position.y() << " " << position.z() << "                 " << viewDir.x() << " " << viewDir.y() << " " << viewDir.z();
-
-
 
     statusBar->showMessage(QString(message.str().c_str()));
 }
