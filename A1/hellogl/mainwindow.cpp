@@ -24,6 +24,7 @@ MainWindow::MainWindow(QWidget *parent)
     exitAction->setShortcut(QKeySequence("Ctrl+q"));
     connect(exitAction, SIGNAL(triggered()), this, SLOT(close()));
 
+    //shading options and respective menu
     QMenu *shadingMenu = menuBar->addMenu("&Shading");
     QActionGroup *shadingOptions = new QActionGroup(this);
 
@@ -60,6 +61,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     toolBar->addSeparator();
 
+    //3 Inputs for every axis of the light position
     lightPosXInput = new QLineEdit();
     lightPosYInput = new QLineEdit();
     lightPosZInput = new QLineEdit();
@@ -78,6 +80,7 @@ MainWindow::MainWindow(QWidget *parent)
     toolBar->addWidget(lightPosYInput);
     toolBar->addWidget(lightPosZInput);
 
+    //Slider for light intensity
     QSlider *lightIntSlider = new QSlider();
     lightIntSlider->setMaximum(100);
     lightIntSlider->setValue(10);
@@ -86,16 +89,19 @@ MainWindow::MainWindow(QWidget *parent)
 
     toolBar->addSeparator();
 
+    //slider for phong exponent
     QSlider *shininessSlider = new QSlider();
-    shininessSlider->setMaximum(10);
+    shininessSlider->setMaximum(20);
     shininessSlider->setOrientation(Qt::Horizontal);
     toolBar->addWidget(shininessSlider);
 
+    //slider for tesselation level
     tesselationSlider = new QSlider();
     tesselationSlider->setMinimum(1);
     tesselationSlider->setOrientation(Qt::Horizontal);
     toolBar->addWidget(tesselationSlider);
 
+    //add shading options to toolbar here, layout...
     toolBar->addAction(wireframeAction);
     toolBar->addAction(gouraudAction);
     toolBar->addAction(phongAction);
@@ -105,10 +111,12 @@ MainWindow::MainWindow(QWidget *parent)
     statusBar = new QStatusBar();
     setStatusBar(statusBar);
 
+    //create the opengl widget
     widget = new MainOpenGLWidget;
     widget->setFormat(QSurfaceFormat::defaultFormat());
     setCentralWidget(widget);
 
+    //connect all the widget slots and signals for the interface
     connect(resetCameraAction, SIGNAL(triggered()), widget, SLOT(resetCamera()));
     connect(widget, SIGNAL(cameraUpdated()), this, SLOT(updateStatusBar()));
 
@@ -124,8 +132,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(gouraudAction, SIGNAL(triggered(bool)), widget, SLOT(setGouraud()));
     connect(phongAction, SIGNAL(triggered(bool)), widget, SLOT(setPhong()));
 
-    shininessSlider->setValue(2);
     widget->resetCamera();
+    //adjust slider here to init correct value in widget
+    shininessSlider->setValue(2);
 }
 
 MainWindow::~MainWindow()
@@ -135,14 +144,13 @@ MainWindow::~MainWindow()
 
 void MainWindow::showAboutBox()
 {
-    char* int_string;
-    sprintf(int_string, "%d", widget->format().majorVersion());
-    char str[64] = "Written by \n         Julian Spittel \n OpenGL-Version: \n        ";
-    strcat(str, int_string);
-    strcat(str, ".");
-    sprintf(int_string, "%d", widget->format().minorVersion());
-    strcat(str, int_string);
-    QMessageBox::about(this, "About Hello GL", str);
+    std::stringstream message;
+    message << "Written by: \n";
+    message << "Julian Spittel \n";
+    message << "OpenGL-Version: \n";
+    message << widget->format().majorVersion() << "." << widget->format().minorVersion();
+
+    QMessageBox::about(this, "About Hello GL", QString(message.str().c_str()));
 }
 
 void MainWindow::updateStatusBar() {
@@ -153,7 +161,7 @@ void MainWindow::updateStatusBar() {
 
 
 
-    statusBar->showMessage(QString(message.str().c_str()), 0);
+    statusBar->showMessage(QString(message.str().c_str()));
 }
 
 void MainWindow::updateLightPos() {
@@ -169,6 +177,7 @@ void MainWindow::loadModel() {
             tr("Open Model"), "",
             tr("Models (*.gltf);;All Files (*)"));
 
+    //Cancelled
     if(fileName.isEmpty() || fileName.isNull()){
         return;
     }
@@ -180,7 +189,8 @@ void MainWindow::loadModel() {
 
     loader.LoadASCIIFromFile(&model, &err, &warn, fileName.toStdString());
     if(!err.empty()) {
-        printf("Err: %s\n", err.c_str());
+        qDebug() << err.c_str();
+        return;
     }
     tesselationSlider->setDisabled(true);
     widget->loadModel(&model);

@@ -4,6 +4,7 @@
 
 MainOpenGLWidget::MainOpenGLWidget(QWidget *parent) : QOpenGLWidget(parent)
 {
+    //set up matrices
     m = QMatrix4x4();
     v = QMatrix4x4();
     p = QMatrix4x4();
@@ -11,14 +12,15 @@ MainOpenGLWidget::MainOpenGLWidget(QWidget *parent) : QOpenGLWidget(parent)
     m.setToIdentity();
     v.setToIdentity();
     p.setToIdentity();
-    v.lookAt(QVector3D(2,2,3), QVector3D(0,0,0), QVector3D(0,1,0));
+    v.lookAt(QVector3D(2, 2, 3), QVector3D(0,0,0), QVector3D(0,1,0));
 
+    //set up data and shading
     isWireframe = false;
     modelLoaded = false;
     tesselation = 1;
     updateVertices();
 
-    offset = 0;
+    //set up lightning
     lightInt = 1.0;
     lightPos = QVector3D(-2.0,2.0,-1.0);
 
@@ -125,10 +127,14 @@ void MainOpenGLWidget::mousePressEvent(QMouseEvent *event) {
 void MainOpenGLWidget::mouseMoveEvent(QMouseEvent *event) {
 
     QPoint p = event->pos();
-    QPointF drag = p - dragStart;
 
     //Translate
     if(event->buttons() == Qt::RightButton) {
+        QPointF mappedP = v.map(p);
+        QPointF mappedLastP = v.map(dragStart);
+
+        QPointF drag = mappedP - mappedLastP;
+
         drag = 0.005 * drag;
         v.translate(drag.x(), -drag.y());
     }
@@ -156,6 +162,7 @@ void MainOpenGLWidget::mouseMoveEvent(QMouseEvent *event) {
         QVector3D axis = QVector3D::crossProduct(lastPos, curPos);
         float angle =  qRadiansToDegrees(std::asin(axis.length()));
 
+        axis = v.mapVector(axis);
         axis.normalize();
 
         QQuaternion q = QQuaternion::fromAxisAndAngle(axis, angle);
@@ -235,8 +242,10 @@ void MainOpenGLWidget::setGouraud() {
 
 void MainOpenGLWidget::updateUniforms() {
 
+    //for shading calculations in viewspace
     QMatrix4x4 mv = v *m;
 
+    //update uniform values
     (*activeProgram)->bind();
     (*activeProgram)->setUniformValue("lightPos", mv.map(lightPos));
     (*activeProgram)->setUniformValue("lightInt", lightInt);
@@ -249,6 +258,8 @@ void MainOpenGLWidget::updateUniforms() {
 void MainOpenGLWidget::updateVertices() {
     modelLoaded = false;
 
+    //calculate number of vertices and number of triangles
+    //each side has its own vertices and triangles
     num_verts = (1 + tesselation)  * (1+tesselation) * 6;
     num_tris = 6 * tesselation * tesselation * 2;
 
@@ -257,12 +268,18 @@ void MainOpenGLWidget::updateVertices() {
     vertex_index.clear();
     vertex_normal.clear();
 
+    //color for vertex(face)
     QVector3D color;
+    //normal for vertex(face)
     QVector3D normal;
+    //strides define how to iterate over the vertices  of a face
+    //this is important to define because you need to know this for indexing
     QVector3D strideA;
     QVector3D strideB;
+    //starting point of an iteration
     QVector3D start;
 
+    //for each face define the variables from above
     for(int i = 0; i <6; i++) {
         switch (i){
         //front
@@ -308,32 +325,43 @@ void MainOpenGLWidget::updateVertices() {
             strideB = QVector3D(0.0, 0.0, 2.0) / tesselation;
             break;
         }
+        //set start to (relative) bottom left of the face
         start = normal - tesselation * 0.5 * (strideA + strideB);
 
+        //vertex index offset from faces
         int offset = i * (tesselation+1) *(tesselation+1);
 
+        //iterate over vertices of the face
         for(int j = 0; j < tesselation+1; j++) {
             for(int k = 0; k < tesselation+1; k++) {
+                //calculate position
                 QVector3D vert = start + j * strideA + k * strideB;
+                //add vertex position
                 vertex_position.push_back(vert.x());
                 vertex_position.push_back(vert.y());
                 vertex_position.push_back(vert.z());
 
+                //add color
                 vertex_color.push_back(color.x());
                 vertex_color.push_back(color.y());
                 vertex_color.push_back(color.z());
 
+                //add normal
                 vertex_normal.push_back(normal.x());
                 vertex_normal.push_back(normal.y());
                 vertex_normal.push_back(normal.z());
 
+                //calculate index of current triangle
                 int index = offset + j * (tesselation+1) +k;
+                //create two triangles per vertex that is not in the last row or in the last column
                 if(j != tesselation && k != tesselation) {
 
+                    //bottom left triangle
                     vertex_index.push_back(index);
                     vertex_index.push_back(index + 1);
                     vertex_index.push_back(index + (tesselation+1));
 
+                    //top right triangle
                     vertex_index.push_back(index + 1);
                     vertex_index.push_back(index + 1 + (tesselation+1));
                     vertex_index.push_back(index + (tesselation+1));
@@ -347,22 +375,18 @@ void MainOpenGLWidget::updateVertices() {
 void MainOpenGLWidget::updateVBOs() {
 
     glBindVertexArray(vao);
+
+    //Buffer the new data so open gl will draw with this
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, 3 * num_verts * sizeof(GLfloat), &vertex_position[0], GL_STATIC_DRAW);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, 3 * num_tris * sizeof(GLuint), &vertex_index[0], GL_STATIC_DRAW);
-    gouraudProgram->setAttributeBuffer("pos", GL_FLOAT, 0, 3);
-    phongProgram->setAttributeBuffer("pos", GL_FLOAT, 0, 3);
 
     glBindBuffer(GL_ARRAY_BUFFER, nbo);
     glBufferData(GL_ARRAY_BUFFER, 3 * num_verts * sizeof(GLfloat), &vertex_normal[0], GL_STATIC_DRAW);
-    gouraudProgram->setAttributeBuffer("fnormal", GL_FLOAT, 0, 3);
-    phongProgram->setAttributeBuffer("fnormal", GL_FLOAT, 0, 3);
 
     glBindBuffer(GL_ARRAY_BUFFER, cbo);
     glBufferData(GL_ARRAY_BUFFER, 3 * num_verts * sizeof(GLfloat), &vertex_color[0], GL_STATIC_DRAW);
-    gouraudProgram->setAttributeBuffer("fcolor", GL_FLOAT, 0, 3);
-    phongProgram->setAttributeBuffer("fcolor", GL_FLOAT, 0, 3);
 }
 
 void MainOpenGLWidget::loadModel(tinygltf::Model* model) {
@@ -371,83 +395,72 @@ void MainOpenGLWidget::loadModel(tinygltf::Model* model) {
     glBindVertexArray(vao);
     modelLoaded = true;
 
+    //load the id of the accessor
     int colorID = model->meshes[0].primitives[0].attributes["COLOR_0"];
     int normalID = model->meshes[0].primitives[0].attributes["NORMAL"];
     int posID = model->meshes[0].primitives[0].attributes["POSITION"];
     int indexID = model->meshes[0].primitives[0].indices;
 
+    //load the corresponding accessors
     tinygltf::Accessor colorAccessor =  model->accessors[colorID];
     tinygltf::Accessor normalAccessor =  model->accessors[normalID];
     tinygltf::Accessor posAccessor =  model->accessors[posID];
     tinygltf::Accessor indexAccessor =  model->accessors[indexID];
 
+    //load the bufferview objects
     tinygltf::BufferView colorBV = model->bufferViews[colorAccessor.bufferView];
     tinygltf::BufferView normalBV = model->bufferViews[normalAccessor.bufferView];
     tinygltf::BufferView posBV = model->bufferViews[posAccessor.bufferView];
     tinygltf::BufferView indexBV = model->bufferViews[indexAccessor.bufferView];
 
+    //load the buffer
     tinygltf::Buffer buff = model->buffers[posBV.buffer];
 
-    std::vector<unsigned char> data = buff.data;
-    std::vector<float> pos_data;
-    std::vector<float> nor_data;
-    std::vector<float> col_data;
+    std::vector<GLfloat> pos_data;
+    std::vector<GLfloat> nor_data;
+    std::vector<GLfloat> col_data;
     std::vector<unsigned short> ind_data;
 
+    //convert and split the buffer to their respective vertex attributes
+    convertBuffer(3, posAccessor.byteOffset, posBV.byteStride, posBV.byteLength, &buff.data, &pos_data);
+    convertBuffer(3, normalAccessor.byteOffset, normalBV.byteStride, normalBV.byteLength, &buff.data, &nor_data);
+    convertBuffer(3, colorAccessor.byteOffset, colorBV.byteStride, colorBV.byteLength, &buff.data, &col_data);
 
-    for(int i = 0 ; i < posBV.byteLength; i = i + posBV.byteStride){
-        float val[9];
-        memcpy(&val, &data[i], 9 * sizeof(float));
-        pos_data.push_back(val[0]);
-        pos_data.push_back(val[1]);
-        pos_data.push_back(val[2]);
-        nor_data.push_back(val[3]);
-        nor_data.push_back(val[4]);
-        nor_data.push_back(val[5]);
-        col_data.push_back(val[6]);
-        col_data.push_back(val[7]);
-        col_data.push_back(val[8]);
-
-    }
-    for(int i = indexBV.byteOffset; i < indexBV.byteOffset + indexBV.byteLength; i = i + 2){
+    for(int i = 0; i < (int)indexBV.byteLength; i += sizeof(unsigned short)){
         unsigned short val;
-        memcpy(&val, &data[i], sizeof(unsigned short));
+        memcpy(&val, &buff.data[i + indexBV.byteOffset], sizeof(unsigned short));
         ind_data.push_back(val);
     }
 
-
-#define BUFFER_OFFSET(i) ((char *)NULL + (i))
-
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-    glBufferData(GL_ARRAY_BUFFER, pos_data.size() * sizeof(float), &pos_data[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, pos_data.size() * sizeof(GLfloat), &pos_data[0], GL_STATIC_DRAW);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBV.byteLength, &ind_data[0], GL_STATIC_DRAW);
 
-    gouraudProgram->enableAttributeArray("pos");
-    phongProgram->enableAttributeArray("pos");
-    gouraudProgram->setAttributeBuffer("pos", GL_FLOAT, 0, 3, 0);
-    phongProgram->setAttributeBuffer("pos", GL_FLOAT, 0, 3, 0);
-
     glBindBuffer(GL_ARRAY_BUFFER, nbo);
-    glBufferData(GL_ARRAY_BUFFER, nor_data.size() * sizeof(float) , &nor_data[0], GL_STATIC_DRAW);
-
-    gouraudProgram->enableAttributeArray("fnormal");
-    phongProgram->enableAttributeArray("fnormal");
-    gouraudProgram->setAttributeBuffer("fnormal", GL_FLOAT, 0, 3, 0);
-    phongProgram->setAttributeBuffer("fnormal", GL_FLOAT, 0, 3, 0);
+    glBufferData(GL_ARRAY_BUFFER, nor_data.size() * sizeof(GLfloat) , &nor_data[0], GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, cbo);
-    glBufferData(GL_ARRAY_BUFFER, col_data.size() * sizeof(float), &col_data[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, col_data.size() * sizeof(GLfloat), &col_data[0], GL_STATIC_DRAW);
 
-    gouraudProgram->enableAttributeArray("fcolor");
-    phongProgram->enableAttributeArray("fcolor");
-    gouraudProgram->setAttributeBuffer("fcolor", GL_FLOAT, 0, 3, 0);
-    phongProgram->setAttributeBuffer("fcolor", GL_FLOAT, 0, 3, 0);
-
-    offset = indexBV.byteOffset;
-    num_tris = indexAccessor.count;
+    num_tris = indexAccessor.count / 3;
     update();
 
+
+}
+
+void MainOpenGLWidget::convertBuffer(int size, int offset, int stride, int length, std::vector<unsigned char> *data, std::vector<GLfloat> *convertedData) {
+
+    for(int i=offset; i < length; i += stride) {
+        //map memory from the binary buffer to an array of GLfloats
+        GLfloat value[size];
+        mempcpy(&value, &(*data)[i], size * sizeof(GLfloat));
+
+        //push values of array to the new buffer
+        for(int j = 0; j < size; j++) {
+            convertedData->push_back(value[j]);
+        }
+    }
 
 }
 

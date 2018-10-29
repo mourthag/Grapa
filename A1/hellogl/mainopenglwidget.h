@@ -47,6 +47,7 @@ protected:
     void updateVertices();
     void updateVBOs();
 
+    void convertBuffer(int size, int offset, int stride, int length, std::vector<unsigned char> *data, std::vector<GLfloat> *convertedData);
     QPointF pixelPosToViewPos(const QPointF& point);
 private:    
     int width;
@@ -59,8 +60,6 @@ private:
     int tesselation;
     bool isWireframe;
     bool modelLoaded;
-
-    size_t offset;
 
     QMatrix4x4 m;
     QMatrix4x4 v;
