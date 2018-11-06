@@ -137,11 +137,13 @@ OpenGLModel OpenGLModel::GenerateCube(QOpenGLContext *context, QOpenGLShaderProg
     f->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, model.ibo);
     f->glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(vertex_index), &vertex_index[0], GL_STATIC_DRAW);
 
+    f->glGenBuffers(1, &model.nbo);
     f->glBindBuffer(GL_ARRAY_BUFFER, model.nbo);
     f->glBufferData(GL_ARRAY_BUFFER, 3 * num_verts * sizeof(GLfloat), &vertex_normal[0], GL_STATIC_DRAW);
     prog->enableAttributeArray("fnormal");
     prog->setAttributeBuffer("fnormal", GL_FLOAT, 0, 3);
 
+    f->glGenBuffers(1, &model.cbo);
     f->glBindBuffer(GL_ARRAY_BUFFER, model.cbo);
     f->glBufferData(GL_ARRAY_BUFFER, 3 * num_verts * sizeof(GLfloat), &vertex_color[0], GL_STATIC_DRAW);
     prog->enableAttributeArray("fcolor");
