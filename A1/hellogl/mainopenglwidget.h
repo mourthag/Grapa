@@ -9,6 +9,8 @@
 #include <QMatrix4x4>
 #include <QQuaternion>
 
+#include <openglmodel.h>
+
 #define TINYGLTF_NO_STB_IMAGE_WRITE
 #include <tiny_gltf.h>
 
@@ -81,6 +83,8 @@ private:
     std::vector<GLuint> vertex_index;
     std::vector<GLfloat> vertex_color;
     std::vector<GLfloat> vertex_normal;
+
+    std::vector<OpenGLModel> objects;
 
     GLuint vao;
     //vertices

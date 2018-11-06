@@ -458,7 +458,7 @@ void MainOpenGLWidget::loadModel(tinygltf::Model* model) {
     glBindBuffer(GL_ARRAY_BUFFER, cbo);
     glBufferData(GL_ARRAY_BUFFER, col_data.size() * sizeof(GLfloat), &col_data[0], GL_STATIC_DRAW);
 
-    num_tris = indexAccessor.count ;
+    num_tris = indexAccessor.count / 3;
     update();
 
 

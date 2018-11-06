@@ -26,14 +26,16 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
-    mainopenglwidget.cpp
+    mainopenglwidget.cpp \
+    openglmodel.cpp
 
 HEADERS += \
         mainwindow.h \
     mainopenglwidget.h \
     json.hpp \
     tiny_gltf.h \
-    stb_image.h
+    stb_image.h \
+    openglmodel.h
 
 DISTFILES += \
     shader/phongfragshader.frag \
