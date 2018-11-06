@@ -10,12 +10,16 @@
 class OpenGLModel
 {
 public:
-    OpenGLModel(QOpenGLContext *context);
-    static OpenGLModel FromGLTF(QOpenGLContext *context, QOpenGLShaderProgram *prog, tinygltf::Model *gltf_model, int primIndex);
-    static OpenGLModel GenerateCube(QOpenGLContext *context, QOpenGLShaderProgram *prog, int tesselation);
+    OpenGLModel();
+    static OpenGLModel FromGLTF(QOpenGLShaderProgram *prog, tinygltf::Model *gltf_model, int primIndex);
+    static OpenGLModel GenerateCube(QOpenGLShaderProgram *prog, int tesselation);
 
+    void clear();
     void drawModel(QOpenGLContext *context);
+    void setUpDrawing(QOpenGLContext * context, QOpenGLShaderProgram *program, QMatrix4x4 *viewMat);
 
+    QMatrix4x4 model_mat;
+private:
 
     GLuint vao;
     GLuint vbo;
@@ -26,8 +30,6 @@ public:
     GLenum index_type;
     size_t index_offset;
     int num_tris;
-private:
-    QMatrix4x4 model_mat;
 
 };
 

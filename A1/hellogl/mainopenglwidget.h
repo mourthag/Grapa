@@ -32,7 +32,7 @@ public slots:
     void setGouraud();
     void setPhong();
     void setLightPos(QVector3D v);
-    void loadModel(tinygltf::Model *model);
+    void loadModel(tinygltf::Model *gltf_model);
 
 signals:
     void cameraUpdated(QMatrix4x4 *viewMat);
@@ -46,10 +46,8 @@ protected:
     void wheelEvent(QWheelEvent *event ) override;
 
     void updateUniforms();
-    void updateVertices();
-    void updateVBOs();
+    void clearObjects();
 
-    void convertBuffer(int size, int offset, int stride, int length, std::vector<unsigned char> *data, std::vector<GLfloat> *convertedData);
     QPointF pixelPosToViewPos(const QPointF& point);
 private:    
     int width;
@@ -73,28 +71,7 @@ private:
     QOpenGLShaderProgram *phongProgram;
     QOpenGLShaderProgram *gouraudProgram;
 
-    //number of triangles and verts
-    int num_tris;
-    int num_verts;
-
-    GLenum index_type;
-
-    std::vector<GLfloat> vertex_position;
-    std::vector<GLuint> vertex_index;
-    std::vector<GLfloat> vertex_color;
-    std::vector<GLfloat> vertex_normal;
-
     std::vector<OpenGLModel> objects;
-
-    GLuint vao;
-    //vertices
-    GLuint vbo;
-    //indices
-    GLuint ibo;
-    //normals
-    GLuint nbo;
-    //colors
-    GLuint cbo;
 };
 
 #endif // MAINOPENGLWIDGET_H

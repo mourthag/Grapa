@@ -1,12 +1,25 @@
 #include "openglmodel.h"
 
-OpenGLModel::OpenGLModel(QOpenGLContext *context)
+OpenGLModel::OpenGLModel()
 {
 
 }
 
-OpenGLModel OpenGLModel::GenerateCube(QOpenGLContext *context, QOpenGLShaderProgram *prog, int tesselation) {
-    OpenGLModel model = OpenGLModel(context);
+void OpenGLModel::clear() {
+
+    QOpenGLFunctions_4_0_Core *f = new QOpenGLFunctions_4_0_Core;
+    f->initializeOpenGLFunctions();
+
+    f->glDisableVertexAttribArray(vao);
+    f->glDeleteVertexArrays(1, &vao);
+    f->glDeleteBuffers(1, &vbo);
+    f->glDeleteBuffers(1, &ibo);
+    f->glDeleteBuffers(1, &nbo);
+    f->glDeleteBuffers(1, &cbo);
+}
+
+OpenGLModel OpenGLModel::GenerateCube(QOpenGLShaderProgram *prog, int tesselation) {
+    OpenGLModel model = OpenGLModel();
     QOpenGLFunctions_4_0_Core *f = new QOpenGLFunctions_4_0_Core;
     f->initializeOpenGLFunctions();
 
@@ -123,44 +136,47 @@ OpenGLModel OpenGLModel::GenerateCube(QOpenGLContext *context, QOpenGLShaderProg
         }
     }
 
+    qDebug() << vertex_position[3 * vertex_index[0]]<< vertex_position[3 * vertex_index[0] + 1]<< vertex_position[3 * vertex_index[0] + 2];
+    qDebug() << vertex_position[3 * vertex_index[1]]<< vertex_position[3 * vertex_index[1] + 1]<< vertex_position[3 * vertex_index[1] + 2];
+    qDebug() << vertex_position[3 * vertex_index[2]]<< vertex_position[3 * vertex_index[2] + 1]<< vertex_position[3 * vertex_index[2] + 2];
 
     f->glGenVertexArrays(1, &model.vao);
     f->glBindVertexArray(model.vao);
 
     f->glGenBuffers(1, &model.vbo);
     f->glBindBuffer(GL_ARRAY_BUFFER, model.vbo);
-    f->glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_position), &vertex_position[0], GL_STATIC_DRAW);
-    prog->enableAttributeArray("pos");
+    f->glBufferData(GL_ARRAY_BUFFER, 3 * num_verts * sizeof(GLfloat), &vertex_position[0], GL_STATIC_DRAW);
+
     prog->setAttributeBuffer("pos", GL_FLOAT, 0, 3);
+    prog->enableAttributeArray("pos");
 
     f->glGenBuffers(1, &model.ibo);
     f->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, model.ibo);
-    f->glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(vertex_index), &vertex_index[0], GL_STATIC_DRAW);
+    f->glBufferData(GL_ELEMENT_ARRAY_BUFFER, 3 * model.num_tris * sizeof(GLuint), &vertex_index[0], GL_STATIC_DRAW);
 
     f->glGenBuffers(1, &model.nbo);
     f->glBindBuffer(GL_ARRAY_BUFFER, model.nbo);
     f->glBufferData(GL_ARRAY_BUFFER, 3 * num_verts * sizeof(GLfloat), &vertex_normal[0], GL_STATIC_DRAW);
-    prog->enableAttributeArray("fnormal");
+
     prog->setAttributeBuffer("fnormal", GL_FLOAT, 0, 3);
+    prog->enableAttributeArray("fnormal");
 
     f->glGenBuffers(1, &model.cbo);
     f->glBindBuffer(GL_ARRAY_BUFFER, model.cbo);
     f->glBufferData(GL_ARRAY_BUFFER, 3 * num_verts * sizeof(GLfloat), &vertex_color[0], GL_STATIC_DRAW);
-    prog->enableAttributeArray("fcolor");
-    prog->setAttributeBuffer("fcolor", GL_FLOAT, 0, 3);
 
-    prog->link();
-    f->glBindVertexArray(0);
+    prog->setAttributeBuffer("fcolor", GL_FLOAT, 0, 3);
+    prog->enableAttributeArray("fcolor");
+
 
     return model;
 }
 
-OpenGLModel OpenGLModel::FromGLTF(QOpenGLContext *context, QOpenGLShaderProgram *prog, tinygltf::Model *gltf_model, int primIndex) {
+OpenGLModel OpenGLModel::FromGLTF(QOpenGLShaderProgram *prog, tinygltf::Model *gltf_model, int primIndex) {
 
-    OpenGLModel model = OpenGLModel(context);
-    QOpenGLFunctions_4_0_Core *f = context->versionFunctions<QOpenGLFunctions_4_0_Core>();
-
-    GLuint p = prog->programId();
+    OpenGLModel model = OpenGLModel();
+    QOpenGLFunctions_4_0_Core *f = new QOpenGLFunctions_4_0_Core();
+    f->initializeOpenGLFunctions();
 
     //load the id of the accessor
     int colorID = gltf_model->meshes[0].primitives[primIndex].attributes["COLOR_0"];
@@ -183,31 +199,32 @@ OpenGLModel OpenGLModel::FromGLTF(QOpenGLContext *context, QOpenGLShaderProgram 
     //load the buffer
     tinygltf::Buffer buff = gltf_model->buffers[posBV.buffer];
 
+    std::vector<unsigned char> data = buff.data;
+
+    f->glGenVertexArrays(1, &model.vao);
     f->glBindVertexArray(model.vao);
 
+    f->glGenBuffers(1, &model.vbo);
     f->glBindBuffer(posBV.target, model.vbo);
-    f->glBufferData(posBV.target, posBV.byteLength, &buff.data[posBV.byteOffset], GL_STATIC_DRAW);
-    GLint attribLoc = f->glGetAttribLocation(p, "pos");
-    f->glVertexAttribPointer(attribLoc, 3, posAccessor.type, GL_FALSE, posBV.byteStride, (void*)posAccessor.byteOffset );
-    f->glBindAttribLocation(p, attribLoc, "pos");
-    f->glEnableVertexAttribArray(attribLoc);
+    f->glBufferData(posBV.target, posBV.byteLength, &data[colorBV.byteOffset], GL_STATIC_DRAW);
+    prog->enableAttributeArray("pos");
+    prog->setAttributeBuffer("pos", posAccessor.componentType, posAccessor.byteOffset, 3, posBV.byteStride);
 
+    f->glGenBuffers(1, &model.ibo);
     f->glBindBuffer(indexBV.target, model.ibo);
-    f->glBufferData(indexBV.target, indexBV.byteLength, &buff.data[indexBV.byteOffset], GL_STATIC_DRAW);
+    f->glBufferData(indexBV.target, indexBV.byteLength, &data[indexBV.byteOffset], GL_STATIC_DRAW);
 
+    f->glGenBuffers(1, &model.nbo);
     f->glBindBuffer(normalBV.target, model.nbo);
-    f->glBufferData(normalBV.target, normalBV.byteLength, &buff.data[normalBV.byteOffset], GL_STATIC_DRAW);
-    attribLoc = f->glGetAttribLocation(p, "fnormal");
-    f->glVertexAttribPointer(attribLoc, 3, normalAccessor.type, GL_FALSE, normalBV.byteStride, (void*)normalAccessor.byteOffset );
-    f->glBindAttribLocation(p, attribLoc, "fnormal");
-    f->glEnableVertexAttribArray(attribLoc);
+    f->glBufferData(normalBV.target, normalBV.byteLength, &data[normalBV.byteOffset], GL_STATIC_DRAW);
+    prog->enableAttributeArray("fnormal");
+    prog->setAttributeBuffer("fnormal", normalAccessor.componentType, normalAccessor.byteOffset, 3, normalBV.byteStride);
 
+    f->glGenBuffers(1, &model.cbo);
     f->glBindBuffer(colorBV.target, model.cbo);
-    f->glBufferData(colorBV.target, colorBV.byteLength, &buff.data[colorBV.byteOffset], GL_STATIC_DRAW);
-    attribLoc = f->glGetAttribLocation(p, "fcolor");
-    f->glVertexAttribPointer(attribLoc, 3, colorAccessor.type, GL_FALSE, colorBV.byteStride, (void*)colorAccessor.byteOffset );
-    f->glBindAttribLocation(p, attribLoc, "fcolor");
-    f->glEnableVertexAttribArray(attribLoc);
+    f->glBufferData(colorBV.target, colorBV.byteLength, &data[colorBV.byteOffset], GL_STATIC_DRAW);
+    prog->enableAttributeArray("fcolor");
+    prog->setAttributeBuffer("fcolor", colorAccessor.componentType, colorAccessor.byteOffset, 3, colorBV.byteStride);
 
     model.index_type = indexAccessor.componentType;
     model.index_offset = indexAccessor.byteOffset;
@@ -217,11 +234,19 @@ OpenGLModel OpenGLModel::FromGLTF(QOpenGLContext *context, QOpenGLShaderProgram 
 }
 
 void OpenGLModel::drawModel(QOpenGLContext *context) {
-    QOpenGLFunctions_4_0_Core *f = context->versionFunctions<QOpenGLFunctions_4_0_Core>();
+    QOpenGLFunctions_4_0_Core *f = new QOpenGLFunctions_4_0_Core();
+    f->initializeOpenGLFunctions();
 
     f->glBindVertexArray(vao);
-    f->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-    f->glDrawElements(GL_TRIANGLES, 3 * num_tris, index_type, (void*)index_offset);
 
+    f->glDrawElements(GL_TRIANGLES, 300 * num_tris, index_type, (void*)index_offset);
+
+
+}
+
+void OpenGLModel::setUpDrawing(QOpenGLContext *context, QOpenGLShaderProgram *program, QMatrix4x4 *viewMat) {    //for shading calculations in viewspace
+
+    program->setUniformValue("m", model_mat);
+    program->setUniformValue("normalMat", (*viewMat * model_mat).normalMatrix());
 
 }
