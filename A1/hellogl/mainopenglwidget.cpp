@@ -87,6 +87,9 @@ void MainOpenGLWidget::initializeGL() {
     phongProgram->enableAttributeArray("fcolor");
     phongProgram->setAttributeBuffer("fcolor", GL_FLOAT, 0, 3);
 
+    OpenGLModel model = OpenGLModel::GenerateCube(context(), phongProgram, tesselation);
+    objects.push_back(model);
+
 }
 
 void MainOpenGLWidget::paintGL()
