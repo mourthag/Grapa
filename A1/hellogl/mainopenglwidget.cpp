@@ -45,8 +45,12 @@ void MainOpenGLWidget::initializeGL() {
     phongProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shader/phongfragshader.frag");
     phongProgram->link();
 
-    OpenGLModel model = OpenGLModel::GenerateCube(phongProgram, 1);
-    objects.push_back(model);
+    scene.initGL();
+
+//    OpenGLModel *model = (OpenGLModel*)malloc(sizeof(OpenGLModel));
+//    model = new OpenGLModel();
+//    model->generateCube(tesselation);
+//    objects.push_back(model);
 
 }
 
@@ -65,10 +69,7 @@ void MainOpenGLWidget::paintGL()
     updateUniforms();
 
 
-    for(int object = 0; object < objects.size(); object++) {
-        objects[object].setUpDrawing(context(), (*activeProgram), &v);
-        objects[object].drawModel(context());
-    }
+    scene.drawScene((*activeProgram));
 }
 
 void MainOpenGLWidget::resizeGL(int w, int h) {
@@ -189,9 +190,8 @@ void MainOpenGLWidget::setShininess(int s) {
 void MainOpenGLWidget::setTesselation(int t) {
     tesselation = t;
 
-    clearObjects();
-    OpenGLModel model = OpenGLModel::GenerateCube((*activeProgram), tesselation);
-    objects.push_back(model);
+//    OpenGLModel *model = objects[0];
+//    model->generateCube(tesselation);
 
     update();
 }
@@ -239,9 +239,9 @@ void MainOpenGLWidget::updateUniforms() {
 
 void MainOpenGLWidget::loadModel(tinygltf::Model* gltf_model) {
 
-    clearObjects();
-    OpenGLModel model = OpenGLModel::FromGLTF((*activeProgram), gltf_model, 0);
-    objects.push_back(model);
+    scene.loadFromGLTF(gouraudProgram,*gltf_model);
+
+    //objects[0]->loadGLTF((*activeProgram), gltf_model, 0);
     update();
 
 
@@ -249,7 +249,8 @@ void MainOpenGLWidget::loadModel(tinygltf::Model* gltf_model) {
 
 void MainOpenGLWidget::clearObjects() {
     for(int index=0; index < objects.size(); index++) {
-        objects[index].clear();
+        objects[index]->clear();
+        delete(objects[index]);
     }
     objects.clear();
 }

@@ -2,251 +2,255 @@
 
 OpenGLModel::OpenGLModel()
 {
+    initializeOpenGLFunctions();
+    glGenVertexArrays(1, &vao);
+    glGenBuffers(1, &ebo);
+    glGenBuffers(1, &vbo);
+    glGenBuffers(1, &nbo);
+    glGenBuffers(1, &tcbo);
 
+    qDebug() << "Allocated: " << vao << " at: " << &vao;
+}
+
+OpenGLModel::~OpenGLModel() {
 }
 
 void OpenGLModel::clear() {
 
-    QOpenGLFunctions_4_0_Core *f = new QOpenGLFunctions_4_0_Core;
-    f->initializeOpenGLFunctions();
-
-    f->glDisableVertexAttribArray(vao);
-    f->glDeleteVertexArrays(1, &vao);
-    f->glDeleteBuffers(1, &vbo);
-    f->glDeleteBuffers(1, &ibo);
-    f->glDeleteBuffers(1, &nbo);
-    f->glDeleteBuffers(1, &cbo);
+    qDebug() << "Deleted: " << vao << " at: " << &vao;
+    glDeleteVertexArrays(1, &vao);
+    glDeleteBuffers(1, &ebo);
+    glDeleteBuffers(1, &vbo);
+    glDeleteBuffers(1, &nbo);
+    glDeleteBuffers(1, &tcbo);
 }
 
-OpenGLModel OpenGLModel::GenerateCube(QOpenGLShaderProgram *prog, int tesselation) {
-    OpenGLModel model = OpenGLModel();
-    QOpenGLFunctions_4_0_Core *f = new QOpenGLFunctions_4_0_Core;
-    f->initializeOpenGLFunctions();
+//void OpenGLModel::generateCube(int tesselation) {
 
-    int num_verts = (1 + tesselation)  * (1+tesselation) * 6;;
 
-    model.index_type = GL_UNSIGNED_INT;
-    model.index_offset = 0;
-    model.num_tris = 6 * tesselation * tesselation * 2;
 
-    std::vector<GLfloat> vertex_position;
-    std::vector<GLuint> vertex_index;
-    std::vector<GLfloat> vertex_normal;
-    std::vector<GLfloat> vertex_color;
+//    int num_verts = (1 + tesselation)  * (1+tesselation) * 6;;
 
-    //color for vertex(face)
-    QVector3D color;
-    //normal for vertex(face)
-    QVector3D normal;
-    //strides define how to iterate over the vertices  of a face
-    //this is important to define because you need to know this for indexing
-    QVector3D strideA;
-    QVector3D strideB;
-    //starting point of an iteration
-    QVector3D start;
+//    index_type = GL_UNSIGNED_INT;
+//    index_offset = 0;
+//    num_tris = 6 * tesselation * tesselation * 2;
 
-    //for each face define the variables from above
-    for(int i = 0; i <6; i++) {
-        switch (i){
-        //front
-        case 0:
-            color = QVector3D(1.0, 0.0, 0.0);
-            normal = QVector3D(0.0, 0.0, 1.0);
-            strideB = QVector3D(2.0, 0.0, 0.0) / tesselation;
-            strideA = QVector3D(0.0, 2.0, 0.0) / (float)tesselation;
-            break;
-        //behind
-        case 1:
-            color = QVector3D(1.0, 1.0, 0.0);
-            normal = QVector3D(0.0, 0.0, -1.0) ;
-            strideB = QVector3D(2.0, 0.0, 0.0) / tesselation;
-            strideA = QVector3D(0.0, 2.0, 0.0) / tesselation;
-            break;
-        //up
-        case 2:
-            color = QVector3D(0.0, 1.0, 0.0);
-            normal = QVector3D(0.0, 1.0, 0.0);
-            strideA = QVector3D(2.0, 0.0, 0.0) / tesselation;
-            strideB = QVector3D(0.0, 0.0, 2.0) / tesselation;
-            break;
-        //down
-        case 3:
-            color = QVector3D(0.0, 1.0, 1.0);
-            normal = QVector3D(0.0, -1.0, 0.0);
-            strideB = QVector3D(2.0, 0.0, 0.0) / tesselation;
-            strideA = QVector3D(0.0, 0.0, 2.0) / tesselation;
-            break;
-        //right
-        case 4:
-            color = QVector3D(0.0, 0.0, 1.0);
-            normal = QVector3D(1.0, 0.0, 0.0);
-            strideB = QVector3D(0.0, 2.0, 0.0) / tesselation;
-            strideA = QVector3D(0.0, 0.0, 2.0) / tesselation;
-            break;
-        //left
-        case 5:
-            color = QVector3D(1.0, 0.0, 1.0);
-            normal = QVector3D(-1.0, 0.0, 0.0);
-            strideA = QVector3D(0.0, 2.0, 0.0) / tesselation;
-            strideB = QVector3D(0.0, 0.0, 2.0) / tesselation;
-            break;
-        }
-        //set start to (relative) bottom left of the face
-        start = normal - tesselation * 0.5 * (strideA + strideB);
+//    std::vector<GLfloat> pos_data;
+//    std::vector<GLuint> ind_data;
+//    std::vector<GLfloat> normal_data;
+//    std::vector<GLfloat> color_data;
 
-        //vertex index offset from faces
-        int offset = i * (tesselation+1) *(tesselation+1);
+//    //color for vertex(face)
+//    QVector3D color;
+//    //normal for vertex(face)
+//    QVector3D normal;
+//    //strides define how to iterate over the vertices  of a face
+//    //this is important to define because you need to know this for indexing
+//    QVector3D strideA;
+//    QVector3D strideB;
+//    //starting point of an iteration
+//    QVector3D start;
 
-        //iterate over vertices of the face
-        for(int j = 0; j < tesselation+1; j++) {
-            for(int k = 0; k < tesselation+1; k++) {
-                //calculate position
-                QVector3D vert = start + j * strideA + k * strideB;
-                //add vertex position
-                vertex_position.push_back(vert.x());
-                vertex_position.push_back(vert.y());
-                vertex_position.push_back(vert.z());
+//    //for each face define the variables from above
+//    for(int i = 0; i <6; i++) {
+//        switch (i){
+//        //front
+//        case 0:
+//            color = QVector3D(1.0, 0.0, 0.0);
+//            normal = QVector3D(0.0, 0.0, 1.0);
+//            strideB = QVector3D(2.0, 0.0, 0.0) / tesselation;
+//            strideA = QVector3D(0.0, 2.0, 0.0) / (float)tesselation;
+//            break;
+//        //behind
+//        case 1:
+//            color = QVector3D(1.0, 1.0, 0.0);
+//            normal = QVector3D(0.0, 0.0, -1.0) ;
+//            strideB = QVector3D(2.0, 0.0, 0.0) / tesselation;
+//            strideA = QVector3D(0.0, 2.0, 0.0) / tesselation;
+//            break;
+//        //up
+//        case 2:
+//            color = QVector3D(0.0, 1.0, 0.0);
+//            normal = QVector3D(0.0, 1.0, 0.0);
+//            strideA = QVector3D(2.0, 0.0, 0.0) / tesselation;
+//            strideB = QVector3D(0.0, 0.0, 2.0) / tesselation;
+//            break;
+//        //down
+//        case 3:
+//            color = QVector3D(0.0, 1.0, 1.0);
+//            normal = QVector3D(0.0, -1.0, 0.0);
+//            strideB = QVector3D(2.0, 0.0, 0.0) / tesselation;
+//            strideA = QVector3D(0.0, 0.0, 2.0) / tesselation;
+//            break;
+//        //right
+//        case 4:
+//            color = QVector3D(0.0, 0.0, 1.0);
+//            normal = QVector3D(1.0, 0.0, 0.0);
+//            strideB = QVector3D(0.0, 2.0, 0.0) / tesselation;
+//            strideA = QVector3D(0.0, 0.0, 2.0) / tesselation;
+//            break;
+//        //left
+//        case 5:
+//            color = QVector3D(1.0, 0.0, 1.0);
+//            normal = QVector3D(-1.0, 0.0, 0.0);
+//            strideA = QVector3D(0.0, 2.0, 0.0) / tesselation;
+//            strideB = QVector3D(0.0, 0.0, 2.0) / tesselation;
+//            break;
+//        }
+//        //set start to (relative) bottom left of the face
+//        start = normal - tesselation * 0.5 * (strideA + strideB);
 
-                //add color
-                vertex_color.push_back(color.x());
-                vertex_color.push_back(color.y());
-                vertex_color.push_back(color.z());
+//        //vertex index offset from faces
+//        int offset = i * (tesselation+1) *(tesselation+1);
 
-                //add normal
-                vertex_normal.push_back(normal.x());
-                vertex_normal.push_back(normal.y());
-                vertex_normal.push_back(normal.z());
+//        //iterate over vertices of the face
+//        for(int j = 0; j < tesselation+1; j++) {
+//            for(int k = 0; k < tesselation+1; k++) {
+//                //calculate position
+//                QVector3D vert = start + j * strideA + k * strideB;
+//                //add vertex position
+//                pos_data.push_back(vert.x());
+//                pos_data.push_back(vert.y());
+//                pos_data.push_back(vert.z());
 
-                //calculate index of current triangle
-                int index = offset + j * (tesselation+1) +k;
-                //create two triangles per vertex that is not in the last row or in the last column
-                if(j != tesselation && k != tesselation) {
+//                //add color
+//                color_data.push_back(color.x());
+//                color_data.push_back(color.y());
+//                color_data.push_back(color.z());
 
-                    //bottom left triangle
-                    vertex_index.push_back(index);
-                    vertex_index.push_back(index + 1);
-                    vertex_index.push_back(index + (tesselation+1));
+//                //add normal
+//                normal_data.push_back(normal.x());
+//                normal_data.push_back(normal.y());
+//                normal_data.push_back(normal.z());
 
-                    //top right triangle
-                    vertex_index.push_back(index + 1);
-                    vertex_index.push_back(index + 1 + (tesselation+1));
-                    vertex_index.push_back(index + (tesselation+1));
-                }
-            }
+//                //calculate index of current triangle
+//                int index = offset + j * (tesselation+1) +k;
+//                //create two triangles per vertex that is not in the last row or in the last column
+//                if(j != tesselation && k != tesselation) {
+
+//                    //bottom left triangle
+//                    ind_data.push_back(index);
+//                    ind_data.push_back(index + 1);
+//                    ind_data.push_back(index + (tesselation+1));
+
+//                    //top right triangle
+//                    ind_data.push_back(index + 1);
+//                    ind_data.push_back(index + 1 + (tesselation+1));
+//                    ind_data.push_back(index + (tesselation+1));
+//                }
+//            }
+//        }
+//    }
+
+//    glBindVertexArray(vao);
+
+//    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+//    glBufferData(GL_ARRAY_BUFFER, 3 * num_verts * sizeof(GLfloat), &pos_data[0], GL_STATIC_DRAW);
+//    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+//    glEnableVertexAttribArray(0);
+
+//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+//    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 3 * num_tris * sizeof(GLuint), &ind_data[0], GL_STATIC_DRAW);
+
+//    glBindBuffer(GL_ARRAY_BUFFER, nbo);
+//    glBufferData(GL_ARRAY_BUFFER, 3 * num_verts * sizeof(GLfloat), &normal_data[0], GL_STATIC_DRAW);
+
+//    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
+//    glEnableVertexAttribArray(1);
+
+//    glBindBuffer(GL_ARRAY_BUFFER, cbo);
+//    glBufferData(GL_ARRAY_BUFFER, 3 * num_verts * sizeof(GLfloat), &color_data[0], GL_STATIC_DRAW);
+
+//    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, 0);
+//    glEnableVertexAttribArray(2);
+
+//    glBindVertexArray(0);
+//    glBindBuffer(GL_ARRAY_BUFFER, 0);
+//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+//}
+
+void OpenGLModel::loadGLTF(QOpenGLShaderProgram *prog, tinygltf::Model *gltf_model, int mesh, int primIndex) {
+
+
+    glBindVertexArray(vao);
+
+    GLuint attributeIndex = prog->attributeLocation("pos");
+    loadGLTFAttribute("POSITION", gltf_model, mesh, primIndex, vbo, attributeIndex);
+    attributeIndex = prog->attributeLocation("vertnormal");
+    loadGLTFAttribute("NORMAL", gltf_model, mesh, primIndex, nbo, attributeIndex);
+    attributeIndex = prog->attributeLocation("UV");
+    loadGLTFAttribute("TEXCOORD_0", gltf_model, mesh, primIndex, tcbo, attributeIndex);
+
+    loadGLTFIndices(gltf_model, mesh, primIndex);
+
+    materialIndex = gltf_model->meshes[mesh].primitives[primIndex].material;
+
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+}
+
+void OpenGLModel::loadGLTFAttribute(std::string name, tinygltf::Model *model, int mesh, int primitive, GLuint glBufferIndex, GLuint glAttributeIndex) {
+
+    int attributeID = model->meshes[mesh].primitives[primitive].attributes[name];
+
+    tinygltf::Accessor accessor = model->accessors[attributeID];
+    tinygltf::BufferView bufferView = model->bufferViews[accessor.bufferView];
+    tinygltf::Buffer buffer = model->buffers[bufferView.buffer];
+
+    int size = accessor.type;
+    qDebug() << size;
+
+
+    glBindBuffer(bufferView.target, glBufferIndex);
+    glBufferData(bufferView.target, bufferView.byteLength, &buffer.data[bufferView.byteOffset], GL_STATIC_DRAW);
+
+    glVertexAttribPointer(glAttributeIndex, size, accessor.componentType, GL_FALSE, bufferView.byteStride, (void*)accessor.byteOffset);
+    glEnableVertexAttribArray(glAttributeIndex);
+}
+
+void OpenGLModel::loadGLTFIndices(tinygltf::Model *model, int mesh, int primitive) {
+    int attributeID = model->meshes[mesh].primitives[primitive].indices;
+
+    tinygltf::Accessor accessor = model->accessors[attributeID];
+    tinygltf::BufferView bufferView = model->bufferViews[accessor.bufferView];
+    tinygltf::Buffer buffer = model->buffers[bufferView.buffer];
+
+    glBindBuffer(bufferView.target, ebo);
+    glBufferData(bufferView.target, bufferView.byteLength, &buffer.data[bufferView.byteOffset], GL_STATIC_DRAW);
+
+    index_type = accessor.componentType;
+    index_offset = accessor.byteOffset;
+    num_tris = accessor.count / 3;
+}
+
+void OpenGLModel::convertBuffer(const int size, int offset, int stride, int length, std::vector<unsigned char> *data, std::vector<GLfloat> *convertedData) {
+
+    for(int i=offset; i < length; i += stride) {
+        //map memory from the binary buffer to an array of GLfloats
+        GLfloat* value = new GLfloat[size];
+        memcpy(&value[0], &(*data)[i], size * sizeof(GLfloat));
+
+        //push values of array to the new buffer
+        for(int j = 0; j < size; j++) {
+            convertedData->push_back(value[j]);
         }
     }
 
-    qDebug() << vertex_position[3 * vertex_index[0]]<< vertex_position[3 * vertex_index[0] + 1]<< vertex_position[3 * vertex_index[0] + 2];
-    qDebug() << vertex_position[3 * vertex_index[1]]<< vertex_position[3 * vertex_index[1] + 1]<< vertex_position[3 * vertex_index[1] + 2];
-    qDebug() << vertex_position[3 * vertex_index[2]]<< vertex_position[3 * vertex_index[2] + 1]<< vertex_position[3 * vertex_index[2] + 2];
-
-    f->glGenVertexArrays(1, &model.vao);
-    f->glBindVertexArray(model.vao);
-
-    f->glGenBuffers(1, &model.vbo);
-    f->glBindBuffer(GL_ARRAY_BUFFER, model.vbo);
-    f->glBufferData(GL_ARRAY_BUFFER, 3 * num_verts * sizeof(GLfloat), &vertex_position[0], GL_STATIC_DRAW);
-
-    prog->setAttributeBuffer("pos", GL_FLOAT, 0, 3);
-    prog->enableAttributeArray("pos");
-
-    f->glGenBuffers(1, &model.ibo);
-    f->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, model.ibo);
-    f->glBufferData(GL_ELEMENT_ARRAY_BUFFER, 3 * model.num_tris * sizeof(GLuint), &vertex_index[0], GL_STATIC_DRAW);
-
-    f->glGenBuffers(1, &model.nbo);
-    f->glBindBuffer(GL_ARRAY_BUFFER, model.nbo);
-    f->glBufferData(GL_ARRAY_BUFFER, 3 * num_verts * sizeof(GLfloat), &vertex_normal[0], GL_STATIC_DRAW);
-
-    prog->setAttributeBuffer("fnormal", GL_FLOAT, 0, 3);
-    prog->enableAttributeArray("fnormal");
-
-    f->glGenBuffers(1, &model.cbo);
-    f->glBindBuffer(GL_ARRAY_BUFFER, model.cbo);
-    f->glBufferData(GL_ARRAY_BUFFER, 3 * num_verts * sizeof(GLfloat), &vertex_color[0], GL_STATIC_DRAW);
-
-    prog->setAttributeBuffer("fcolor", GL_FLOAT, 0, 3);
-    prog->enableAttributeArray("fcolor");
-
-
-    return model;
 }
 
-OpenGLModel OpenGLModel::FromGLTF(QOpenGLShaderProgram *prog, tinygltf::Model *gltf_model, int primIndex) {
+void OpenGLModel::drawModel() {
 
-    OpenGLModel model = OpenGLModel();
-    QOpenGLFunctions_4_0_Core *f = new QOpenGLFunctions_4_0_Core();
-    f->initializeOpenGLFunctions();
-
-    //load the id of the accessor
-    int colorID = gltf_model->meshes[0].primitives[primIndex].attributes["COLOR_0"];
-    int normalID = gltf_model->meshes[0].primitives[primIndex].attributes["NORMAL"];
-    int posID = gltf_model->meshes[0].primitives[primIndex].attributes["POSITION"];
-    int indexID = gltf_model->meshes[0].primitives[primIndex].indices;
-
-    //load the corresponding accessors
-    tinygltf::Accessor colorAccessor =  gltf_model->accessors[colorID];
-    tinygltf::Accessor normalAccessor =  gltf_model->accessors[normalID];
-    tinygltf::Accessor posAccessor =  gltf_model->accessors[posID];
-    tinygltf::Accessor indexAccessor =  gltf_model->accessors[indexID];
-
-    //load the bufferview objects
-    tinygltf::BufferView colorBV = gltf_model->bufferViews[colorAccessor.bufferView];
-    tinygltf::BufferView normalBV = gltf_model->bufferViews[normalAccessor.bufferView];
-    tinygltf::BufferView posBV = gltf_model->bufferViews[posAccessor.bufferView];
-    tinygltf::BufferView indexBV = gltf_model->bufferViews[indexAccessor.bufferView];
-
-    //load the buffer
-    tinygltf::Buffer buff = gltf_model->buffers[posBV.buffer];
-
-    std::vector<unsigned char> data = buff.data;
-
-    f->glGenVertexArrays(1, &model.vao);
-    f->glBindVertexArray(model.vao);
-
-    f->glGenBuffers(1, &model.vbo);
-    f->glBindBuffer(posBV.target, model.vbo);
-    f->glBufferData(posBV.target, posBV.byteLength, &data[colorBV.byteOffset], GL_STATIC_DRAW);
-    prog->enableAttributeArray("pos");
-    prog->setAttributeBuffer("pos", posAccessor.componentType, posAccessor.byteOffset, 3, posBV.byteStride);
-
-    f->glGenBuffers(1, &model.ibo);
-    f->glBindBuffer(indexBV.target, model.ibo);
-    f->glBufferData(indexBV.target, indexBV.byteLength, &data[indexBV.byteOffset], GL_STATIC_DRAW);
-
-    f->glGenBuffers(1, &model.nbo);
-    f->glBindBuffer(normalBV.target, model.nbo);
-    f->glBufferData(normalBV.target, normalBV.byteLength, &data[normalBV.byteOffset], GL_STATIC_DRAW);
-    prog->enableAttributeArray("fnormal");
-    prog->setAttributeBuffer("fnormal", normalAccessor.componentType, normalAccessor.byteOffset, 3, normalBV.byteStride);
-
-    f->glGenBuffers(1, &model.cbo);
-    f->glBindBuffer(colorBV.target, model.cbo);
-    f->glBufferData(colorBV.target, colorBV.byteLength, &data[colorBV.byteOffset], GL_STATIC_DRAW);
-    prog->enableAttributeArray("fcolor");
-    prog->setAttributeBuffer("fcolor", colorAccessor.componentType, colorAccessor.byteOffset, 3, colorBV.byteStride);
-
-    model.index_type = indexAccessor.componentType;
-    model.index_offset = indexAccessor.byteOffset;
-    model.num_tris = indexAccessor.count / 3;
-
-    return model;
+    glBindVertexArray(vao);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+    glDrawElements(GL_TRIANGLES, 3 * num_tris, index_type, (void*)index_offset);
 }
 
-void OpenGLModel::drawModel(QOpenGLContext *context) {
-    QOpenGLFunctions_4_0_Core *f = new QOpenGLFunctions_4_0_Core();
-    f->initializeOpenGLFunctions();
-
-    f->glBindVertexArray(vao);
-
-    f->glDrawElements(GL_TRIANGLES, 300 * num_tris, index_type, (void*)index_offset);
-
-
-}
-
-void OpenGLModel::setUpDrawing(QOpenGLContext *context, QOpenGLShaderProgram *program, QMatrix4x4 *viewMat) {    //for shading calculations in viewspace
+void OpenGLModel::setUpDrawing(QOpenGLShaderProgram *program, QMatrix4x4 *viewMat) {    //for shading calculations in viewspace
 
     program->setUniformValue("m", model_mat);
     program->setUniformValue("normalMat", (*viewMat * model_mat).normalMatrix());
+    program->setUniformValue("materialIndex", materialIndex);
 
 }

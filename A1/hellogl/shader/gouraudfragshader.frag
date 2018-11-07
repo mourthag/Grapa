@@ -3,10 +3,10 @@
 out vec4 frag;
 
 in vec3 normal;
-in vec3 color;
+in vec4 color;
 
 void main(void)
 {
 
-    frag = vec4(color, 1.0);
+    frag = color;
 }

@@ -7,25 +7,35 @@
 
 #include "tiny_gltf.h"
 
-class OpenGLModel
+class OpenGLModel : QOpenGLFunctions_4_0_Core
 {
+
+
 public:
     OpenGLModel();
-    static OpenGLModel FromGLTF(QOpenGLShaderProgram *prog, tinygltf::Model *gltf_model, int primIndex);
-    static OpenGLModel GenerateCube(QOpenGLShaderProgram *prog, int tesselation);
+    ~OpenGLModel();
+
+    void loadGLTF(QOpenGLShaderProgram *prog, tinygltf::Model *gltf_model, int mesh, int primIndex);
+    //void generateCube(int tesselation);
 
     void clear();
-    void drawModel(QOpenGLContext *context);
-    void setUpDrawing(QOpenGLContext * context, QOpenGLShaderProgram *program, QMatrix4x4 *viewMat);
+    void drawModel();
+    void setUpDrawing(QOpenGLShaderProgram *program, QMatrix4x4 *viewMat);
 
     QMatrix4x4 model_mat;
 private:
+    void loadGLTFAttribute(std::string name, tinygltf::Model *model, int mesh, int primitive, GLuint glBufferIndex, GLuint glAttributeIndex);
+    void loadGLTFIndices(tinygltf::Model *model, int mesh, int primitive);
+    void convertBuffer(int size, int offset, int stride, int length, std::vector<unsigned char> *data, std::vector<GLfloat> *convertedData);
+    void adjustVBOSize(int numberElements);
 
     GLuint vao;
+    GLuint ebo;
     GLuint vbo;
-    GLuint ibo;
-    GLuint cbo;
     GLuint nbo;
+    GLuint tcbo;
+
+    int materialIndex;
 
     GLenum index_type;
     size_t index_offset;

@@ -10,6 +10,7 @@
 #include <QQuaternion>
 
 #include <openglmodel.h>
+#include <scene.h>
 
 #define TINYGLTF_NO_STB_IMAGE_WRITE
 #include <tiny_gltf.h>
@@ -49,7 +50,9 @@ protected:
     void clearObjects();
 
     QPointF pixelPosToViewPos(const QPointF& point);
-private:    
+private:
+    Scene scene;
+
     int width;
     int height;
 
@@ -71,7 +74,7 @@ private:
     QOpenGLShaderProgram *phongProgram;
     QOpenGLShaderProgram *gouraudProgram;
 
-    std::vector<OpenGLModel> objects;
+    std::vector<OpenGLModel*> objects;
 };
 
 #endif // MAINOPENGLWIDGET_H
