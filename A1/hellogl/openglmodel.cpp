@@ -25,7 +25,7 @@ void OpenGLModel::clear() {
     glDeleteBuffers(1, &tcbo);
 }
 
-//void OpenGLModel::generateCube(int tesselation) {
+/**void OpenGLModel::generateCube(int tesselation) {
 
 
 
@@ -167,7 +167,7 @@ void OpenGLModel::clear() {
 //    glBindVertexArray(0);
 //    glBindBuffer(GL_ARRAY_BUFFER, 0);
 //    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-//}
+//} */
 
 void OpenGLModel::loadGLTF(QOpenGLShaderProgram *prog, tinygltf::Model *gltf_model, int mesh, int primIndex) {
 
@@ -185,13 +185,13 @@ void OpenGLModel::loadGLTF(QOpenGLShaderProgram *prog, tinygltf::Model *gltf_mod
 
     materialIndex = gltf_model->meshes[mesh].primitives[primIndex].material;
 
-//    glBindVertexArray(0);
-//    glBindBuffer(GL_ARRAY_BUFFER, 0);
-//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 }
 
-void OpenGLModel::loadGLTFAttribute(std::string name, tinygltf::Model *model, int mesh, int primitive, GLuint glBufferIndex, GLuint glAttributeIndex) {
+void OpenGLModel::loadGLTFAttribute(std::string name, tinygltf::Model *model, int mesh, int primitive, GLuint glBufferIndex, GLint glAttributeIndex) {
 
     int attributeID = model->meshes[mesh].primitives[primitive].attributes[name];
 
@@ -241,8 +241,6 @@ void OpenGLModel::convertBuffer(const int size, int offset, int stride, int leng
 void OpenGLModel::drawModel() {
 
     glBindVertexArray(vao);
-    qDebug() << vao << " at: " << &vao;
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
     glDrawElements(GL_TRIANGLES, 3 * num_tris, index_type, (void*)index_offset);
     glBindVertexArray(0);
 }

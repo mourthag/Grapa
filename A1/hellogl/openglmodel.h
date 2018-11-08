@@ -24,7 +24,7 @@ public:
 
     QMatrix4x4 model_mat;
 private:
-    void loadGLTFAttribute(std::string name, tinygltf::Model *model, int mesh, int primitive, GLuint glBufferIndex, GLuint glAttributeIndex);
+    void loadGLTFAttribute(std::string name, tinygltf::Model *model, int mesh, int primitive, GLuint glBufferIndex, GLint glAttributeIndex);
     void loadGLTFIndices(tinygltf::Model *model, int mesh, int primitive);
     void convertBuffer(int size, int offset, int stride, int length, std::vector<unsigned char> *data, std::vector<GLfloat> *convertedData);
     void adjustVBOSize(int numberElements);

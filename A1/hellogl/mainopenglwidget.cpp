@@ -34,6 +34,7 @@ MainOpenGLWidget::~MainOpenGLWidget() {
 void MainOpenGLWidget::initializeGL() {
 
     initializeOpenGLFunctions();
+    glClearColor(1.0,1.0,1.0,1.0);
 
     gouraudProgram = new QOpenGLShaderProgram();
     gouraudProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shader/gouraudvertshader.vert");
@@ -239,7 +240,9 @@ void MainOpenGLWidget::updateUniforms() {
 
 void MainOpenGLWidget::loadModel(tinygltf::Model* gltf_model) {
 
+    makeCurrent();
     scene.loadFromGLTF((*activeProgram),*gltf_model);
+    doneCurrent();
 
     //objects[0]->loadGLTF((*activeProgram), gltf_model, 0);
     update();

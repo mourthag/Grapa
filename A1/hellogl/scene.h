@@ -5,6 +5,7 @@
 #include <QDebug>
 #include <QOpenGLShaderProgram>
 
+#include <node.h>
 #include <openglmodel.h>
 #include "tiny_gltf.h"
 
@@ -39,13 +40,14 @@ class Scene : QOpenGLFunctions_4_0_Core
 public:
 
     Scene();
+    ~Scene();
     void initGL();
 
     void loadFromGLTF(QOpenGLShaderProgram *prog, tinygltf::Model gltf_model);
     void drawScene(QOpenGLShaderProgram *prog, QMatrix4x4 *viewMat);
 
 private:
-    void loadTextures();
+    void loadTextures(QOpenGLShaderProgram *prog);
     void loadMaterials();
     void loadMeshes(QOpenGLShaderProgram *prog);
 
@@ -56,6 +58,7 @@ private:
     GLuint materialBuffer;
     std::vector<Material> materials;
 
+    std::vector<Node*> rootNodes;
     std::vector<OpenGLModel*> oglmodels;
 };
 

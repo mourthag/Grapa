@@ -4,6 +4,16 @@ Scene::Scene()
 {
 }
 
+Scene::~Scene() {
+    glDeleteTextures(1, &textures);
+    glDeleteBuffers(1, &materialBuffer);
+
+    for(int i=0; i < oglmodels.size(); i++) {
+        oglmodels[i]->clear();
+        delete(oglmodels[i]);
+    }
+}
+
 void Scene::initGL(){
 
   initializeOpenGLFunctions();
@@ -11,13 +21,15 @@ void Scene::initGL(){
 
 void Scene::loadFromGLTF(QOpenGLShaderProgram *prog,  tinygltf::Model gltf_model) {
     model = gltf_model;
-    loadTextures();
+
+    prog->bind();
+    loadTextures(prog);
     loadMaterials();
     loadMeshes(prog);
 
 }
 
-void Scene::loadTextures() {
+void Scene::loadTextures(QOpenGLShaderProgram *prog) {
     int texCount = model.textures.size();
     if(texCount > 0) {
 
@@ -25,10 +37,11 @@ void Scene::loadTextures() {
         tinygltf::Sampler firstSampler = model.samplers[firstTex.sampler];
         tinygltf::Image firstImg =  model.images[firstTex.source];
 
+        prog->setUniformValue("matTextures", 0);
+
+        glActiveTexture(GL_TEXTURE0);
         glGenTextures(1, &textures);
         glBindTexture(GL_TEXTURE_2D_ARRAY, textures);
-
-        //TODO: Sampler parameter
 
         //texcount + 1 for the fallback texture in white
         glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA, firstImg.width, firstImg.height, texCount+1,
@@ -37,6 +50,12 @@ void Scene::loadTextures() {
                      GL_UNSIGNED_BYTE,
                      0
                      );
+
+
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, firstSampler.magFilter);
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, firstSampler.minFilter);
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, firstSampler.wrapS);
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, firstSampler.wrapT);
 
         //fallbacktexture at first position
         std::vector<unsigned char> fallBackTexData;
@@ -71,8 +90,7 @@ void Scene::loadMaterials() {
             Material mat;
 
             if(modelMaterial.Has("diffuseTexture"))
-                mat.diffuseTexture = modelMaterial.Get("diffuseTexture").Get<int>();
-                mat.diffuseTexture = 0;
+                mat.diffuseTexture = modelMaterial.Get("diffuseTexture").Get<int>()+1;
 
 
             if(modelMaterial.Has("diffuseFactor")){
@@ -84,7 +102,7 @@ void Scene::loadMaterials() {
             }
 
             if(modelMaterial.Has("specularTexture"))
-                mat.diffuseTexture = modelMaterial.Get("specularTexture").Get<int>();
+                mat.diffuseTexture = modelMaterial.Get("specularTexture").Get<int>()+1;
 
             if(modelMaterial.Has("specularFactor")){
 
@@ -94,7 +112,7 @@ void Scene::loadMaterials() {
             }
 
             if(modelMaterial.Has("shininessTexture")){
-                mat.shininessTexture = modelMaterial.Get("shininessTexture").Get<int>();
+                mat.shininessTexture = modelMaterial.Get("shininessTexture").Get<int>()+1;
             }
 
             if(modelMaterial.Has("shininessFactor")){
