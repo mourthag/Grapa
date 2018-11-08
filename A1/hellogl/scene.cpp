@@ -21,28 +21,42 @@ void Scene::loadTextures() {
     int texCount = model.textures.size();
     if(texCount > 0) {
 
-        tinygltf::Texture tex = model.textures[0];
-        tinygltf::Sampler sampler = model.samplers[tex.sampler];
-        tinygltf::Image img =  model.images[tex.source];
+        tinygltf::Texture firstTex = model.textures[0];
+        tinygltf::Sampler firstSampler = model.samplers[firstTex.sampler];
+        tinygltf::Image firstImg =  model.images[firstTex.source];
 
         glGenTextures(1, &textures);
         glBindTexture(GL_TEXTURE_2D_ARRAY, textures);
-        glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA, img.width, img.height, texCount,
+
+        //TODO: Sampler parameter
+
+        //texcount + 1 for the fallback texture in white
+        glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA, firstImg.width, firstImg.height, texCount+1,
                      0,
                      GL_RGBA,
                      GL_UNSIGNED_BYTE,
                      0
                      );
 
+        //fallbacktexture at first position
+        std::vector<unsigned char> fallBackTexData;
+        for(int row = 0; row < firstImg.height; row++) {
+            for(int column=0; column < firstImg.width; column++) {
+                fallBackTexData.push_back(255);
+                fallBackTexData.push_back(255);
+                fallBackTexData.push_back(255);
+                fallBackTexData.push_back(255);
+            }
+        }
+        glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 0, firstImg.width, firstImg.height, 1, GL_RGBA, GL_UNSIGNED_BYTE, &fallBackTexData[0]);
+
         for(int texture=0; texture < texCount; texture++) {
 
-            tex = model.textures[texture];
-            img =  model.images[tex.source];
+            tinygltf::Texture tex = model.textures[texture];
+            tinygltf::Image img =  model.images[tex.source];
 
-            //glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, texture, img.width, img.height, texCount, GL_RGBA, GL_UNSIGNED_BYTE, &img.image.at(0));
+            glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, texture+1, img.width, img.height, 1, GL_RGBA, GL_UNSIGNED_BYTE, &img.image[0]);
         }
-
-        //TODO: add standard texture in white
 
     }
 }
@@ -52,11 +66,12 @@ void Scene::loadMaterials() {
     if(matCount > 0) {
         for(int index = 0; index < matCount; index++) {
             tinygltf::Value modelMaterial = model.materials[index].extensions["KHR_materials_cmnBlinnPhong"];
+
+            //standard values already set up
             Material mat;
 
             if(modelMaterial.Has("diffuseTexture"))
                 mat.diffuseTexture = modelMaterial.Get("diffuseTexture").Get<int>();
-            else
                 mat.diffuseTexture = 0;
 
 
@@ -90,10 +105,15 @@ void Scene::loadMaterials() {
         }
     }
 
-    //TODO: Fill with standard material
+    //Fill with standard material
+    for( int index =matCount; index < 256; index++) {
+        Material mat;
+        materials.push_back(mat);
+    }
 
     glGenBuffers(1, &materialBuffer);
     glBindBuffer(GL_UNIFORM_BUFFER, materialBuffer);
+    //128 is size of struct in std140 -> size on GPU
     glBufferData(GL_UNIFORM_BUFFER, 256 * 128, NULL, GL_STATIC_DRAW);
 
     for(int i = 0 ; i < 256; i++) {
@@ -134,6 +154,7 @@ void Scene::loadMeshes(QOpenGLShaderProgram *prog) {
     for(int meshIndex = 0; meshIndex < meshCount; meshIndex++) {
         tinygltf::Mesh gltf_mesh = model.meshes[meshIndex];
         for(int primIndex = 0; primIndex < gltf_mesh.primitives.size(); primIndex++) {
+
             OpenGLModel *oglModel = (OpenGLModel*)malloc(sizeof(OpenGLModel));
             oglModel = new OpenGLModel();
             oglModel->loadGLTF(prog, &model, meshIndex, primIndex);

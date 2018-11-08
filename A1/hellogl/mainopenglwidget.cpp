@@ -69,7 +69,7 @@ void MainOpenGLWidget::paintGL()
     updateUniforms();
 
 
-    scene.drawScene((*activeProgram));
+    scene.drawScene((*activeProgram), &v);
 }
 
 void MainOpenGLWidget::resizeGL(int w, int h) {
@@ -239,7 +239,7 @@ void MainOpenGLWidget::updateUniforms() {
 
 void MainOpenGLWidget::loadModel(tinygltf::Model* gltf_model) {
 
-    scene.loadFromGLTF(gouraudProgram,*gltf_model);
+    scene.loadFromGLTF((*activeProgram),*gltf_model);
 
     //objects[0]->loadGLTF((*activeProgram), gltf_model, 0);
     update();

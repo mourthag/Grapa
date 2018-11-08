@@ -16,6 +16,20 @@ struct Material
     int specularTexture;
     float shininessFactor;
     int shininessTexture;
+
+    Material() {
+        diffuseFactor[0] = 1;
+        diffuseFactor[1] = 1;
+        diffuseFactor[2] = 1;
+        diffuseFactor[3] = 1;
+        diffuseTexture = 0;
+        specularFactor[0] = 1;
+        specularFactor[1] = 1;
+        specularFactor[2] = 1;
+        specularTexture = 0;
+        shininessFactor = 10;
+        shininessTexture = 0;
+    }
 };
 
 class Scene : QOpenGLFunctions_4_0_Core

@@ -174,7 +174,7 @@ void OpenGLModel::loadGLTF(QOpenGLShaderProgram *prog, tinygltf::Model *gltf_mod
 
     glBindVertexArray(vao);
 
-    GLuint attributeIndex = prog->attributeLocation("pos");
+    GLint attributeIndex = prog->attributeLocation("pos");
     loadGLTFAttribute("POSITION", gltf_model, mesh, primIndex, vbo, attributeIndex);
     attributeIndex = prog->attributeLocation("vertnormal");
     loadGLTFAttribute("NORMAL", gltf_model, mesh, primIndex, nbo, attributeIndex);
@@ -185,9 +185,9 @@ void OpenGLModel::loadGLTF(QOpenGLShaderProgram *prog, tinygltf::Model *gltf_mod
 
     materialIndex = gltf_model->meshes[mesh].primitives[primIndex].material;
 
-    glBindVertexArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+//    glBindVertexArray(0);
+//    glBindBuffer(GL_ARRAY_BUFFER, 0);
+//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 }
 
@@ -200,8 +200,6 @@ void OpenGLModel::loadGLTFAttribute(std::string name, tinygltf::Model *model, in
     tinygltf::Buffer buffer = model->buffers[bufferView.buffer];
 
     int size = accessor.type;
-    qDebug() << size;
-
 
     glBindBuffer(bufferView.target, glBufferIndex);
     glBufferData(bufferView.target, bufferView.byteLength, &buffer.data[bufferView.byteOffset], GL_STATIC_DRAW);
@@ -243,8 +241,10 @@ void OpenGLModel::convertBuffer(const int size, int offset, int stride, int leng
 void OpenGLModel::drawModel() {
 
     glBindVertexArray(vao);
+    qDebug() << vao << " at: " << &vao;
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
     glDrawElements(GL_TRIANGLES, 3 * num_tris, index_type, (void*)index_offset);
+    glBindVertexArray(0);
 }
 
 void OpenGLModel::setUpDrawing(QOpenGLShaderProgram *program, QMatrix4x4 *viewMat) {    //for shading calculations in viewspace
