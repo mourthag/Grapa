@@ -56,5 +56,5 @@ void main(void)
 
     color = aPart + dPart + sPart;
     gl_Position = p * v * m * vec4(pos,1.0);
-    normal = norm;
+    normal = spec;
 }

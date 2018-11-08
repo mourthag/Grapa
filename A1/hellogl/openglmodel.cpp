@@ -238,17 +238,11 @@ void OpenGLModel::convertBuffer(const int size, int offset, int stride, int leng
 
 }
 
-void OpenGLModel::drawModel() {
+void OpenGLModel::drawModel(QOpenGLShaderProgram *program) {
 
+    program->setUniformValue("materialIndex", materialIndex);
     glBindVertexArray(vao);
     glDrawElements(GL_TRIANGLES, 3 * num_tris, index_type, (void*)index_offset);
     glBindVertexArray(0);
 }
 
-void OpenGLModel::setUpDrawing(QOpenGLShaderProgram *program, QMatrix4x4 *viewMat) {    //for shading calculations in viewspace
-
-    program->setUniformValue("m", model_mat);
-    program->setUniformValue("normalMat", (*viewMat * model_mat).normalMatrix());
-    program->setUniformValue("materialIndex", materialIndex);
-
-}

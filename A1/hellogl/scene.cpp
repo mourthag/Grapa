@@ -8,9 +8,9 @@ Scene::~Scene() {
     glDeleteTextures(1, &textures);
     glDeleteBuffers(1, &materialBuffer);
 
-    for(int i=0; i < oglmodels.size(); i++) {
-        oglmodels[i]->clear();
-        delete(oglmodels[i]);
+    for(int i=0; i < rootNodes.size(); i++) {
+        rootNodes[i]->clear();
+        delete(rootNodes[i]);
     }
 }
 
@@ -168,24 +168,21 @@ void Scene::loadMaterials() {
 }
 
 void Scene::loadMeshes(QOpenGLShaderProgram *prog) {
-    int meshCount = model.meshes.size();
-    for(int meshIndex = 0; meshIndex < meshCount; meshIndex++) {
-        tinygltf::Mesh gltf_mesh = model.meshes[meshIndex];
-        for(int primIndex = 0; primIndex < gltf_mesh.primitives.size(); primIndex++) {
 
-            OpenGLModel *oglModel = (OpenGLModel*)malloc(sizeof(OpenGLModel));
-            oglModel = new OpenGLModel();
-            oglModel->loadGLTF(prog, &model, meshIndex, primIndex);
-            oglmodels.push_back(oglModel);
-        }
+    for(int i = 0; i < model.scenes[0].nodes.size(); i++) {
+        int node_index = model.scenes[0].nodes[i];
 
+        Node *node = (Node*)malloc(sizeof(Node));
+        node = new Node(prog, &model, node_index);
+        rootNodes.push_back(node);
     }
+
+
 }
 
 void Scene::drawScene(QOpenGLShaderProgram *prog, QMatrix4x4 *viewMat) {
-    for(int i=0 ; i < oglmodels.size(); i++) {
-        oglmodels[i]->setUpDrawing(prog, viewMat);
-        oglmodels[i]->drawModel();
+    for(int i=0 ; i < rootNodes.size(); i++) {
+        rootNodes[i]->draw(prog, viewMat);
     }
 
 }

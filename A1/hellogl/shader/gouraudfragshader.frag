@@ -8,5 +8,5 @@ in vec4 color;
 void main(void)
 {
 
-    frag = color;
+    frag = vec4(normal, 1.0);
 }

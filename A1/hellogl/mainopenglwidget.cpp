@@ -235,7 +235,6 @@ void MainOpenGLWidget::updateUniforms() {
     (*activeProgram)->setUniformValue("lightInt", lightInt);
     (*activeProgram)->setUniformValue("v", v);
     (*activeProgram)->setUniformValue("p", p);
-    (*activeProgram)->setUniformValue("n", shininess);
 }
 
 void MainOpenGLWidget::loadModel(tinygltf::Model* gltf_model) {
@@ -244,18 +243,8 @@ void MainOpenGLWidget::loadModel(tinygltf::Model* gltf_model) {
     scene.loadFromGLTF((*activeProgram),*gltf_model);
     doneCurrent();
 
-    //objects[0]->loadGLTF((*activeProgram), gltf_model, 0);
     update();
 
 
 }
-
-void MainOpenGLWidget::clearObjects() {
-    for(int index=0; index < objects.size(); index++) {
-        objects[index]->clear();
-        delete(objects[index]);
-    }
-    objects.clear();
-}
-
 

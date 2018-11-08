@@ -19,10 +19,7 @@ public:
     //void generateCube(int tesselation);
 
     void clear();
-    void drawModel();
-    void setUpDrawing(QOpenGLShaderProgram *program, QMatrix4x4 *viewMat);
-
-    QMatrix4x4 model_mat;
+    void drawModel(QOpenGLShaderProgram *program);
 private:
     void loadGLTFAttribute(std::string name, tinygltf::Model *model, int mesh, int primitive, GLuint glBufferIndex, GLint glAttributeIndex);
     void loadGLTFIndices(tinygltf::Model *model, int mesh, int primitive);

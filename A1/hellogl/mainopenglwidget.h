@@ -47,7 +47,6 @@ protected:
     void wheelEvent(QWheelEvent *event ) override;
 
     void updateUniforms();
-    void clearObjects();
 
     QPointF pixelPosToViewPos(const QPointF& point);
 private:
@@ -73,8 +72,6 @@ private:
     QOpenGLShaderProgram **activeProgram;
     QOpenGLShaderProgram *phongProgram;
     QOpenGLShaderProgram *gouraudProgram;
-
-    std::vector<OpenGLModel*> objects;
 };
 
 #endif // MAINOPENGLWIDGET_H
