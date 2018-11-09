@@ -6,7 +6,7 @@ Node::Node(QOpenGLShaderProgram *prog, tinygltf::Model *model, int nodeIndex): p
     QMatrix4x4 matrix;
     matrix.setToIdentity();
     tinygltf::Node gltf_node = model->nodes[nodeIndex];
-    name = gltf_node.name;
+    name = nodeIndex;
 
     if(gltf_node.matrix.size() > 0) {
         matrix = QMatrix4x4(reinterpret_cast<float*>(&gltf_node.matrix.at(0)));

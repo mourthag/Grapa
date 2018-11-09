@@ -37,14 +37,12 @@ void Scene::loadTextures(QOpenGLShaderProgram *prog) {
         tinygltf::Sampler firstSampler = model.samplers[firstTex.sampler];
         tinygltf::Image firstImg =  model.images[firstTex.source];
 
-        prog->setUniformValue("matTextures", 0);
-
         glActiveTexture(GL_TEXTURE0);
         glGenTextures(1, &textures);
         glBindTexture(GL_TEXTURE_2D_ARRAY, textures);
 
         //texcount + 1 for the fallback texture in white
-        glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA, firstImg.width, firstImg.height, texCount+1,
+        glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA8, firstImg.width, firstImg.height, texCount+ 1,
                      0,
                      GL_RGBA,
                      GL_UNSIGNED_BYTE,
@@ -52,10 +50,10 @@ void Scene::loadTextures(QOpenGLShaderProgram *prog) {
                      );
 
 
-        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, firstSampler.magFilter);
-        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, firstSampler.minFilter);
-        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, firstSampler.wrapS);
-        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, firstSampler.wrapT);
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
         //fallbacktexture at first position
         std::vector<unsigned char> fallBackTexData;
@@ -131,27 +129,18 @@ void Scene::loadMaterials() {
 
     glGenBuffers(1, &materialBuffer);
     glBindBuffer(GL_UNIFORM_BUFFER, materialBuffer);
-    //128 is size of struct in std140 -> size on GPU
-    glBufferData(GL_UNIFORM_BUFFER, 256 * 128, NULL, GL_STATIC_DRAW);
+    //64 is size of struct in std140 -> size on GPU
+    glBufferData(GL_UNIFORM_BUFFER, 256 * 64, NULL, GL_STATIC_DRAW);
 
     for(int i = 0 ; i < 256; i++) {
-        int offset = i * 128;
+        int offset = i * 64;
         Material mat = materials[i];
-        glBufferSubData(GL_UNIFORM_BUFFER, offset, sizeof(GLfloat), &mat.diffuseFactor[0]);
-        offset += 16;
-        glBufferSubData(GL_UNIFORM_BUFFER, offset, sizeof(GLfloat), &mat.diffuseFactor[1]);
-        offset += 16;
-        glBufferSubData(GL_UNIFORM_BUFFER, offset, sizeof(GLfloat), &mat.diffuseFactor[2]);
-        offset += 16;
-        glBufferSubData(GL_UNIFORM_BUFFER, offset, sizeof(GLfloat), &mat.diffuseFactor[3]);
+        glBufferSubData(GL_UNIFORM_BUFFER, offset, 4 * sizeof(GLfloat), &mat.diffuseFactor[0]);
         offset += 16;
         glBufferSubData(GL_UNIFORM_BUFFER, offset, sizeof(int), &mat.diffuseTexture);
-        offset += 4;
-        glBufferSubData(GL_UNIFORM_BUFFER, offset, sizeof(GLfloat), &mat.specularFactor[0]);
+        //padding for base offset o the next vec3
         offset += 16;
-        glBufferSubData(GL_UNIFORM_BUFFER, offset, sizeof(GLfloat), &mat.specularFactor[1]);
-        offset += 16;
-        glBufferSubData(GL_UNIFORM_BUFFER, offset, sizeof(GLfloat), &mat.specularFactor[2]);
+        glBufferSubData(GL_UNIFORM_BUFFER, offset, 3 * sizeof(GLfloat), &mat.specularFactor[0]);
         offset += 16;
         glBufferSubData(GL_UNIFORM_BUFFER, offset, sizeof(int), &mat.specularTexture);
         offset += 4;
@@ -181,6 +170,9 @@ void Scene::loadMeshes(QOpenGLShaderProgram *prog) {
 }
 
 void Scene::drawScene(QOpenGLShaderProgram *prog, QMatrix4x4 *viewMat) {
+    prog->setUniformValue("matTextures", 0);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, textures);
     for(int i=0 ; i < rootNodes.size(); i++) {
         rootNodes[i]->draw(prog, viewMat);
     }

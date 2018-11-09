@@ -29,7 +29,8 @@ SOURCES += \
     mainopenglwidget.cpp \
     openglmodel.cpp \
     scene.cpp \
-    node.cpp
+    node.cpp \
+    animation.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -39,7 +40,8 @@ HEADERS += \
     stb_image.h \
     openglmodel.h \
     scene.h \
-    node.h
+    node.h \
+    animation.h
 
 DISTFILES += \
     shader/phongfragshader.frag \

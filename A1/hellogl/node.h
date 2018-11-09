@@ -24,7 +24,7 @@ public:
 protected:
     void setParentNode(Node *parent);
 
-    std::string name;
+    int name;
 
     QMatrix4x4 modelMatrix;
     QMatrix4x4 getTotalMatrix();
