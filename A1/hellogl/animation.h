@@ -9,15 +9,16 @@
 class Animation
 {
 
-
 public:
+
+
+    Animation(Node *targetNode, tinygltf::Model *gltf_model, int animationIndex, int channelIndex);
+
     enum AnimationType {
         Rotation,
         Translation,
         Scaling
-    }
-
-    Animation(Node *targetNode, tinygltf::Model *gltf_model, int animationIndex, int channelIndex);
+    };
 
     void updateNode(QTime *time);
     bool isFinished();

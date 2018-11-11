@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui opengl
+QT       += core gui opengl charts
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -30,7 +30,9 @@ SOURCES += \
     openglmodel.cpp \
     scene.cpp \
     node.cpp \
-    animation.cpp
+    animation.cpp \
+    performancechart.cpp \
+    scenerenderer.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -41,13 +43,19 @@ HEADERS += \
     openglmodel.h \
     scene.h \
     node.h \
-    animation.h
+    animation.h \
+    performancechart.h \
+    scenerenderer.h
 
 DISTFILES += \
     shader/phongfragshader.frag \
     shader/phongvertshader.vert \
     shader/gouraudvertshader.vert \
-    shader/gouraudfragshader.frag
+    shader/gouraudfragshader.frag \
+    shader/geometrypassfragshader.frag \
+    shader/geometrypassvertshader.vert \
+    shader/lightingpassvertshader.vert \
+    shader/lightingpassfragshader.frag
 
 RESOURCES += \
     hellogl.qrc

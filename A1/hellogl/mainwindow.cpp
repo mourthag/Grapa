@@ -12,6 +12,7 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
     setWindowTitle("Hello GL");
+    setMinimumSize(600,600);
 
     QMenuBar *menuBar = new QMenuBar();
 
@@ -115,6 +116,10 @@ MainWindow::MainWindow(QWidget *parent)
     widget = new MainOpenGLWidget;
     widget->setFormat(QSurfaceFormat::defaultFormat());
     setCentralWidget(widget);
+
+    QDockWidget *dockWidget = new QDockWidget(tr("Performance Log"), this);
+    dockWidget->setWidget(widget->getChartView());
+    addDockWidget(Qt::RightDockWidgetArea, dockWidget);
 
     //connect all the widget slots and signals for the interface
     connect(resetCameraAction, SIGNAL(triggered()), widget, SLOT(resetCamera()));

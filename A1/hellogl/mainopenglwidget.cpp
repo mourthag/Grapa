@@ -4,12 +4,24 @@
 
 MainOpenGLWidget::MainOpenGLWidget(QWidget *parent) : QOpenGLWidget(parent)
 {
-    //set up matrices
-    m = QMatrix4x4();
+    frameCounter = 0;
+
+    //update at ~60FPS
+    QTimer *timer = new QTimer(this);
+    connect(timer, SIGNAL(timeout()), this, SLOT(update()));
+    timer->start(16);
+
+    useQueryB = false;
+    performanceLogger = new PerformanceChart();
+
+    queryObjectsA = std::vector<GLuint>(NumQueries);
+    queryObjectsB = std::vector<GLuint>(NumQueries);
+    queryResultsA = std::vector<GLuint64>(NumQueries);
+    queryResultsB = std::vector<GLuint64>(NumQueries);
+
     v = QMatrix4x4();
     p = QMatrix4x4();
 
-    m.setToIdentity();
     v.setToIdentity();
     p.setToIdentity();
     v.lookAt(QVector3D(2, 2, 3), QVector3D(0,0,0), QVector3D(0,1,0));
@@ -18,7 +30,6 @@ MainOpenGLWidget::MainOpenGLWidget(QWidget *parent) : QOpenGLWidget(parent)
     isWireframe = false;
     modelLoaded = false;
     tesselation = 1;
- //   updateVertices();
 
     //set up lightning
     lightInt = 1.0;
@@ -34,7 +45,8 @@ MainOpenGLWidget::~MainOpenGLWidget() {
 void MainOpenGLWidget::initializeGL() {
 
     initializeOpenGLFunctions();
-    glClearColor(1.0,1.0,1.0,1.0);
+
+    glClearColor(1,1,1,1);
 
     gouraudProgram = new QOpenGLShaderProgram();
     gouraudProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shader/gouraudvertshader.vert");
@@ -47,12 +59,12 @@ void MainOpenGLWidget::initializeGL() {
     phongProgram->link();
 
     scene.initGL();
+    renderer.initGL();
 
-//    OpenGLModel *model = (OpenGLModel*)malloc(sizeof(OpenGLModel));
-//    model = new OpenGLModel();
-//    model->generateCube(tesselation);
-//    objects.push_back(model);
+    renderer.setRenderMode(SceneRenderer::Phong);
 
+    glGenQueries(NumQueries, queryObjectsA.data());
+    glGenQueries(NumQueries, queryObjectsB.data());
 }
 
 void MainOpenGLWidget::paintGL()
@@ -69,8 +81,38 @@ void MainOpenGLWidget::paintGL()
 
     updateUniforms();
 
+    if(useQueryB)
+        glQueryCounter(queryObjectsB[0], GL_TIMESTAMP);
+    else
+        glQueryCounter(queryObjectsA[0], GL_TIMESTAMP);
 
-    scene.drawScene((*activeProgram), &v);
+    renderer.drawScene(&scene, &v);
+
+    if(useQueryB)
+        glQueryCounter(queryObjectsB[1], GL_TIMESTAMP);
+    else
+        glQueryCounter(queryObjectsA[1], GL_TIMESTAMP);
+
+    for (auto i = 0 ; i < NumQueries ; i++ ) {
+        if(useQueryB) {
+            glGetQueryObjectui64v(queryObjectsA[i], GL_QUERY_RESULT , queryResultsA.data() + i);
+        }
+        else{
+            glGetQueryObjectui64v(queryObjectsB[i], GL_QUERY_RESULT , queryResultsB.data() + i);
+        }
+    }
+    if(frameCounter % 33 == 0) {
+
+        if(useQueryB)
+            performanceLogger->addData(frameCounter, queryResultsA[1] - queryResultsA[0]);
+        else
+            performanceLogger->addData(frameCounter, queryResultsB[1] - queryResultsB[0]);
+
+    }
+
+    useQueryB = !useQueryB;
+    frameCounter++;
+
 }
 
 void MainOpenGLWidget::resizeGL(int w, int h) {
@@ -83,7 +125,7 @@ void MainOpenGLWidget::resizeGL(int w, int h) {
 
     //projection matrix
     p.setToIdentity();
-    p.perspective(45.0, (float)w/(float)h, 0.1, 10);
+    p.perspective(45.0, (float)w/(float)h, 0.1, 10000);
     cameraUpdated(&v);
 }
 
@@ -191,9 +233,6 @@ void MainOpenGLWidget::setShininess(int s) {
 void MainOpenGLWidget::setTesselation(int t) {
     tesselation = t;
 
-//    OpenGLModel *model = objects[0];
-//    model->generateCube(tesselation);
-
     update();
 }
 
@@ -237,9 +276,15 @@ void MainOpenGLWidget::updateUniforms() {
     (*activeProgram)->setUniformValue("p", p);
 }
 
+QChartView* MainOpenGLWidget::getChartView() {
+    return performanceLogger->getChartView();
+}
+
 void MainOpenGLWidget::loadModel(tinygltf::Model* gltf_model) {
 
+
     makeCurrent();
+    scene.clear();
     scene.loadFromGLTF((*activeProgram),*gltf_model);
     doneCurrent();
 

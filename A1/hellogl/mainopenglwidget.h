@@ -8,8 +8,10 @@
 #include <QOpenGLShaderProgram>
 #include <QMatrix4x4>
 #include <QQuaternion>
+#include <QTimer>
 
-#include <openglmodel.h>
+#include <scenerenderer.h>
+#include <performancechart.h>
 #include <scene.h>
 
 #define TINYGLTF_NO_STB_IMAGE_WRITE
@@ -35,6 +37,7 @@ public slots:
     void setLightPos(QVector3D v);
     void loadModel(tinygltf::Model *gltf_model);
 
+    QChartView* getChartView();
 signals:
     void cameraUpdated(QMatrix4x4 *viewMat);
 
@@ -51,6 +54,17 @@ protected:
     QPointF pixelPosToViewPos(const QPointF& point);
 private:
     Scene scene;
+    SceneRenderer renderer;
+
+    PerformanceChart *performanceLogger;
+
+    long frameCounter;
+    static const auto NumQueries = 2 ;
+    bool useQueryB;
+    std::vector<GLuint> queryObjectsA;
+    std::vector<GLuint64> queryResultsA;
+    std::vector<GLuint> queryObjectsB;
+    std::vector<GLuint64> queryResultsB;
 
     int width;
     int height;
@@ -63,7 +77,6 @@ private:
     bool isWireframe;
     bool modelLoaded;
 
-    QMatrix4x4 m;
     QMatrix4x4 v;
     QMatrix4x4 p;
 

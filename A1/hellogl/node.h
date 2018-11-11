@@ -19,14 +19,17 @@ public:
     void addModel(OpenGLModel *model);
     void loadMesh(QOpenGLShaderProgram *prog, tinygltf::Model *gltf_model, int meshIndex);
     void addChild(Node *child);
+    void updateModelMatrix(QMatrix4x4 newMatrix);
 
     void draw(QOpenGLShaderProgram * prog, QMatrix4x4 *viewMat);
+    Node* findNode(int nodeIndex);
 protected:
     void setParentNode(Node *parent);
 
     int name;
 
     QMatrix4x4 modelMatrix;
+    QMatrix4x4 animationMatrix;
     QMatrix4x4 getTotalMatrix();
     Node *parentNode;
 

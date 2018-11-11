@@ -1,10 +1,17 @@
 #include "scene.h"
 
-Scene::Scene()
+Scene::Scene() : wasLoaded(false)
 {
+    timer.start();
 }
 
 Scene::~Scene() {
+    if(!wasLoaded)
+        return;
+
+    clear();
+}
+void Scene::clear() {
     glDeleteTextures(1, &textures);
     glDeleteBuffers(1, &materialBuffer);
 
@@ -12,6 +19,11 @@ Scene::~Scene() {
         rootNodes[i]->clear();
         delete(rootNodes[i]);
     }
+    rootNodes.clear();
+    for(int j=0; j < animations.size(); j++) {
+        delete(animations[j]);
+    }
+    animations.clear();
 }
 
 void Scene::initGL(){
@@ -26,7 +38,9 @@ void Scene::loadFromGLTF(QOpenGLShaderProgram *prog,  tinygltf::Model gltf_model
     loadTextures(prog);
     loadMaterials();
     loadMeshes(prog);
+    loadAnimations();
 
+    wasLoaded = true;
 }
 
 void Scene::loadTextures(QOpenGLShaderProgram *prog) {
@@ -48,12 +62,14 @@ void Scene::loadTextures(QOpenGLShaderProgram *prog) {
                      GL_UNSIGNED_BYTE,
                      0
                      );
+        glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
+
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, firstSampler.magFilter);
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, firstSampler.minFilter);
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, firstSampler.wrapS);
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, firstSampler.wrapT);
 
 
-        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
         //fallbacktexture at first position
         std::vector<unsigned char> fallBackTexData;
@@ -70,10 +86,17 @@ void Scene::loadTextures(QOpenGLShaderProgram *prog) {
         for(int texture=0; texture < texCount; texture++) {
 
             tinygltf::Texture tex = model.textures[texture];
+
+            if(tex.source >= model.images.size()) {
+                qDebug() << "Undefined texture source: " << tex.source;
+                continue;
+            }
+
             tinygltf::Image img =  model.images[tex.source];
 
             glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, texture+1, img.width, img.height, 1, GL_RGBA, GL_UNSIGNED_BYTE, &img.image[0]);
         }
+        glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
 
     }
 }
@@ -88,7 +111,7 @@ void Scene::loadMaterials() {
             Material mat;
 
             if(modelMaterial.Has("diffuseTexture"))
-                mat.diffuseTexture = modelMaterial.Get("diffuseTexture").Get<int>()+1;
+                mat.diffuseTexture = modelMaterial.Get("diffuseTexture").Get("index").Get<int>()+1;
 
 
             if(modelMaterial.Has("diffuseFactor")){
@@ -100,7 +123,7 @@ void Scene::loadMaterials() {
             }
 
             if(modelMaterial.Has("specularTexture"))
-                mat.diffuseTexture = modelMaterial.Get("specularTexture").Get<int>()+1;
+                mat.diffuseTexture = modelMaterial.Get("specularTexture").Get("index").Get<int>()+1;
 
             if(modelMaterial.Has("specularFactor")){
 
@@ -110,7 +133,7 @@ void Scene::loadMaterials() {
             }
 
             if(modelMaterial.Has("shininessTexture")){
-                mat.shininessTexture = modelMaterial.Get("shininessTexture").Get<int>()+1;
+                mat.shininessTexture = modelMaterial.Get("shininessTexture").Get("index").Get<int>()+1;
             }
 
             if(modelMaterial.Has("shininessFactor")){
@@ -158,6 +181,7 @@ void Scene::loadMaterials() {
 
 void Scene::loadMeshes(QOpenGLShaderProgram *prog) {
 
+
     for(int i = 0; i < model.scenes[0].nodes.size(); i++) {
         int node_index = model.scenes[0].nodes[i];
 
@@ -169,7 +193,48 @@ void Scene::loadMeshes(QOpenGLShaderProgram *prog) {
 
 }
 
+void Scene::loadAnimations() {
+    for(int animationIndex = 0; animationIndex < model.animations.size(); animationIndex++) {
+        tinygltf::Animation gltf_animation = model.animations[animationIndex];
+        for(int channelIndex = 0; channelIndex < gltf_animation.channels.size(); channelIndex++) {
+
+            tinygltf::AnimationChannel channel = gltf_animation.channels[channelIndex];
+            Node* node = findNode(channel.target_node);
+
+            if(!node) {
+                qDebug() << "Can't find node: " << channel.target_node;
+                continue;
+            }
+
+            Animation *animation = (Animation*)malloc(sizeof(Animation));
+
+            animation = new Animation(node, &model, animationIndex, channelIndex);
+            animations.push_back(animation);
+        }
+    }
+
+}
+
+Node* Scene::findNode(int nodeIndex) {
+    Node* node = NULL;
+
+    for(int i = 0; i < rootNodes.size(); i++) {
+        if(!node)
+            node = rootNodes[i]->findNode(nodeIndex);
+    }
+    return node;
+}
+
 void Scene::drawScene(QOpenGLShaderProgram *prog, QMatrix4x4 *viewMat) {
+
+    bool allAnimationsFinished = true;
+    for(int animation = 0; animation < animations.size(); animation++) {
+        animations[animation]->updateNode(&timer);
+        allAnimationsFinished &= animations[animation]->isFinished();
+    }
+    if(allAnimationsFinished)
+        timer.restart();
+
     prog->setUniformValue("matTextures", 0);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D_ARRAY, textures);

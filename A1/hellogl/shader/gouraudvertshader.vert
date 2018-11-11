@@ -36,7 +36,7 @@ void main(void)
 
     Material mat = materials[materialIndex];
 
-    vec3 vLightPos = vec3(p * v * m * vec4(lightPos, 1.0));
+    vec3 vLightPos = vec3(v * m * vec4(lightPos, 1.0));
     vec3 lightDir = normalize(vLightPos - vPos.xyz);
     vec3 reflection = reflect(-lightDir,norm);
     vec3 viewDir = normalize(-vPos.xyz);

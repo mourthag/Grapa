@@ -4,8 +4,10 @@
 #include <QOpenGLFunctions_4_0_Core>
 #include <QDebug>
 #include <QOpenGLShaderProgram>
+#include <QTime>
 
 #include <node.h>
+#include <animation.h>
 #include <openglmodel.h>
 #include "tiny_gltf.h"
 
@@ -42,14 +44,20 @@ public:
     Scene();
     ~Scene();
     void initGL();
+    void clear();
 
     void loadFromGLTF(QOpenGLShaderProgram *prog, tinygltf::Model gltf_model);
     void drawScene(QOpenGLShaderProgram *prog, QMatrix4x4 *viewMat);
-
+    Node* findNode(int nodeIndex);
 private:
     void loadTextures(QOpenGLShaderProgram *prog);
     void loadMaterials();
+    void loadAnimations();
     void loadMeshes(QOpenGLShaderProgram *prog);
+
+    QTime timer;
+
+    bool wasLoaded;
 
     tinygltf::Model model;
 
@@ -58,6 +66,7 @@ private:
     GLuint materialBuffer;
     std::vector<Material> materials;
 
+    std::vector<Animation*> animations;
     std::vector<Node*> rootNodes;
     std::vector<OpenGLModel*> oglmodels;
 };

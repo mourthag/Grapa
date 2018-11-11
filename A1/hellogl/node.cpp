@@ -2,14 +2,25 @@
 
 Node::Node(QOpenGLShaderProgram *prog, tinygltf::Model *model, int nodeIndex): parentNode(NULL) {
 
+    animationMatrix.setToIdentity();
 
     QMatrix4x4 matrix;
     matrix.setToIdentity();
+
     tinygltf::Node gltf_node = model->nodes[nodeIndex];
     name = nodeIndex;
 
     if(gltf_node.matrix.size() > 0) {
-        matrix = QMatrix4x4(reinterpret_cast<float*>(&gltf_node.matrix.at(0)));
+
+        for(int column=0; column < 4; column++) {
+            QVector4D col;
+
+            col.setX(gltf_node.matrix[column * 4 + 0]);
+            col.setY(gltf_node.matrix[column * 4 + 1]);
+            col.setZ(gltf_node.matrix[column * 4 + 2]);
+            col.setW(gltf_node.matrix[column * 4 + 3]);
+            matrix.setColumn(column, col);
+        }
     }
     else {
         QMatrix4x4 scaleMat;
@@ -85,12 +96,29 @@ void Node::addChild(Node *child) {
     child->setParentNode(this);
 }
 
+void Node::updateModelMatrix(QMatrix4x4 newMatrix) {
+    animationMatrix = newMatrix;
+}
+
+Node* Node::findNode(int nodeIndex) {
+    if(name == nodeIndex)
+        return this;
+    else {
+        Node* nodePtr = NULL;
+        for(int i = 0; i< children.size(); i++) {
+            if(!nodePtr)
+                nodePtr = children[i]->findNode(nodeIndex);
+        }
+        return nodePtr;
+    }
+}
+
 QMatrix4x4 Node::getTotalMatrix() {
     if(parentNode) {
-        return parentNode->getTotalMatrix() * modelMatrix;
+        return parentNode->getTotalMatrix() * modelMatrix * animationMatrix;
     }
     else
-        return modelMatrix;
+        return modelMatrix * animationMatrix;
 }
 
 void Node::draw(QOpenGLShaderProgram *prog, QMatrix4x4 *viewMat) {

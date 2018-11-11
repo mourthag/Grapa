@@ -8,5 +8,9 @@
         <file>shader/phongvertshader.vert</file>
         <file>shader/gouraudfragshader.frag</file>
         <file>shader/gouraudvertshader.vert</file>
+        <file>shader/geometrypassfragshader.frag</file>
+        <file>shader/geometrypassvertshader.vert</file>
+        <file>shader/lightingpassfragshader.frag</file>
+        <file>shader/lightingpassvertshader.vert</file>
     </qresource>
 </RCC>
