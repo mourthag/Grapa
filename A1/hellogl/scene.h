@@ -35,6 +35,13 @@ struct Material
     }
 };
 
+struct CameraLightInfo {
+    QMatrix4x4 viewMatrix;
+    QMatrix4x4 projMatrix;
+    QVector3D lightPos;
+    float lightInt;
+};
+
 class Scene : QOpenGLFunctions_4_0_Core
 {
 
@@ -46,14 +53,18 @@ public:
     void initGL();
     void clear();
 
-    void loadFromGLTF(QOpenGLShaderProgram *prog, tinygltf::Model gltf_model);
-    void drawScene(QOpenGLShaderProgram *prog, QMatrix4x4 *viewMat);
+    void loadFromGLTF(tinygltf::Model gltf_model);
+    void drawScene(QOpenGLShaderProgram *prog);
     Node* findNode(int nodeIndex);
+    CameraLightInfo *getCameraLightInfo();/*
+    void setViewMatrix(QMatrix4x4 viewMatrix);
+    void setProjectionMatrix(QMatrix4x4 projectionMatrix);
+    void setLightInfo(QVector3D lightPosition, float lightIntensity);*/
 private:
-    void loadTextures(QOpenGLShaderProgram *prog);
+    void loadTextures();
     void loadMaterials();
     void loadAnimations();
-    void loadMeshes(QOpenGLShaderProgram *prog);
+    void loadMeshes();
 
     QTime timer;
 
@@ -62,6 +73,8 @@ private:
     tinygltf::Model model;
 
     GLuint textures;
+
+    CameraLightInfo camLightInfo;
 
     GLuint materialBuffer;
     std::vector<Material> materials;

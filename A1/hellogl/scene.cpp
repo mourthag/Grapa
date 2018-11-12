@@ -31,19 +31,22 @@ void Scene::initGL(){
   initializeOpenGLFunctions();
 }
 
-void Scene::loadFromGLTF(QOpenGLShaderProgram *prog,  tinygltf::Model gltf_model) {
+void Scene::loadFromGLTF(tinygltf::Model gltf_model) {
     model = gltf_model;
 
-    prog->bind();
-    loadTextures(prog);
+    loadTextures();
     loadMaterials();
-    loadMeshes(prog);
+    loadMeshes();
     loadAnimations();
 
     wasLoaded = true;
 }
 
-void Scene::loadTextures(QOpenGLShaderProgram *prog) {
+CameraLightInfo* Scene::getCameraLightInfo() {
+    return &camLightInfo;
+}
+
+void Scene::loadTextures() {
     int texCount = model.textures.size();
     if(texCount > 0) {
 
@@ -179,14 +182,14 @@ void Scene::loadMaterials() {
 
 }
 
-void Scene::loadMeshes(QOpenGLShaderProgram *prog) {
+void Scene::loadMeshes() {
 
 
     for(int i = 0; i < model.scenes[0].nodes.size(); i++) {
         int node_index = model.scenes[0].nodes[i];
 
         Node *node = (Node*)malloc(sizeof(Node));
-        node = new Node(prog, &model, node_index);
+        node = new Node(&model, node_index);
         rootNodes.push_back(node);
     }
 
@@ -225,7 +228,7 @@ Node* Scene::findNode(int nodeIndex) {
     return node;
 }
 
-void Scene::drawScene(QOpenGLShaderProgram *prog, QMatrix4x4 *viewMat) {
+void Scene::drawScene(QOpenGLShaderProgram *prog) {
 
     bool allAnimationsFinished = true;
     for(int animation = 0; animation < animations.size(); animation++) {
@@ -235,11 +238,16 @@ void Scene::drawScene(QOpenGLShaderProgram *prog, QMatrix4x4 *viewMat) {
     if(allAnimationsFinished)
         timer.restart();
 
+    prog->setUniformValue("v", camLightInfo.viewMatrix);
+    prog->setUniformValue("p", camLightInfo.projMatrix);
+    prog->setUniformValue("lightPos", camLightInfo.lightPos);
+    prog->setUniformValue("lightInt", camLightInfo.lightInt);
+
     prog->setUniformValue("matTextures", 0);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D_ARRAY, textures);
     for(int i=0 ; i < rootNodes.size(); i++) {
-        rootNodes[i]->draw(prog, viewMat);
+        rootNodes[i]->draw(prog, &camLightInfo.viewMatrix);
     }
 
 }

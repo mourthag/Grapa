@@ -19,23 +19,11 @@ MainOpenGLWidget::MainOpenGLWidget(QWidget *parent) : QOpenGLWidget(parent)
     queryResultsA = std::vector<GLuint64>(NumQueries);
     queryResultsB = std::vector<GLuint64>(NumQueries);
 
-    v = QMatrix4x4();
-    p = QMatrix4x4();
-
-    v.setToIdentity();
-    p.setToIdentity();
-    v.lookAt(QVector3D(2, 2, 3), QVector3D(0,0,0), QVector3D(0,1,0));
-
     //set up data and shading
     isWireframe = false;
     modelLoaded = false;
     tesselation = 1;
 
-    //set up lightning
-    lightInt = 1.0;
-    lightPos = QVector3D(-2.0,2.0,-1.0);
-
-    activeProgram = &phongProgram;
 }
 
 MainOpenGLWidget::~MainOpenGLWidget() {
@@ -48,20 +36,13 @@ void MainOpenGLWidget::initializeGL() {
 
     glClearColor(1,1,1,1);
 
-    gouraudProgram = new QOpenGLShaderProgram();
-    gouraudProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shader/gouraudvertshader.vert");
-    gouraudProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shader/gouraudfragshader.frag");
-    gouraudProgram->link();
-
-    phongProgram = new QOpenGLShaderProgram();
-    phongProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shader/phongvertshader.vert");
-    phongProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shader/phongfragshader.frag");
-    phongProgram->link();
-
     scene.initGL();
     renderer.initGL();
 
-    renderer.setRenderMode(SceneRenderer::Phong);
+    scene.getCameraLightInfo()->lightInt = 1;
+    scene.getCameraLightInfo()->lightPos = QVector3D(0,0,0);
+
+    renderer.setRenderMode(SceneRenderer::Deferred);
 
     glGenQueries(NumQueries, queryObjectsA.data());
     glGenQueries(NumQueries, queryObjectsB.data());
@@ -79,14 +60,12 @@ void MainOpenGLWidget::paintGL()
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
 
-    updateUniforms();
-
     if(useQueryB)
         glQueryCounter(queryObjectsB[0], GL_TIMESTAMP);
     else
         glQueryCounter(queryObjectsA[0], GL_TIMESTAMP);
 
-    renderer.drawScene(&scene, &v);
+    renderer.drawScene(&scene);
 
     if(useQueryB)
         glQueryCounter(queryObjectsB[1], GL_TIMESTAMP);
@@ -119,14 +98,16 @@ void MainOpenGLWidget::resizeGL(int w, int h) {
     //update viewport
     glViewport(0,0,w,h);
 
+    CameraLightInfo *cam = scene.getCameraLightInfo();
+
     //for trackball calculations
     width = w;
     height = h;
 
     //projection matrix
-    p.setToIdentity();
-    p.perspective(45.0, (float)w/(float)h, 0.1, 10000);
-    cameraUpdated(&v);
+    cam->projMatrix.setToIdentity();
+    cam->projMatrix.perspective(45.0, (float)w/(float)h, 0.1, 10000);
+    cameraUpdated(&cam->viewMatrix);
 }
 
 void MainOpenGLWidget::mousePressEvent(QMouseEvent *event) {
@@ -141,6 +122,8 @@ void MainOpenGLWidget::mouseMoveEvent(QMouseEvent *event) {
 
     QPoint p = event->pos();
 
+    CameraLightInfo *cam = scene.getCameraLightInfo();
+
     //Translate
     if(event->buttons() == Qt::RightButton) {
 
@@ -149,8 +132,8 @@ void MainOpenGLWidget::mouseMoveEvent(QMouseEvent *event) {
         drag.setY(-drag.y());
 
 
-        QVector3D dragVec = v.inverted().mapVector(QVector3D(drag));
-        v.translate(dragVec);
+        QVector3D dragVec = cam->viewMatrix.inverted().mapVector(QVector3D(drag));
+        cam->viewMatrix.translate(dragVec);
     }
     //rotate
     if(event->buttons() == Qt::LeftButton) {
@@ -181,34 +164,36 @@ void MainOpenGLWidget::mouseMoveEvent(QMouseEvent *event) {
         float angle =  qRadiansToDegrees(std::asin(axis.length()));
 
         //transform rotation vector with current rotation
-        axis = v.inverted().mapVector(axis);
+        axis = cam->viewMatrix.inverted().mapVector(axis);
         axis.normalize();
 
         //create quaternion and rotate with it
         QQuaternion q = QQuaternion::fromAxisAndAngle(axis, angle);
-        v.rotate(q);
+        cam->viewMatrix.rotate(q);
     }
 
     dragStart = event->pos();
     //update screen and camera/statusbar
     update();
-    cameraUpdated(&v);
+    cameraUpdated(&cam->viewMatrix);
 }
 
 void MainOpenGLWidget::wheelEvent(QWheelEvent *event) {
     //slow zooming down, cause delta is in degrees
     float val = event->delta() / 360.0;
 
+    CameraLightInfo *cam = scene.getCameraLightInfo();
+
     //calculate view direction
-    QVector3D currentPos = v.inverted().map(QVector3D(0,0,0));
+    QVector3D currentPos = cam->viewMatrix.inverted().map(QVector3D(0,0,0));
     QVector3D viewDir = currentPos.normalized();
 
     //translate along viewdir
-    v.translate(val*viewDir);
+    cam->viewMatrix.translate(val*viewDir);
 
     //update screen etc
     update();
-    cameraUpdated(&v);
+    cameraUpdated(&cam->viewMatrix);
 }
 
 QPointF MainOpenGLWidget::pixelPosToViewPos(const QPointF &point) {
@@ -219,10 +204,12 @@ QPointF MainOpenGLWidget::pixelPosToViewPos(const QPointF &point) {
 void MainOpenGLWidget::resetCamera() {
 
     //restore initial view matrix and update screen
-    v.setToIdentity();
-    v.lookAt(QVector3D(2,2,3), QVector3D(0,0,0), QVector3D(0,1,0));
+    CameraLightInfo *cam = scene.getCameraLightInfo();
+
+    cam->viewMatrix.setToIdentity();
+    cam->viewMatrix.lookAt(QVector3D(2,2,3), QVector3D(0,0,0), QVector3D(0,1,0));
     update();
-    cameraUpdated(&v);
+    cameraUpdated(&cam->viewMatrix);
 }
 
 void MainOpenGLWidget::setShininess(int s) {
@@ -242,38 +229,25 @@ void MainOpenGLWidget::setWireframe() {
 }
 
 void MainOpenGLWidget::setLightPos(QVector3D v) {
-    lightPos = v;
+    scene.getCameraLightInfo()->lightPos = v;
     update();
 }
 
 void MainOpenGLWidget::setLightIntensity(int i) {
-    lightInt = (float)i/10.0;
+    scene.getCameraLightInfo()->lightInt = (float)i/10.0;
     update();
 }
 
 void MainOpenGLWidget::setPhong() {
 
     isWireframe = false;
-    activeProgram = &phongProgram;
     update();
 }
 
 void MainOpenGLWidget::setGouraud() {
 
     isWireframe = false;
-    activeProgram = &gouraudProgram;
     update();
-}
-
-void MainOpenGLWidget::updateUniforms() {
-
-
-    //update uniform values
-    (*activeProgram)->bind();
-    (*activeProgram)->setUniformValue("lightPos", lightPos);
-    (*activeProgram)->setUniformValue("lightInt", lightInt);
-    (*activeProgram)->setUniformValue("v", v);
-    (*activeProgram)->setUniformValue("p", p);
 }
 
 QChartView* MainOpenGLWidget::getChartView() {
@@ -285,7 +259,7 @@ void MainOpenGLWidget::loadModel(tinygltf::Model* gltf_model) {
 
     makeCurrent();
     scene.clear();
-    scene.loadFromGLTF((*activeProgram),*gltf_model);
+    scene.loadFromGLTF(*gltf_model);
     doneCurrent();
 
     update();

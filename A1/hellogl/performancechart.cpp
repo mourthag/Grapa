@@ -33,6 +33,7 @@ PerformanceChart::PerformanceChart()
 
     QLinearGradient fillGradient(QPointF(0,0), QPointF(0,1));
     fillGradient.setColorAt(0.0, QColor(255,0,0));
+    fillGradient.setColorAt(0.5, QColor(255,255,0));
     fillGradient.setColorAt(1.0, QColor(255,150,0));
     fillGradient.setCoordinateMode(QGradient::ObjectBoundingMode);
     areaSeries->setBrush(fillGradient);

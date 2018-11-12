@@ -1,8 +1,8 @@
 #version 400
 
-in vec3 pos;
-in vec2 UV;
-in vec3 vertnormal;
+layout (location = 0) in vec3 pos;
+layout (location = 1) in vec3 vertnormal;
+layout (location = 2) in vec2 UV;
 
 out vec2 texCoord;
 out vec3 vNormal;

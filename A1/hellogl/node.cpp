@@ -1,6 +1,6 @@
 #include "node.h"
 
-Node::Node(QOpenGLShaderProgram *prog, tinygltf::Model *model, int nodeIndex): parentNode(NULL) {
+Node::Node(tinygltf::Model *model, int nodeIndex): parentNode(NULL) {
 
     animationMatrix.setToIdentity();
 
@@ -42,13 +42,13 @@ Node::Node(QOpenGLShaderProgram *prog, tinygltf::Model *model, int nodeIndex): p
     modelMatrix = matrix;
 
     if(gltf_node.mesh > -1)
-        loadMesh(prog, model, gltf_node.mesh);
+        loadMesh(model, gltf_node.mesh);
 
     for(int childIndex = 0; childIndex < gltf_node.children.size(); childIndex++) {
         int childNodeIndex = gltf_node.children[childIndex];
 
         Node* child = (Node*)malloc(sizeof(Node));
-        child = new Node(prog, model, childNodeIndex);
+        child = new Node(model, childNodeIndex);
         this->addChild(child);
     }
 
@@ -75,13 +75,13 @@ void Node::clear() {
 
 }
 
-void Node::loadMesh(QOpenGLShaderProgram *prog, tinygltf::Model *gltf_model, int meshIndex) {
+void Node::loadMesh(tinygltf::Model *gltf_model, int meshIndex) {
     tinygltf::Mesh *mesh = &gltf_model->meshes[meshIndex];
     for(int i = 0; i < mesh->primitives.size(); i++) {
 
         OpenGLModel *oglModel = (OpenGLModel*)malloc(sizeof(OpenGLModel));
         oglModel = new OpenGLModel();
-        oglModel->loadGLTF(prog, gltf_model, meshIndex, i);
+        oglModel->loadGLTF(gltf_model, meshIndex, i);
         addModel(oglModel);
     }
 

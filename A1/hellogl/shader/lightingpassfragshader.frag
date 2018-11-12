@@ -10,5 +10,5 @@ uniform sampler2D depthTexture;
 
 void main(void)
 {
-    frag = vec4(texCoord, 0, 0);
+    frag = texture(ntcTexture, texCoord);
 }

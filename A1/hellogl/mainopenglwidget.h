@@ -49,8 +49,6 @@ protected:
     void mouseMoveEvent(QMouseEvent *event ) override;
     void wheelEvent(QWheelEvent *event ) override;
 
-    void updateUniforms();
-
     QPointF pixelPosToViewPos(const QPointF& point);
 private:
     Scene scene;
@@ -68,23 +66,13 @@ private:
 
     int width;
     int height;
-
-    QVector3D lightPos;
-    float lightInt;
     int shininess;
 
     int tesselation;
     bool isWireframe;
     bool modelLoaded;
 
-    QMatrix4x4 v;
-    QMatrix4x4 p;
-
     QPointF dragStart;
-
-    QOpenGLShaderProgram **activeProgram;
-    QOpenGLShaderProgram *phongProgram;
-    QOpenGLShaderProgram *gouraudProgram;
 };
 
 #endif // MAINOPENGLWIDGET_H

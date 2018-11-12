@@ -8,7 +8,7 @@ static const GLfloat quad_UV[] = {
 };
 
 static const GLuint quad_Ind[] = {
-    1, 2, 3, 4
+    0, 1, 2, 3
 };
 
 SceneRenderer::SceneRenderer()
@@ -23,6 +23,8 @@ void SceneRenderer::setUpFBOTextures()
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, scr_size, scr_size, 0, GL_RGBA, GL_FLOAT, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ntcTex, 0);
 
     glGenTextures(1, &matTex);
@@ -30,6 +32,8 @@ void SceneRenderer::setUpFBOTextures()
     glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, scr_size, scr_size, 0, GL_RED, GL_UNSIGNED_BYTE, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, matTex, 0);
 
     glGenTextures(1, &depthTex);
@@ -37,6 +41,8 @@ void SceneRenderer::setUpFBOTextures()
     glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, scr_size, scr_size, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTex, 0);
 }
 
@@ -53,6 +59,8 @@ void SceneRenderer::setUpQuad()
     glGenBuffers(1, &quadIBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quadIBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, 4 * sizeof(GLuint), &quad_Ind, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(0);
 
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -96,7 +104,7 @@ void SceneRenderer::initGL() {
 
 }
 
-void SceneRenderer::drawScene(Scene *scene, QMatrix4x4 *viewMat) {
+void SceneRenderer::drawScene(Scene *scene) {
 
     QOpenGLShaderProgram *activeProgram;
     UniformMode uniformMode;
@@ -121,15 +129,29 @@ void SceneRenderer::drawScene(Scene *scene, QMatrix4x4 *viewMat) {
 
         break;
     }
+
     activeProgram->bind();
     setUpUniforms(activeProgram, uniformMode);
-    scene->drawScene(activeProgram, viewMat);
+    scene->drawScene(activeProgram);
 
     glBindFramebuffer(GL_FRAMEBUFFER, defaultFBO);
 
     if(mode == Deferred) {
         deferredLightingPassProgram->bind();
         //Set up Textures;
+
+
+        deferredLightingPassProgram->setUniformValue("ntcTexture", 0);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D_ARRAY, ntcTex);
+
+        deferredLightingPassProgram->setUniformValue("materialTexture", 1);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D_ARRAY, matTex);
+
+        deferredLightingPassProgram->setUniformValue("depthTexture", 2);
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D_ARRAY, depthTex);
 
         glBindVertexArray(quadVAO);
         glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_INT, 0);

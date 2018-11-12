@@ -11,13 +11,13 @@
 class Node
 {
 public:
-    Node(QOpenGLShaderProgram *prog, tinygltf::Model *model, int nodeIndex);
-    Node(QOpenGLShaderProgram *prog, tinygltf::Model *model, int nodeIndex, Node *parent);
+    Node(tinygltf::Model *model, int nodeIndex);
+    Node(tinygltf::Model *model, int nodeIndex, Node *parent);
     ~Node();
 
     void clear();
     void addModel(OpenGLModel *model);
-    void loadMesh(QOpenGLShaderProgram *prog, tinygltf::Model *gltf_model, int meshIndex);
+    void loadMesh(tinygltf::Model *gltf_model, int meshIndex);
     void addChild(Node *child);
     void updateModelMatrix(QMatrix4x4 newMatrix);
 

@@ -24,7 +24,7 @@ public:
     };
 
     void setRenderMode(RenderMode newMode);
-    void drawScene(Scene *scene, QMatrix4x4 *viewMat);
+    void drawScene(Scene *scene);
 
 private:
     enum UniformMode{

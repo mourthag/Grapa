@@ -15,7 +15,7 @@ public:
     OpenGLModel();
     ~OpenGLModel();
 
-    void loadGLTF(QOpenGLShaderProgram *prog, tinygltf::Model *gltf_model, int mesh, int primIndex);
+    void loadGLTF(tinygltf::Model *gltf_model, int mesh, int primIndex);
     //void generateCube(int tesselation);
 
     void clear();
