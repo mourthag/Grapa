@@ -35,6 +35,13 @@ public slots:
     void setGouraud();
     void setPhong();
     void setLightPos(QVector3D v);
+    void setDeferredPhong();
+    void setDeferredNormal();
+    void setDeferredUV();
+    void setDeferredViewPos();
+    void setDeferredMaterial();
+    void playAnimation();
+    void pauseAnimation();
     void loadModel(tinygltf::Model *gltf_model);
 
     QChartView* getChartView();
@@ -53,16 +60,6 @@ protected:
 private:
     Scene scene;
     SceneRenderer renderer;
-
-    PerformanceChart *performanceLogger;
-
-    long frameCounter;
-    static const auto NumQueries = 2 ;
-    bool useQueryB;
-    std::vector<GLuint> queryObjectsA;
-    std::vector<GLuint64> queryResultsA;
-    std::vector<GLuint> queryObjectsB;
-    std::vector<GLuint64> queryResultsB;
 
     int width;
     int height;

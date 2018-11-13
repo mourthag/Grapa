@@ -4,20 +4,12 @@
 
 MainOpenGLWidget::MainOpenGLWidget(QWidget *parent) : QOpenGLWidget(parent)
 {
-    frameCounter = 0;
 
     //update at ~60FPS
     QTimer *timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(update()));
     timer->start(16);
 
-    useQueryB = false;
-    performanceLogger = new PerformanceChart();
-
-    queryObjectsA = std::vector<GLuint>(NumQueries);
-    queryObjectsB = std::vector<GLuint>(NumQueries);
-    queryResultsA = std::vector<GLuint64>(NumQueries);
-    queryResultsB = std::vector<GLuint64>(NumQueries);
 
     //set up data and shading
     isWireframe = false;
@@ -34,18 +26,18 @@ void MainOpenGLWidget::initializeGL() {
 
     initializeOpenGLFunctions();
 
-    glClearColor(1,1,1,1);
 
+    makeCurrent();
     scene.initGL();
+    makeCurrent();
     renderer.initGL();
+    doneCurrent();
 
     scene.getCameraLightInfo()->lightInt = 1;
     scene.getCameraLightInfo()->lightPos = QVector3D(0,0,0);
 
-    renderer.setRenderMode(SceneRenderer::Deferred);
+    renderer.setRenderMode(SceneRenderer::Phong);
 
-    glGenQueries(NumQueries, queryObjectsA.data());
-    glGenQueries(NumQueries, queryObjectsB.data());
 }
 
 void MainOpenGLWidget::paintGL()
@@ -60,43 +52,21 @@ void MainOpenGLWidget::paintGL()
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
 
-    if(useQueryB)
-        glQueryCounter(queryObjectsB[0], GL_TIMESTAMP);
-    else
-        glQueryCounter(queryObjectsA[0], GL_TIMESTAMP);
+
 
     renderer.drawScene(&scene);
 
-    if(useQueryB)
-        glQueryCounter(queryObjectsB[1], GL_TIMESTAMP);
-    else
-        glQueryCounter(queryObjectsA[1], GL_TIMESTAMP);
-
-    for (auto i = 0 ; i < NumQueries ; i++ ) {
-        if(useQueryB) {
-            glGetQueryObjectui64v(queryObjectsA[i], GL_QUERY_RESULT , queryResultsA.data() + i);
-        }
-        else{
-            glGetQueryObjectui64v(queryObjectsB[i], GL_QUERY_RESULT , queryResultsB.data() + i);
-        }
-    }
-    if(frameCounter % 33 == 0) {
-
-        if(useQueryB)
-            performanceLogger->addData(frameCounter, queryResultsA[1] - queryResultsA[0]);
-        else
-            performanceLogger->addData(frameCounter, queryResultsB[1] - queryResultsB[0]);
-
-    }
-
-    useQueryB = !useQueryB;
-    frameCounter++;
 
 }
 
 void MainOpenGLWidget::resizeGL(int w, int h) {
     //update viewport
     glViewport(0,0,w,h);
+
+    makeCurrent();
+    renderer.updateFramebuffeSize(w, h);
+
+    doneCurrent();
 
     CameraLightInfo *cam = scene.getCameraLightInfo();
 
@@ -241,6 +211,7 @@ void MainOpenGLWidget::setLightIntensity(int i) {
 void MainOpenGLWidget::setPhong() {
 
     isWireframe = false;
+    renderer.setRenderMode(SceneRenderer::Phong);
     update();
 }
 
@@ -250,8 +221,40 @@ void MainOpenGLWidget::setGouraud() {
     update();
 }
 
+void MainOpenGLWidget::setDeferredPhong() {
+    renderer.setRenderMode(SceneRenderer::Deferred);
+    update();
+}
+
+void MainOpenGLWidget::setDeferredNormal() {
+    renderer.setRenderMode(SceneRenderer::Normal);
+    update();
+}
+
+void MainOpenGLWidget::setDeferredUV() {
+    renderer.setRenderMode(SceneRenderer::UV);
+    update();
+}
+
+void MainOpenGLWidget::setDeferredMaterial() {
+    renderer.setRenderMode(SceneRenderer::Material);
+    update();
+}
+void MainOpenGLWidget::setDeferredViewPos() {
+    renderer.setRenderMode(SceneRenderer::ViewSpacePosition);
+    update();
+}
+
+void MainOpenGLWidget::playAnimation() {
+    scene.setAnimationPlay(true);
+}
+
+void MainOpenGLWidget::pauseAnimation() {
+    scene.setAnimationPlay(false);
+}
+
 QChartView* MainOpenGLWidget::getChartView() {
-    return performanceLogger->getChartView();
+    return renderer.getLogger()->getChartView();
 }
 
 void MainOpenGLWidget::loadModel(tinygltf::Model* gltf_model) {

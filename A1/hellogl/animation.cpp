@@ -64,8 +64,7 @@ Animation::Animation(Node *targetNode, tinygltf::Model *gltf_model, int animatio
 
 }
 
-void Animation::updateNode(QTime *time) {
-    float seconds = time->elapsed() / 1000.0;
+void Animation::updateNode(float seconds) {
     std::map<float, std::vector<float>>::iterator upper, lower;
 
     finished = false;
@@ -76,9 +75,8 @@ void Animation::updateNode(QTime *time) {
 
     if(upper == animationData.end()) {
 
-        upper = std::prev(animationData.end());
-        lower = std::prev(animationData.end());
-
+        upper =  animationData.begin();
+        lower =  animationData.begin();
         alpha = 1;
 
         finished=true;
@@ -88,7 +86,6 @@ void Animation::updateNode(QTime *time) {
 
         upper = animationData.begin();
         lower = animationData.begin();
-
         alpha = 0;
 
     }
@@ -97,7 +94,8 @@ void Animation::updateNode(QTime *time) {
         lower = std::prev(upper);
         float tb = upper->first;
         float ta = lower->first;
-        alpha = seconds - ta / (tb - ta);
+
+        alpha = (seconds - ta) / (tb - ta);
     }
 
 
@@ -122,7 +120,9 @@ void Animation::updateNode(QTime *time) {
     {
         QVector3D translationA = QVector3D (frameA[0], frameA[1], frameA[2]);
         QVector3D translationB = QVector3D(frameB[0], frameB[1], frameB[2]);
-        newMat.translate((1-alpha)*translationA + alpha * translationB);
+        QVector3D trans = QVector3D((1-alpha)*translationA + alpha * translationB);
+
+        newMat.translate(trans);
         break;
     }
     case AnimationType::Scaling:

@@ -13,12 +13,13 @@
 
 struct Material
 {
-    float diffuseFactor[4];
     int diffuseTexture;
-    float specularFactor[3];
     int specularTexture;
     float shininessFactor;
     int shininessTexture;
+    float diffuseFactor[4];
+    float specularFactor[3];
+    float pad;
 
     Material() {
         diffuseFactor[0] = 1;
@@ -30,7 +31,7 @@ struct Material
         specularFactor[1] = 1;
         specularFactor[2] = 1;
         specularTexture = 0;
-        shininessFactor = 10;
+        shininessFactor = 100;
         shininessTexture = 0;
     }
 };
@@ -54,21 +55,27 @@ public:
     void clear();
 
     void loadFromGLTF(tinygltf::Model gltf_model);
-    void drawScene(QOpenGLShaderProgram *prog);
+    void drawScene(QOpenGLShaderProgram *prog, bool setUpUniformBlocks);
     Node* findNode(int nodeIndex);
     CameraLightInfo *getCameraLightInfo();/*
     void setViewMatrix(QMatrix4x4 viewMatrix);
     void setProjectionMatrix(QMatrix4x4 projectionMatrix);
     void setLightInfo(QVector3D lightPosition, float lightIntensity);*/
+    void setUpUniforms(QOpenGLShaderProgram *prog, bool bufferUniformBlocks);
+
+    void setAnimationPlay(bool play);
+
 private:
     void loadTextures();
     void loadMaterials();
     void loadAnimations();
     void loadMeshes();
+    void loadLightsBuffer();
 
     QTime timer;
 
     bool wasLoaded;
+    bool animationPlaying;
 
     tinygltf::Model model;
 

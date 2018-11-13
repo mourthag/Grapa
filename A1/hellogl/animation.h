@@ -20,7 +20,7 @@ public:
         Scaling
     };
 
-    void updateNode(QTime *time);
+    void updateNode(float seconds);
     bool isFinished();
 
 private:

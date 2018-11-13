@@ -17,16 +17,18 @@ public:
 
     QChartView *getChartView();
 
-    void addData(float x, float y);
+    void addData(float x, float y1, float y2);
 
 private:
     QValueAxis *xAxis;
 
     QChartView *chartView;
     QChart *chart;
-    QLineSeries *valueSeries;
+    QLineSeries *valueSeriesA;
+    QLineSeries *valueSeriesB;
     QLineSeries *axisSeries;
-    QAreaSeries *areaSeries;
+    QAreaSeries *areaSeriesA;
+    QAreaSeries *areaSeriesB;
 
     float maxY;
 };

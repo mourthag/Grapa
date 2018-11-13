@@ -8,35 +8,46 @@ PerformanceChart::PerformanceChart()
     xAxis = new QValueAxis();
     xAxis->setRange(0,10);
 
-    valueSeries = new QLineSeries();
+    valueSeriesA = new QLineSeries();
+    valueSeriesB = new QLineSeries();
     axisSeries = new QLineSeries();
 
-    valueSeries->append(0,0);
+    valueSeriesA->append(0,0);
+    valueSeriesB->append(0,0);
     axisSeries->append(0,0);
 
-    areaSeries = new QAreaSeries(valueSeries, axisSeries);
+    areaSeriesA = new QAreaSeries(valueSeriesA, axisSeries);
+    areaSeriesB = new QAreaSeries(valueSeriesB, axisSeries);
 
     chart = new QChart();
     chart->legend()->hide();
-    chart->addSeries(areaSeries);
+    chart->addSeries(areaSeriesA);
+    chart->addSeries(areaSeriesB);
     chart->setTheme(QChart::ChartThemeDark);
     chart->createDefaultAxes();
-    chart->setAxisX(xAxis,areaSeries);
     chart->setTitle("Drawing Time");
 
     chart->axisY()->setRange(0, 500);
     chart->axisX()->setLabelsVisible(false);
     chart->axisY()->setLabelsVisible(false);
 
-    QPen pen(Qt::red);
-    areaSeries->setPen(pen);
+    QPen penA(Qt::red);
+    areaSeriesA->setPen(penA);
 
-    QLinearGradient fillGradient(QPointF(0,0), QPointF(0,1));
-    fillGradient.setColorAt(0.0, QColor(255,0,0));
-    fillGradient.setColorAt(0.5, QColor(255,255,0));
-    fillGradient.setColorAt(1.0, QColor(255,150,0));
-    fillGradient.setCoordinateMode(QGradient::ObjectBoundingMode);
-    areaSeries->setBrush(fillGradient);
+    QLinearGradient fillGradientA(QPointF(0,0), QPointF(0,1));
+    fillGradientA.setColorAt(0.0, QColor(255, 0, 0, 125));
+    fillGradientA.setColorAt(1.0, QColor(255, 50, 0, 125));
+    fillGradientA.setCoordinateMode(QGradient::ObjectBoundingMode);
+    areaSeriesA->setBrush(fillGradientA);
+
+    QPen penB(Qt::yellow);
+    areaSeriesB->setPen(penB);
+
+    QLinearGradient fillGradientB(QPointF(0,0), QPointF(0,1));
+    fillGradientB.setColorAt(0.0, QColor(0, 255, 0, 125));
+    fillGradientB.setColorAt(1.0, QColor(50, 255, 0, 125));
+    fillGradientB.setCoordinateMode(QGradient::ObjectBoundingMode);
+    areaSeriesB->setBrush(fillGradientB);
 
     chartView = new QChartView(chart);
     chartView->setRenderHint(QPainter::Antialiasing);
@@ -44,15 +55,14 @@ PerformanceChart::PerformanceChart()
 
 }
 
-void PerformanceChart::addData(float x, float y) {
-    valueSeries->append(x, y);
+void PerformanceChart::addData(float x, float y1, float y2) {
+    valueSeriesA->append(x, y1);
+    valueSeriesB->append(x, y2);
     axisSeries->append(x, 0);
 
-    if(y > maxY) {
-        maxY = y;
-        chart->axisY()->setRange(0, 1.1 * maxY);
-    }
-    chart->axisX()->setRange(x - 3300, x + 10);
+    maxY = std::max(maxY, std::max(y1, y2));
+    chart->axisY()->setRange(0, 1.1 * maxY);
+    chart->axisX()->setRange(std::max(x - 3300.0, 0.0), x);
 
 }
 

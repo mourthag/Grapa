@@ -39,7 +39,7 @@ MainWindow::MainWindow(QWidget *parent)
     gouraudAction->setCheckable(true);
     gouraudAction->setIcon(QIcon(":/img/gouraud.png"));
 
-    QAction *phongAction =shadingMenu->addAction("Phong");
+    QAction *phongAction =shadingMenu->addAction("Display standard phong shading");
     phongAction->setShortcut(QKeySequence("Ctrl+3"));
     phongAction->setCheckable(true);
     phongAction->setChecked(true);
@@ -50,6 +50,50 @@ MainWindow::MainWindow(QWidget *parent)
     shadingOptions->addAction(gouraudAction);
     shadingOptions->addAction(phongAction);
 
+    QMenu *animationMenu = menuBar->addMenu("&Animation");
+    QActionGroup *animationGroup = new QActionGroup(this);
+
+    QAction *playAnimationAction = animationMenu->addAction("Play Animation");
+    playAnimationAction->setCheckable(true);
+
+    QAction *pauseAnimationAction = animationMenu->addAction("Pause Animation");
+    pauseAnimationAction->setCheckable(true);
+
+    animationGroup->setExclusive(true);
+    animationGroup->addAction(playAnimationAction);
+    animationGroup->addAction(pauseAnimationAction);
+    playAnimationAction->setChecked(true);
+
+    QMenu *visualizationMenu = menuBar->addMenu("&Visualisation");
+    QActionGroup *visualizationGroup = new QActionGroup(this);
+
+    QAction *checkStandardPhongAction = visualizationMenu->addAction("Display standard phong shading");
+    checkStandardPhongAction->setCheckable(true);
+    checkStandardPhongAction->setChecked(true);
+
+    QAction *checkPhongAction = visualizationMenu->addAction("Display deferred &phong shading");
+    checkPhongAction->setCheckable(true);
+
+    QAction *checkNormalAction = visualizationMenu->addAction("Display &normals");
+    checkNormalAction->setCheckable(true);
+
+    QAction *checkUVAction = visualizationMenu->addAction("Display &UVs");
+    checkUVAction->setCheckable(true);
+
+    QAction *checkMaterialAction = visualizationMenu->addAction("Display &Materials");
+    checkMaterialAction->setCheckable(true);
+
+    QAction *checkViewPosAction = visualizationMenu->addAction("Display &viewspace position");
+    checkViewPosAction->setCheckable(true);
+
+
+    visualizationGroup->setExclusive(true);
+    visualizationGroup->addAction(checkPhongAction);
+    visualizationGroup->addAction(checkNormalAction);
+    visualizationGroup->addAction(checkUVAction);
+    visualizationGroup->addAction(checkMaterialAction);
+    visualizationGroup->addAction(checkViewPosAction);
+    visualizationGroup->addAction(checkStandardPhongAction);
 
     QMenu *helpMenu = menuBar->addMenu("&Help");
     QAction *showAboutAction = helpMenu->addAction("&About");
@@ -83,7 +127,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     //Slider for light intensity
     QSlider *lightIntSlider = new QSlider();
-    lightIntSlider->setMaximum(100);
+    lightIntSlider->setMaximum(1000);
     lightIntSlider->setValue(10);
     lightIntSlider->setOrientation(Qt::Horizontal);
     toolBar->addWidget(lightIntSlider);
@@ -136,6 +180,16 @@ MainWindow::MainWindow(QWidget *parent)
     connect(wireframeAction, SIGNAL(triggered(bool)), widget, SLOT(setWireframe()));
     connect(gouraudAction, SIGNAL(triggered(bool)), widget, SLOT(setGouraud()));
     connect(phongAction, SIGNAL(triggered(bool)), widget, SLOT(setPhong()));
+
+    connect(checkStandardPhongAction , SIGNAL(triggered()), widget, SLOT(setPhong()));
+    connect(checkPhongAction , SIGNAL(triggered()), widget, SLOT(setDeferredPhong()));
+    connect(checkNormalAction, SIGNAL(triggered()), widget, SLOT(setDeferredNormal()));
+    connect(checkUVAction, SIGNAL(triggered()), widget, SLOT(setDeferredUV()));
+    connect(checkMaterialAction, SIGNAL(triggered()), widget, SLOT(setDeferredMaterial()));
+    connect(checkViewPosAction, SIGNAL(triggered()), widget, SLOT(setDeferredViewPos()));
+
+    connect(playAnimationAction, SIGNAL(triggered(bool)), widget, SLOT(playAnimation()));
+    connect(pauseAnimationAction, SIGNAL(triggered(bool)), widget, SLOT(pauseAnimation()));
 
     widget->resetCamera();
     //adjust slider here to init correct value in widget

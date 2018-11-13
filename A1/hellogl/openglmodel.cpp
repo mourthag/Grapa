@@ -44,6 +44,11 @@ void OpenGLModel::loadGLTF(tinygltf::Model *gltf_model, int mesh, int primIndex)
 
 void OpenGLModel::loadGLTFAttribute(std::string name, tinygltf::Model *model, int mesh, int primitive, GLuint glBufferIndex, GLint glAttributeIndex) {
 
+    tinygltf::Primitive prim = model->meshes[mesh].primitives[primitive];
+
+    if(prim.attributes.find(name) == prim.attributes.end())
+        return;
+
     int attributeID = model->meshes[mesh].primitives[primitive].attributes[name];
 
     tinygltf::Accessor accessor = model->accessors[attributeID];

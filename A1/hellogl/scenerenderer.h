@@ -6,6 +6,7 @@
 #include <QOpenGLShaderProgram>
 
 #include "scene.h"
+#include "performancechart.h"
 
 
 class SceneRenderer : QOpenGLFunctions_4_0_Core
@@ -15,16 +16,21 @@ public:
     void initGL();
 
     enum RenderMode {
-        Phong,
-        Deferred,
-        Material,
+
+        Deferred=0,
+        Normal=1,
+        UV=2,
+        Material=3,
+        ViewSpacePosition=4,
         Depth,
-        Normal,
-        ViewSpacePosition
+        Phong
     };
 
     void setRenderMode(RenderMode newMode);
     void drawScene(Scene *scene);
+    PerformanceChart* getLogger();
+
+    void updateFramebuffeSize(int width, int height);
 
 private:
     enum UniformMode{
@@ -35,7 +41,7 @@ private:
 
     void setUpUniforms(QOpenGLShaderProgram *prog, UniformMode uniformMode);
 
-    const int scr_size = 1024;
+    const int scr_size = 512;
 
     GLuint fbo;
     GLuint ntcTex;
@@ -46,6 +52,15 @@ private:
     GLuint quadVBO;
     GLuint quadIBO;
 
+    PerformanceChart *performanceLogger;
+    long frameCounter;
+    static const auto NumQueries = 3;
+    bool useQueryB;
+    std::vector<GLuint> queryObjectsA;
+    std::vector<GLuint64> queryResultsA;
+    std::vector<GLuint> queryObjectsB;
+    std::vector<GLuint64> queryResultsB;
+
     QOpenGLShaderProgram *phongProgram;
     QOpenGLShaderProgram *deferredGeomPassProgram;
     QOpenGLShaderProgram *deferredLightingPassProgram;
@@ -53,6 +68,8 @@ private:
     RenderMode mode;
     void setUpFBOTextures();
     void setUpQuad();
+    void queryTime(int index);
+    void logTimes();
 };
 
 #endif // SCENERENDERER_H

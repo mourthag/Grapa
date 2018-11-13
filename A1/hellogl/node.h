@@ -8,11 +8,11 @@
 
 #include "tiny_gltf.h"
 
+
 class Node
 {
 public:
     Node(tinygltf::Model *model, int nodeIndex);
-    Node(tinygltf::Model *model, int nodeIndex, Node *parent);
     ~Node();
 
     void clear();
@@ -21,7 +21,7 @@ public:
     void addChild(Node *child);
     void updateModelMatrix(QMatrix4x4 newMatrix);
 
-    void draw(QOpenGLShaderProgram * prog, QMatrix4x4 *viewMat);
+    void draw(QOpenGLShaderProgram * prog, QMatrix4x4 viewMat);
     Node* findNode(int nodeIndex);
 protected:
     void setParentNode(Node *parent);

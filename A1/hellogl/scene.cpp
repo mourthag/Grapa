@@ -3,6 +3,7 @@
 Scene::Scene() : wasLoaded(false)
 {
     timer.start();
+    animationPlaying = true;
 }
 
 Scene::~Scene() {
@@ -12,8 +13,6 @@ Scene::~Scene() {
     clear();
 }
 void Scene::clear() {
-    glDeleteTextures(1, &textures);
-    glDeleteBuffers(1, &materialBuffer);
 
     for(int i=0; i < rootNodes.size(); i++) {
         rootNodes[i]->clear();
@@ -29,6 +28,13 @@ void Scene::clear() {
 void Scene::initGL(){
 
   initializeOpenGLFunctions();
+}
+
+void Scene::setAnimationPlay(bool play) {
+    animationPlaying = play;
+    if(play) {
+        timer.restart();
+    }
 }
 
 void Scene::loadFromGLTF(tinygltf::Model gltf_model) {
@@ -54,7 +60,7 @@ void Scene::loadTextures() {
         tinygltf::Sampler firstSampler = model.samplers[firstTex.sampler];
         tinygltf::Image firstImg =  model.images[firstTex.source];
 
-        glActiveTexture(GL_TEXTURE0);
+        glActiveTexture(GL_TEXTURE3);
         glGenTextures(1, &textures);
         glBindTexture(GL_TEXTURE_2D_ARRAY, textures);
 
@@ -100,6 +106,7 @@ void Scene::loadTextures() {
             glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, texture+1, img.width, img.height, 1, GL_RGBA, GL_UNSIGNED_BYTE, &img.image[0]);
         }
         glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
+        glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 
     }
 }
@@ -156,29 +163,8 @@ void Scene::loadMaterials() {
     glGenBuffers(1, &materialBuffer);
     glBindBuffer(GL_UNIFORM_BUFFER, materialBuffer);
     //64 is size of struct in std140 -> size on GPU
-    glBufferData(GL_UNIFORM_BUFFER, 256 * 64, NULL, GL_STATIC_DRAW);
+    glBufferData(GL_UNIFORM_BUFFER, 256 * 48, &materials.at(0), GL_STATIC_DRAW);
 
-    for(int i = 0 ; i < 256; i++) {
-        int offset = i * 64;
-        Material mat = materials[i];
-        glBufferSubData(GL_UNIFORM_BUFFER, offset, 4 * sizeof(GLfloat), &mat.diffuseFactor[0]);
-        offset += 16;
-        glBufferSubData(GL_UNIFORM_BUFFER, offset, sizeof(int), &mat.diffuseTexture);
-        //padding for base offset o the next vec3
-        offset += 16;
-        glBufferSubData(GL_UNIFORM_BUFFER, offset, 3 * sizeof(GLfloat), &mat.specularFactor[0]);
-        offset += 16;
-        glBufferSubData(GL_UNIFORM_BUFFER, offset, sizeof(int), &mat.specularTexture);
-        offset += 4;
-        glBufferSubData(GL_UNIFORM_BUFFER, offset, sizeof(float), &mat.shininessFactor);
-        offset += 4;
-        glBufferSubData(GL_UNIFORM_BUFFER, offset, sizeof(int), &mat.shininessTexture);
-        offset += 4;
-    }
-
-    GLuint uniformIndex = glGetUniformBlockIndex(1, "MaterialBlock");
-    glUniformBlockBinding(1, uniformIndex,0);
-    glBindBufferBase(GL_UNIFORM_BUFFER, 0, materialBuffer);
 
 }
 
@@ -218,6 +204,7 @@ void Scene::loadAnimations() {
 
 }
 
+
 Node* Scene::findNode(int nodeIndex) {
     Node* node = NULL;
 
@@ -228,26 +215,48 @@ Node* Scene::findNode(int nodeIndex) {
     return node;
 }
 
-void Scene::drawScene(QOpenGLShaderProgram *prog) {
+void Scene::setUpUniforms(QOpenGLShaderProgram *prog, bool bufferUniformBlocks)
+{
+    if(materials.size() > 0) {
 
-    bool allAnimationsFinished = true;
-    for(int animation = 0; animation < animations.size(); animation++) {
-        animations[animation]->updateNode(&timer);
-        allAnimationsFinished &= animations[animation]->isFinished();
+        if(bufferUniformBlocks) {
+
+            GLuint uniformIndex = glGetUniformBlockIndex(prog->programId(), "MaterialBlock");
+            glUniformBlockBinding(1, uniformIndex,0);
+            glBindBufferBase(GL_UNIFORM_BUFFER, 0, materialBuffer);
+        }
+
+        prog->setUniformValue("matTextures", 3);
+        glActiveTexture(GL_TEXTURE3);
+        glBindTexture(GL_TEXTURE_2D_ARRAY, textures);
     }
-    if(allAnimationsFinished)
-        timer.restart();
 
     prog->setUniformValue("v", camLightInfo.viewMatrix);
     prog->setUniformValue("p", camLightInfo.projMatrix);
     prog->setUniformValue("lightPos", camLightInfo.lightPos);
     prog->setUniformValue("lightInt", camLightInfo.lightInt);
 
-    prog->setUniformValue("matTextures", 0);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D_ARRAY, textures);
+}
+
+void Scene::drawScene(QOpenGLShaderProgram *prog, bool setUpUniformBlocks) {
+
+    bool allAnimationsFinished = true;
+    for(int animation = 0; animation < animations.size(); animation++) {
+        float seconds;
+        if(animationPlaying)
+            seconds = (float)timer.elapsed() / 1000.0;
+        else
+            seconds = 0;
+        animations[animation]->updateNode(seconds);
+        allAnimationsFinished &= animations[animation]->isFinished();
+    }
+    if(allAnimationsFinished)
+        timer.restart();
+
+    setUpUniforms(prog, setUpUniformBlocks);
+
     for(int i=0 ; i < rootNodes.size(); i++) {
-        rootNodes[i]->draw(prog, &camLightInfo.viewMatrix);
+        rootNodes[i]->draw(prog, camLightInfo.viewMatrix);
     }
 
 }

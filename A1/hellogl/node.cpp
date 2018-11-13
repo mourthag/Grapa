@@ -44,6 +44,20 @@ Node::Node(tinygltf::Model *model, int nodeIndex): parentNode(NULL) {
     if(gltf_node.mesh > -1)
         loadMesh(model, gltf_node.mesh);
 
+
+//    tinygltf::Value lightsExtension = gltf_node.extensions["KHR_lights_cmn"];
+
+//    if(lightsExtension.Get<int>() > -1) {
+
+//        int lightIndex = lightsExtension.Get("light").Get<int>();
+
+//        tinygltf::Value lightsList = model->extensions["KHR_lights_cmn"].Get("lights");
+//        tinygltf::Value lightValue = lights[lightIndex];
+
+//        light.color = lightValue.Get("color").Get<int[]>();
+//        //light.quadraticAttenuation = 1;
+//    }
+
     for(int childIndex = 0; childIndex < gltf_node.children.size(); childIndex++) {
         int childNodeIndex = gltf_node.children[childIndex];
 
@@ -113,6 +127,7 @@ Node* Node::findNode(int nodeIndex) {
     }
 }
 
+
 QMatrix4x4 Node::getTotalMatrix() {
     if(parentNode) {
         return parentNode->getTotalMatrix() * modelMatrix * animationMatrix;
@@ -121,13 +136,15 @@ QMatrix4x4 Node::getTotalMatrix() {
         return modelMatrix * animationMatrix;
 }
 
-void Node::draw(QOpenGLShaderProgram *prog, QMatrix4x4 *viewMat) {
+void Node::draw(QOpenGLShaderProgram *prog, QMatrix4x4 viewMat) {
+
+    QMatrix4x4 mat = getTotalMatrix();
+    prog->setUniformValue("m", mat);
+    QMatrix4x4 normalMat = viewMat * mat;
+    prog->setUniformValue("normalMat", normalMat.normalMatrix());
 
     for(int modelIndex = 0; modelIndex < models.size(); modelIndex++) {
 
-        QMatrix4x4 mat = getTotalMatrix();
-        prog->setUniformValue("m", mat);
-        prog->setUniformValue("normalMat", (*viewMat * mat).normalMatrix());
         models[modelIndex]->drawModel(prog);
     }
     for(int childIndex = 0; childIndex < children.size(); childIndex++) {
