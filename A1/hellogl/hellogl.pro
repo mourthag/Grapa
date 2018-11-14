@@ -55,7 +55,9 @@ DISTFILES += \
     shader/geometrypassfragshader.frag \
     shader/geometrypassvertshader.vert \
     shader/lightingpassvertshader.vert \
-    shader/lightingpassfragshader.frag
+    shader/lightingpassfragshader.frag \
+    shader/lightingpasspointsvertshader.vert \
+    shader/lightingpasspointsfragshader.frag
 
 RESOURCES += \
     hellogl.qrc
