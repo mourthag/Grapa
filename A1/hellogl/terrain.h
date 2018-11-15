@@ -6,7 +6,7 @@
 #include <QDataStream>
 #include <QDebug>
 
-class Terrain
+class Terrain : QOpenGLFunctions_4_0_Core
 {
 public:
     Terrain(QFile *pgmFile);
@@ -16,6 +16,7 @@ public:
 
 private:
     GLuint heightMap;
+    void readInt(QDataStream *stream, int *result);
 };
 
 #endif // TERRAIN_H
