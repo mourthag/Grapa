@@ -21,6 +21,9 @@ MainWindow::MainWindow(QWidget *parent)
     QAction *openModelAction = fileMenu->addAction("&Open model...");
     connect(openModelAction, SIGNAL(triggered(bool)), this, SLOT(loadModel()));
 
+    QAction *openTerrainAction = fileMenu->addAction("Open Terrain...");
+    connect(openTerrainAction, SIGNAL(triggered(bool)), this, SLOT(loadTerrain()));
+
     QAction *exitAction = fileMenu->addAction("E&xit");
     exitAction->setShortcut(QKeySequence("Ctrl+q"));
     connect(exitAction, SIGNAL(triggered()), this, SLOT(close()));
@@ -255,4 +258,15 @@ void MainWindow::loadModel() {
     }
     tesselationSlider->setDisabled(true);
     widget->loadModel(&model);
+}
+
+void MainWindow::loadTerrain() {
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open Terrain"), "",
+                                                    tr("Models (*.pgm);;All files(*)"));
+    if(fileName.isEmpty() || fileName.isNull())
+        return;
+
+    QFile pgmFile(fileName);
+    //load terrain7
+    Terrain test(&pgmFile);
 }

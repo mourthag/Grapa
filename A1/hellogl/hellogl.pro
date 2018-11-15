@@ -32,7 +32,8 @@ SOURCES += \
     node.cpp \
     animation.cpp \
     performancechart.cpp \
-    scenerenderer.cpp
+    scenerenderer.cpp \
+    terrain.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -45,7 +46,8 @@ HEADERS += \
     node.h \
     animation.h \
     performancechart.h \
-    scenerenderer.h
+    scenerenderer.h \
+    terrain.h
 
 DISTFILES += \
     shader/phongfragshader.frag \

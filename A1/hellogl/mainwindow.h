@@ -4,6 +4,7 @@
 #include <QtWidgets>
 
 #include "mainopenglwidget.h"
+#include "terrain.h"
 
 class MainWindow : public QMainWindow
 {
@@ -17,6 +18,7 @@ public slots:
     void showAboutBox();
     void updateStatusBar(QMatrix4x4 *viewMat);
     void loadModel();
+    void loadTerrain();
     void updateLightPos();
 
 private:
