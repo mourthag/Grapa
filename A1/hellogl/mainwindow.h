@@ -4,7 +4,6 @@
 #include <QtWidgets>
 
 #include "mainopenglwidget.h"
-#include "terrain.h"
 
 class MainWindow : public QMainWindow
 {

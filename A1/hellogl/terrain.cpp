@@ -46,7 +46,7 @@ Terrain::Terrain(QFile *pgmFile)
 
     std::vector<unsigned short> heights;
 
-    for(int i = 0; i < width * height; i = i + 2) {
+    for(int i = 0; i < width * height * 2; i = i + 2) {
         unsigned short value;
         value = (unsigned short)data[i];
         value <<=  CHAR_BIT;
@@ -56,7 +56,10 @@ Terrain::Terrain(QFile *pgmFile)
 
     glGenTextures(1, &heightMap);
     glBindTexture(GL_TEXTURE_2D, heightMap);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_R16I, width, height, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, &heights.at(0));
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_R16UI, width, height, 0, GL_RED_INTEGER, GL_UNSIGNED_SHORT, &heights.at(0));
     glGenerateMipmap(GL_TEXTURE_2D);
 
+}
+
+void Terrain::drawTerrain(QOpenGLShaderProgram *prog) {
 }

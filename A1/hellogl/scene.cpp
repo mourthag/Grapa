@@ -238,6 +238,18 @@ void Scene::setUpUniforms(QOpenGLShaderProgram *prog, bool bufferUniformBlocks)
 
 }
 
+void Scene::loadTerrain(QFile *pgmFile) {
+    Terrain *terr = (Terrain*)malloc(sizeof(Terrain));
+    terr = new Terrain(pgmFile);
+    terrains.push_back(terr);
+}
+
+void Scene::drawTerrain(QOpenGLShaderProgram *prog) {
+    for( int index = 0; index < terrains.size(); index++) {
+
+    }
+}
+
 void Scene::drawScene(QOpenGLShaderProgram *prog, bool setUpUniformBlocks) {
 
     bool allAnimationsFinished = true;

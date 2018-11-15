@@ -267,6 +267,6 @@ void MainWindow::loadTerrain() {
         return;
 
     QFile pgmFile(fileName);
-    //load terrain7
-    Terrain test(&pgmFile);
+    //load terrain
+    widget->loadTerrain(&pgmFile);
 }

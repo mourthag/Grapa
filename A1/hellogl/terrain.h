@@ -2,6 +2,8 @@
 #define TERRAIN_H
 
 #include <QOpenGLFunctions_4_0_Core>
+#include <QOpenGLShaderProgram>
+
 #include <QFile>
 #include <QDataStream>
 #include <QDebug>
@@ -13,6 +15,8 @@ public:
 
     int width;
     int height;
+
+    void drawTerrain(QOpenGLShaderProgram *prog);
 
 private:
     GLuint heightMap;

@@ -270,3 +270,10 @@ void MainOpenGLWidget::loadModel(tinygltf::Model* gltf_model) {
 
 }
 
+void MainOpenGLWidget::loadTerrain(QFile *pgmFile) {
+
+    makeCurrent();
+    scene.loadTerrain(pgmFile);
+    doneCurrent();
+}
+

@@ -43,6 +43,7 @@ public slots:
     void playAnimation();
     void pauseAnimation();
     void loadModel(tinygltf::Model *gltf_model);
+    void loadTerrain(QFile *pgmFile);
 
     QChartView* getChartView();
 signals:

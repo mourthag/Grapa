@@ -10,6 +10,7 @@
 #include <animation.h>
 #include <openglmodel.h>
 #include "tiny_gltf.h"
+#include "terrain.h"
 
 struct Material
 {
@@ -55,7 +56,9 @@ public:
     void clear();
 
     void loadFromGLTF(tinygltf::Model gltf_model);
+    void loadTerrain(QFile *pgmFile);
     void drawScene(QOpenGLShaderProgram *prog, bool setUpUniformBlocks);
+    void drawTerrain(QOpenGLShaderProgram *prog);
     Node* findNode(int nodeIndex);
     CameraLightInfo *getCameraLightInfo();/*
     void setViewMatrix(QMatrix4x4 viewMatrix);
@@ -88,7 +91,7 @@ private:
 
     std::vector<Animation*> animations;
     std::vector<Node*> rootNodes;
-    std::vector<OpenGLModel*> oglmodels;
+    std::vector<Terrain*> terrains;
 };
 
 #endif // SCENE_H
