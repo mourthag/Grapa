@@ -49,7 +49,7 @@ Terrain::Terrain(QFile *pgmFile)
     for(int i = 0; i < width * height; i = i + 2) {
         unsigned short value;
         value = (unsigned short)data[i];
-        value <<=  8;
+        value <<=  CHAR_BIT;
         value += (unsigned short)data[i+1];
         heights.push_back(value);
     }
