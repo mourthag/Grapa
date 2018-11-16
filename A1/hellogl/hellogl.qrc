@@ -12,5 +12,11 @@
         <file>shader/geometrypassvertshader.vert</file>
         <file>shader/lightingpassfragshader.frag</file>
         <file>shader/lightingpassvertshader.vert</file>
+        <file>shader/lightingpasspointsfragshader.frag</file>
+        <file>shader/lightingpasspointsvertshader.vert</file>
+        <file>shader/terrainfragshader.frag</file>
+        <file>shader/terrainvertshader.vert</file>
+        <file>shader/terraintesselationcontrolshader.tcs</file>
+        <file>shader/terraintesselationevalshader.tes</file>
     </qresource>
 </RCC>

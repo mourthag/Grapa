@@ -60,7 +60,10 @@ DISTFILES += \
     shader/lightingpassfragshader.frag \
     shader/lightingpasspointsvertshader.vert \
     shader/lightingpasspointsfragshader.frag \
-    shader/terrainvertshader.vert
+    shader/terrainvertshader.vert \
+    shader/terrainfragshader.frag \
+    shader/terraintesselationcontrolshader.tcs \
+    shader/terraintesselationevalshader.tes
 
 RESOURCES += \
     hellogl.qrc
