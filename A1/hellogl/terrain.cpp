@@ -1,6 +1,6 @@
 #include "terrain.h"
 
-void Terrain::~Terrain() {
+Terrain::~Terrain() {
     glDeleteVertexArrays(1, &vao);
     glDeleteTextures(1, &heightMap);
     glDeleteBuffers(1, &vbo);
@@ -76,7 +76,14 @@ Terrain::Terrain(QFile *pgmFile)
 
 void Terrain::drawTerrain(QOpenGLShaderProgram *prog) {
 
+
+    prog->setUniformValue("heightMap", 4);
+    glActiveTexture(GL_TEXTURE4);
+    glBindTexture(GL_TEXTURE_2D, heightMap);
+    prog->setUniformValue("m", QMatrix4x4());
+
     glBindVertexArray(vao);
+
     glPatchParameteri(GL_PATCH_VERTICES, 4);
     glDrawElements(GL_PATCHES, numpatches, GL_UNSIGNED_INT, 0 );
     glBindVertexArray(0);

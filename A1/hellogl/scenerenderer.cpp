@@ -83,6 +83,7 @@ void SceneRenderer::setUpQuad()
 
 void SceneRenderer::initGL() {
     initializeOpenGLFunctions();
+    glClearColor(1,1,1,1);
 
     glGenQueries(NumQueries, queryObjectsA.data());
     glGenQueries(NumQueries, queryObjectsB.data());
@@ -101,6 +102,11 @@ void SceneRenderer::initGL() {
     deferredLightingPassProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shader/lightingpassvertshader.vert");
     deferredLightingPassProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shader/lightingpassfragshader.frag");
     deferredLightingPassProgram->link();
+
+    terrainProgram = new QOpenGLShaderProgram();
+    terrainProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shader/terrainvertshader.vert");
+    terrainProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shader/terrainfragshader.frag");
+    terrainProgram->link();
 
     glGenFramebuffers(1, &fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
@@ -193,6 +199,8 @@ void SceneRenderer::drawScene(Scene *scene) {
     queryTime(0);
 
     scene->drawScene(activeProgram, bufferUniformBLocks);
+    terrainProgram->bind();
+    scene->drawTerrain(terrainProgram);
 
     queryTime(1);
 

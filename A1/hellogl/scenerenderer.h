@@ -64,6 +64,7 @@ private:
     QOpenGLShaderProgram *phongProgram;
     QOpenGLShaderProgram *deferredGeomPassProgram;
     QOpenGLShaderProgram *deferredLightingPassProgram;
+    QOpenGLShaderProgram *terrainProgram;
 
     RenderMode mode;
     void setUpFBOTextures();

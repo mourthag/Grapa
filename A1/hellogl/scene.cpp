@@ -251,8 +251,9 @@ void Scene::loadTerrain(QFile *pgmFile) {
 }
 
 void Scene::drawTerrain(QOpenGLShaderProgram *prog) {
+    setUpUniforms(prog, false);
     for( int index = 0; index < terrains.size(); index++) {
-
+        terrains[index]->drawTerrain(prog);
     }
 }
 
