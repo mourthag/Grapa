@@ -18,8 +18,19 @@ public:
 
     void drawTerrain(QOpenGLShaderProgram *prog);
 
+protected:
+    void generatePatches();
+
 private:
+    const int vertsPerRow = 5;
+    const int rowLength = 100;
+    const int numpatches = (vertsPerRow - 1) * (vertsPerRow -1);
+
     GLuint heightMap;
+    GLuint vao;
+    GLuint vbo;
+    GLuint ibo;
+
     void readInt(QDataStream *stream, int *result);
 };
 
