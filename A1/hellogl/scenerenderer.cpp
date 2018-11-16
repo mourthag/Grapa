@@ -98,8 +98,8 @@ void SceneRenderer::initGL() {
     deferredGeomPassProgram->link();
 
     deferredLightingPassProgram = new QOpenGLShaderProgram();
-    deferredLightingPassProgram->addCacheableShaderFromSourceFile(QOpenGLShader::Vertex, ":/shader/lightingpassvertshader.vert");
-    deferredLightingPassProgram->addCacheableShaderFromSourceFile(QOpenGLShader::Fragment, ":/shader/lightingpassfragshader.frag");
+    deferredLightingPassProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shader/lightingpassvertshader.vert");
+    deferredLightingPassProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shader/lightingpassfragshader.frag");
     deferredLightingPassProgram->link();
 
     glGenFramebuffers(1, &fbo);
