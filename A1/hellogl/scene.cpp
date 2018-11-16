@@ -12,6 +12,7 @@ Scene::~Scene() {
 
     clear();
 }
+
 void Scene::clear() {
 
     for(int i=0; i < rootNodes.size(); i++) {
@@ -23,6 +24,11 @@ void Scene::clear() {
         delete(animations[j]);
     }
     animations.clear();
+
+    for(int k = 0; k < terrains.size(); k++) {
+        delete(terrains[k]);
+    }
+    terrains.clear();
 }
 
 void Scene::initGL(){

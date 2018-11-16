@@ -1,5 +1,14 @@
 #include "terrain.h"
 
+void Terrain::~Terrain() {
+    glDeleteVertexArrays(1, &vao);
+    glDeleteTextures(1, &heightMap);
+    glDeleteBuffers(1, &vbo);
+    glDeleteBuffers(1, &ibo);
+
+
+}
+
 void Terrain::readInt(QDataStream *stream, int *result)
 {
     char widthText[10];

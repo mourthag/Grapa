@@ -12,6 +12,7 @@ class Terrain : QOpenGLFunctions_4_0_Core
 {
 public:
     Terrain(QFile *pgmFile);
+    ~Terrain();
 
     int width;
     int height;
