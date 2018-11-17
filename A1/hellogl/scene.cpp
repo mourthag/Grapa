@@ -237,8 +237,8 @@ void Scene::setUpUniforms(QOpenGLShaderProgram *prog, bool bufferUniformBlocks)
         glBindTexture(GL_TEXTURE_2D_ARRAY, textures);
     }
 
-    prog->setUniformValue("v", camLightInfo.viewMatrix);
-    prog->setUniformValue("p", camLightInfo.projMatrix);
+    prog->setUniformValue("viewMat", camLightInfo.viewMatrix);
+    prog->setUniformValue("projMat", camLightInfo.projMatrix);
     prog->setUniformValue("lightPos", camLightInfo.lightPos);
     prog->setUniformValue("lightInt", camLightInfo.lightInt);
 

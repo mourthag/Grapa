@@ -105,6 +105,8 @@ void SceneRenderer::initGL() {
 
     terrainProgram = new QOpenGLShaderProgram();
     terrainProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shader/terrainvertshader.vert");
+    terrainProgram->addShaderFromSourceFile(QOpenGLShader::TessellationControl, ":/shader/terraintesselationcontrolshader.tcs");
+    terrainProgram->addShaderFromSourceFile(QOpenGLShader::TessellationEvaluation, ":/shader/terraintesselationevalshader.tes");
     terrainProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shader/terrainfragshader.frag");
     terrainProgram->link();
 

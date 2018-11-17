@@ -139,7 +139,7 @@ QMatrix4x4 Node::getTotalMatrix() {
 void Node::draw(QOpenGLShaderProgram *prog, QMatrix4x4 viewMat) {
 
     QMatrix4x4 mat = getTotalMatrix();
-    prog->setUniformValue("m", mat);
+    prog->setUniformValue("modelMat", mat);
     QMatrix4x4 normalMat = viewMat * mat;
     prog->setUniformValue("normalMat", normalMat.normalMatrix());
 

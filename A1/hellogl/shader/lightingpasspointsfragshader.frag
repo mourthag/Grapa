@@ -15,7 +15,7 @@ out vec4 frag;
 in vec3 vLightPos;
 in vec4 LightColor;
 
-uniform mat4 v, p;
+uniform mat4 viewMat, projMat;
 
 uniform sampler2D ntcTexture;
 uniform usampler2D materialTexture;
@@ -53,7 +53,7 @@ void main(void)
 
     float depth = texture(depthTexture, scrPos).r;
 
-    vec4 viewSpacePos = inverse(p) * vec4( 2 * scrPos - 1 ,  2 * depth -1 , 1.0);
+    vec4 viewSpacePos = inverse(projMat) * vec4( 2 * scrPos - 1 ,  2 * depth -1 , 1.0);
     //normalized viewSpacePos
     vec3 pos = viewSpacePos.xyz  / viewSpacePos.w;
 

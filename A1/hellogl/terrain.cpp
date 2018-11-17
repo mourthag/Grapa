@@ -80,7 +80,7 @@ void Terrain::drawTerrain(QOpenGLShaderProgram *prog) {
     prog->setUniformValue("heightMap", 4);
     glActiveTexture(GL_TEXTURE4);
     glBindTexture(GL_TEXTURE_2D, heightMap);
-    prog->setUniformValue("m", QMatrix4x4());
+    prog->setUniformValue("modelMat", QMatrix4x4());
 
     glBindVertexArray(vao);
 
@@ -110,9 +110,9 @@ void Terrain::generatePatches() {
             if(row != vertsPerRow - 1 && column != vertsPerRow -1) {
                 int index = column * vertsPerRow + row;
                 indices.push_back(index);
-                indices.push_back(index+1);
                 indices.push_back(index+vertsPerRow);
                 indices.push_back(index+1+vertsPerRow);
+                indices.push_back(index+1);
             }
         }
     }

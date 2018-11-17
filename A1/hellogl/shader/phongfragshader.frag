@@ -15,7 +15,7 @@ in vec3 vPos;
 in vec3 normal;
 in vec2 texCoord;
 
-uniform mat4 m,v,p;
+uniform mat4 modelMat, viewMat, projMat;
 uniform vec3 lightPos;
 uniform float lightInt;
 
@@ -31,7 +31,7 @@ void main(void)
 
     Material mat = materials[materialIndex];
 
-    vec3 vLightPos = vec3( v * vec4(lightPos, 1.0));
+    vec3 vLightPos = vec3( viewMat * vec4(lightPos, 1.0));
     vec3 lightDir = normalize(vLightPos - vPos);
     vec3 reflection = reflect(-lightDir,normal);
     vec3 viewDir = normalize(-vPos);

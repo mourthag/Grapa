@@ -17,7 +17,7 @@ in vec2 UV;
 out vec3 normal;
 out vec4 color;
 
-uniform mat4 m, v, p;
+uniform mat4 modelMat, viewMat, projMat;
 uniform mat3 normalMat;
 uniform int materialIndex;
 
@@ -31,12 +31,12 @@ uniform float lightInt;
 
 void main(void)
 {
-    vec4 vPos =  v * m * vec4(pos, 1.0);
+    vec4 vPos =  viewMat * modelMat * vec4(pos, 1.0);
     vec3 norm = normalize(normalMat * vertnormal);
 
     Material mat = materials[materialIndex];
 
-    vec3 vLightPos = vec3(v * m * vec4(lightPos, 1.0));
+    vec3 vLightPos = vec3(viewMat * vec4(lightPos, 1.0));
     vec3 lightDir = normalize(vLightPos - vPos.xyz);
     vec3 reflection = reflect(-lightDir,norm);
     vec3 viewDir = normalize(-vPos.xyz);
@@ -52,6 +52,6 @@ void main(void)
     vec4 sPart = ks * lightInt * pow(max(dot(reflection, viewDir), 0.0), n);
 
     color = aPart + dPart + sPart;
-    gl_Position = p * vPos;
+    gl_Position = projMat * vPos;
     normal = norm;
 }
