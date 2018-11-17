@@ -8,8 +8,6 @@ out vec2 col;
 
 uniform mat4 viewMat, projMat;
 
-uniform usampler2D heightMap;
-
 void main() {
 
     float u = gl_TessCoord.x;
@@ -17,9 +15,7 @@ void main() {
     vec3 p1 = mix(tcPosition[0], tcPosition[1], u);
     vec3 p2 = mix(tcPosition[3], tcPosition[2], u);
 
-    float height = float(texture(heightMap, pos).r);
-    vec3 position = mix(p1, p2, v);
-    tePosition = vec3(position.x, height, position.z);
+    tePosition = mix(p1, p2, v);
 
     gl_Position = projMat * viewMat * vec4(tePosition, 1.0);
 
