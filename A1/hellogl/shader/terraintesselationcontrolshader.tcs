@@ -4,17 +4,19 @@ layout(vertices = 4) out;
 in vec3 vPosition[];
 out vec3 tcPosition[];
 
+uniform int tessLevel;
+
 void main() {
 
     tcPosition[gl_InvocationID] = vPosition[gl_InvocationID];
     if(gl_InvocationID == 0) {
 
-        gl_TessLevelInner[0] = 4;
-        gl_TessLevelInner[1] = 4;
-        gl_TessLevelOuter[0] = 4;
-        gl_TessLevelOuter[1] = 4;
-        gl_TessLevelOuter[2] = 4;
-        gl_TessLevelOuter[3] = 4;
+        gl_TessLevelInner[0] = tessLevel;
+        gl_TessLevelInner[1] = tessLevel;
+        gl_TessLevelOuter[0] = tessLevel;
+        gl_TessLevelOuter[1] = tessLevel;
+        gl_TessLevelOuter[2] = tessLevel;
+        gl_TessLevelOuter[3] = tessLevel;
     }
 
 }

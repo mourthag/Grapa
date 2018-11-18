@@ -11,6 +11,10 @@ static const GLuint quad_Ind[] = {
     0, 1, 2, 3
 };
 
+void SceneRenderer::setTesselation(int t) {
+    tesselation = t;
+}
+
 SceneRenderer::SceneRenderer()
 {
     mode = RenderMode::Deferred;
@@ -202,6 +206,7 @@ void SceneRenderer::drawScene(Scene *scene) {
 
     scene->drawScene(activeProgram, bufferUniformBLocks);
     terrainProgram->bind();
+    terrainProgram->setUniformValue("tessLevel", tesselation);
     scene->drawTerrain(terrainProgram);
 
     queryTime(1);

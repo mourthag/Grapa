@@ -30,6 +30,7 @@ public:
     void drawScene(Scene *scene);
     PerformanceChart* getLogger();
 
+    void setTesselation(int t);
     void updateFramebuffeSize(int width, int height);
 
 private:
@@ -40,6 +41,8 @@ private:
     };
 
     void setUpUniforms(QOpenGLShaderProgram *prog, UniformMode uniformMode);
+
+    int tesselation;
 
     const int scr_size = 512;
 

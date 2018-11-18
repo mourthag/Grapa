@@ -233,8 +233,7 @@ void MainOpenGLWidget::setShininess(int s) {
 }
 
 void MainOpenGLWidget::setTesselation(int t) {
-    tesselation = t;
-
+    renderer.setTesselation(t);
     update();
 }
 
