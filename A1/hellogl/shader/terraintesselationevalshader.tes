@@ -1,6 +1,6 @@
 #version 400
 
-layout(quads) in;
+layout(quads, equal_spacing) in;
 in vec3 tcPosition[];
 
 out vec3 tePosition;
