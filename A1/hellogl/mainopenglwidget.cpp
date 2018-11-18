@@ -5,6 +5,9 @@
 MainOpenGLWidget::MainOpenGLWidget(QWidget *parent) : QOpenGLWidget(parent)
 {
 
+    setFocusPolicy(Qt::StrongFocus);
+
+
     //update at ~60FPS
     QTimer *timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(update()));
@@ -164,6 +167,48 @@ void MainOpenGLWidget::wheelEvent(QWheelEvent *event) {
     //update screen etc
     update();
     cameraUpdated(&cam->viewMatrix);
+}
+
+void MainOpenGLWidget::keyPressEvent(QKeyEvent *event) {
+    //QOpenGLWidget::keyPressEvent(event);
+    int key = event->key();
+
+    CameraLightInfo *cam = scene.getCameraLightInfo();
+
+    QVector3D forward = cam->viewMatrix.inverted().mapVector(QVector3D(0,0,1));
+    forward.setY(0);
+    QVector3D right = cam->viewMatrix.inverted().mapVector(QVector3D(1,0,0));
+    right.setY(0);
+    QVector3D up = QVector3D(0,1,0);
+
+    if(key == Qt::Key_W) {
+        cam->viewMatrix.translate(forward);
+    }
+    if(key == Qt::Key_A) {
+        cam->viewMatrix.translate(right);
+    }
+    if(key == Qt::Key_S) {
+        cam->viewMatrix.translate(-forward);
+    }
+    if(key == Qt::Key_D) {
+        cam->viewMatrix.translate(-right);
+    }
+    if(key == Qt::Key_Q) {
+
+        cam->viewMatrix.rotate(-10, up);
+    }
+    if(key == Qt::Key_E) {
+        cam->viewMatrix.rotate(10, up);
+    }
+    if(key == Qt::Key_Control) {
+        cam->viewMatrix.translate(QVector3D(0,1,0));
+    }
+    if(key == Qt::Key_Shift) {
+        cam->viewMatrix.translate(QVector3D(0,-1,0));
+    }
+
+
+    update();
 }
 
 QPointF MainOpenGLWidget::pixelPosToViewPos(const QPointF &point) {
