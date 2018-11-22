@@ -84,8 +84,6 @@ void Terrain::drawTerrain(QOpenGLShaderProgram *prog) {
     prog->setUniformValue("heightMap", 4);
     glActiveTexture(GL_TEXTURE4);
     glBindTexture(GL_TEXTURE_2D, heightMap);
-    prog->setUniformValue("modelMat", QMatrix4x4());
-
     glBindVertexArray(vao);
 
     glPatchParameteri(GL_PATCH_VERTICES, 4);

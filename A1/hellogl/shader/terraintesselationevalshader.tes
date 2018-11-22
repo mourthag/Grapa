@@ -18,7 +18,7 @@ void main() {
 
     vec3 pos = mix(p1, p2, v);
     vec2 texCoord = vec2(pos.x, pos.z);
-    float height = float(textureLod( heightMap, texCoord/100.0,  0).r) / 1000;
+    float height = float(textureLod( heightMap, texCoord/1000.0,  0).r) / 100;
 
     tePosition = vec3(pos.x, height, pos.z);
 

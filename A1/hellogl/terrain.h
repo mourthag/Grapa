@@ -23,8 +23,8 @@ protected:
     void generatePatches();
 
 private:
-    const int vertsPerRow = 5;
-    const int rowLength = 100;
+    const int vertsPerRow = 50;
+    const int rowLength = 500;
     const int numpatches = 4 * (vertsPerRow - 1) * (vertsPerRow -1);
 
     GLuint heightMap;
