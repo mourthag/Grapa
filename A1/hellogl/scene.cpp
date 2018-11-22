@@ -250,8 +250,19 @@ void Scene::loadTerrain(QFile *pgmFile) {
     terrains.push_back(terr);
 }
 
+QVector3D Scene::getCamPos() {
+    QVector3D pos = camLightInfo.viewMatrix.inverted() .map(QVector3D(0,0,0));
+    return pos;
+}
+
 void Scene::drawTerrain(QOpenGLShaderProgram *prog) {
     setUpUniforms(prog, false);
+    QVector3D camPos = getCamPos();
+    camPos.setY(0);
+    prog->setUniformValue("camPos", camPos);
+    QMatrix4x4 camTranslationMatrix;
+    camTranslationMatrix.translate(camPos);
+    prog->setUniformValue("modelMat", camTranslationMatrix);
     for( int index = 0; index < terrains.size(); index++) {
         terrains[index]->drawTerrain(prog);
     }

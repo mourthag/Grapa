@@ -60,10 +60,8 @@ public:
     void drawScene(QOpenGLShaderProgram *prog, bool setUpUniformBlocks);
     void drawTerrain(QOpenGLShaderProgram *prog);
     Node* findNode(int nodeIndex);
-    CameraLightInfo *getCameraLightInfo();/*
-    void setViewMatrix(QMatrix4x4 viewMatrix);
-    void setProjectionMatrix(QMatrix4x4 projectionMatrix);
-    void setLightInfo(QVector3D lightPosition, float lightIntensity);*/
+    CameraLightInfo *getCameraLightInfo();
+    QVector3D getCamPos();
     void setUpUniforms(QOpenGLShaderProgram *prog, bool bufferUniformBlocks);
 
     void setAnimationPlay(bool play);

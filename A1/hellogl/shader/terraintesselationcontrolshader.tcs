@@ -3,20 +3,25 @@
 layout(vertices = 4) out;
 in vec3 vPosition[];
 out vec3 tcPosition[];
-
+uniform mat4 viewMat;
 uniform int tessLevel;
+uniform vec3 camPos;
 
 void main() {
+
+    vec3 mid = mix(vPosition[0], vPosition[2], 0.5);
+    float distance = length(camPos - mid);
+    int level = int(40 * exp(-distance / 30.0));
 
     tcPosition[gl_InvocationID] = vPosition[gl_InvocationID];
     if(gl_InvocationID == 0) {
 
-        gl_TessLevelInner[0] = tessLevel;
-        gl_TessLevelInner[1] = tessLevel;
-        gl_TessLevelOuter[0] = tessLevel;
-        gl_TessLevelOuter[1] = tessLevel;
-        gl_TessLevelOuter[2] = tessLevel;
-        gl_TessLevelOuter[3] = tessLevel;
+        gl_TessLevelInner[0] = level;
+        gl_TessLevelInner[1] = level;
+        gl_TessLevelOuter[0] = level;
+        gl_TessLevelOuter[1] = level;
+        gl_TessLevelOuter[2] = level;
+        gl_TessLevelOuter[3] = level;
     }
 
 }
