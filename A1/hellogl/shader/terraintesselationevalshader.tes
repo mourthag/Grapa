@@ -2,8 +2,8 @@
 
 layout(quads, equal_spacing) in;
 in vec3 tcPosition[];
-in int maxLogTessLevel[];
-in int logTessLevel[];
+patch in int maxLogTessLevel;
+patch in int logTessLevel;
 
 
 out vec3 tePosition;
@@ -21,7 +21,7 @@ void main() {
 
     vec3 pos = mix(p1, p2, v);
     vec2 texCoord = vec2(pos.x, pos.z);
-    float height = float(textureLod( heightMap, texCoord/1000.0,  maxLogTessLevel[0] - logTessLevel[0]).r) / 100;
+    float height = float(textureLod( heightMap, texCoord/1000.0,  maxLogTessLevel - logTessLevel).r) / 100;
 
     tePosition = vec3(pos.x, height, pos.z);
 

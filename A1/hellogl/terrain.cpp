@@ -84,6 +84,7 @@ void Terrain::drawTerrain(QOpenGLShaderProgram *prog) {
     prog->setUniformValue("heightMap", 4);
     glActiveTexture(GL_TEXTURE4);
     glBindTexture(GL_TEXTURE_2D, heightMap);
+    prog->setUniformValue("patchSize", distanceBetweenVerts);
     glBindVertexArray(vao);
 
     glPatchParameteri(GL_PATCH_VERTICES, 4);
@@ -99,7 +100,6 @@ void Terrain::generatePatches() {
     std::vector<GLfloat> vertices;
     std::vector<GLuint> indices;
 
-    float distanceBetweenVerts = (float)rowLength / (float)(vertsPerRow-1);
     float offset = (vertsPerRow - 1.0) / 2.0;
 
     for(int column=0; column < vertsPerRow; column++)  {
