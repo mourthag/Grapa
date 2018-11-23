@@ -3,32 +3,55 @@
 layout(vertices = 4) out;
 in vec3 vPosition[];
 out vec3 tcPosition[];
-out int maxLogTessLevel[];
-out int logTessLevel[];
+patch out int maxLogTessLevel;
+patch out int logTessLevel;
 
 uniform mat4 viewMat;
 uniform int tessLevel;
 uniform vec3 camPos;
-uniform float baseQuadLength;
+uniform float patchSize;
+
+int getTessLevel(float distance) {
+    return int(40 * exp(-distance / 30.0));
+}
 
 void main() {
 
     vec3 mid = mix(vPosition[0], vPosition[2], 0.5);
     float distance = length(camPos - mid);
-    int level = int(50 * exp(-distance / 40.0));
+    int level = getTessLevel(distance);
 
-    logTessLevel[gl_InvocationID] = int(log2(level));
-
-    tcPosition[gl_InvocationID] = vPosition[gl_InvocationID];
+    float nextPatchX;
+    float nextPatchZ;
     if(gl_InvocationID == 0) {
-
-        maxLogTessLevel[0] = int(log2(50));
         gl_TessLevelInner[0] = level;
         gl_TessLevelInner[1] = level;
-        gl_TessLevelOuter[0] = level;
-        gl_TessLevelOuter[1] = level;
-        gl_TessLevelOuter[2] = level;
-        gl_TessLevelOuter[3] = level;
+        logTessLevel = int(log2(level));
+        maxLogTessLevel = int(log2(getTessLevel(0)));
     }
+    if(gl_InvocationID == 1) {
+
+        nextPatchX = 0;
+        nextPatchZ = -1;
+    }
+    if(gl_InvocationID == 2) {
+
+        nextPatchX = 1;
+        nextPatchZ = 0;
+    }
+    if(gl_InvocationID == 3) {
+
+        nextPatchX = 0;
+        nextPatchZ = 1;
+    }
+
+    vec3 nextPatchPos = mid + patchSize * vec3(nextPatchX, 0 , nextPatchZ);
+    int nextPatchLevel = getTessLevel(length(camPos - nextPatchPos));
+
+    tcPosition[gl_InvocationID] = vPosition[gl_InvocationID];
+
+    gl_TessLevelOuter[gl_InvocationID] = max(level, nextPatchLevel);
+
+
 
 }

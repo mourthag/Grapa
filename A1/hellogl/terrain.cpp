@@ -91,6 +91,7 @@ void Terrain::drawTerrain(QOpenGLShaderProgram *prog, QVector3D camPos) {
     QMatrix4x4 camTranslationMatrix;
     camTranslationMatrix.translate(camPos);
     prog->setUniformValue("modelMat", camTranslationMatrix);
+    prog->setUniformValue("patchSize", distanceBetweenVerts);
     glBindVertexArray(vao);
 
     glPatchParameteri(GL_PATCH_VERTICES, 4);
