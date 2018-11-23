@@ -78,12 +78,19 @@ Terrain::Terrain(QFile *pgmFile)
 
 }
 
-void Terrain::drawTerrain(QOpenGLShaderProgram *prog) {
+void Terrain::drawTerrain(QOpenGLShaderProgram *prog, QVector3D camPos) {
 
 
     prog->setUniformValue("heightMap", 4);
     glActiveTexture(GL_TEXTURE4);
     glBindTexture(GL_TEXTURE_2D, heightMap);
+
+    camPos.setX((int)camPos.x()/(int)distanceBetweenVerts * distanceBetweenVerts);
+    camPos.setZ((int)camPos.z()/(int)distanceBetweenVerts * distanceBetweenVerts);
+
+    QMatrix4x4 camTranslationMatrix;
+    camTranslationMatrix.translate(camPos);
+    prog->setUniformValue("modelMat", camTranslationMatrix);
     glBindVertexArray(vao);
 
     glPatchParameteri(GL_PATCH_VERTICES, 4);
@@ -99,7 +106,6 @@ void Terrain::generatePatches() {
     std::vector<GLfloat> vertices;
     std::vector<GLuint> indices;
 
-    float distanceBetweenVerts = (float)rowLength / (float)(vertsPerRow-1);
     float offset = (vertsPerRow - 1.0) / 2.0;
 
     for(int column=0; column < vertsPerRow; column++)  {

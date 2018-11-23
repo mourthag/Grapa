@@ -9,20 +9,20 @@ out int logTessLevel[];
 uniform mat4 viewMat;
 uniform int tessLevel;
 uniform vec3 camPos;
-
+uniform float baseQuadLength;
 
 void main() {
 
     vec3 mid = mix(vPosition[0], vPosition[2], 0.5);
     float distance = length(camPos - mid);
-    int level = int(40 * exp(-distance / 30.0));
+    int level = int(50 * exp(-distance / 40.0));
 
     logTessLevel[gl_InvocationID] = int(log2(level));
 
     tcPosition[gl_InvocationID] = vPosition[gl_InvocationID];
     if(gl_InvocationID == 0) {
 
-        maxLogTessLevel[0] = int(log2(40));
+        maxLogTessLevel[0] = int(log2(50));
         gl_TessLevelInner[0] = level;
         gl_TessLevelInner[1] = level;
         gl_TessLevelOuter[0] = level;

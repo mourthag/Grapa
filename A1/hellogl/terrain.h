@@ -17,7 +17,7 @@ public:
     int width;
     int height;
 
-    void drawTerrain(QOpenGLShaderProgram *prog);
+    void drawTerrain(QOpenGLShaderProgram *prog, QVector3D camPos);
 
 protected:
     void generatePatches();
@@ -26,6 +26,7 @@ private:
     const int vertsPerRow = 50;
     const int rowLength = 500;
     const int numpatches = 4 * (vertsPerRow - 1) * (vertsPerRow -1);
+    const float distanceBetweenVerts = (float)rowLength / (float)(vertsPerRow-1);
 
     GLuint heightMap;
     GLuint vao;

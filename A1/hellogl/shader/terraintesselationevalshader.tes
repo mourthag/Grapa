@@ -5,7 +5,6 @@ in vec3 tcPosition[];
 in int maxLogTessLevel[];
 in int logTessLevel[];
 
-
 out vec3 tePosition;
 out vec2 col;
 
@@ -20,8 +19,8 @@ void main() {
     vec3 p2 = mix(tcPosition[3], tcPosition[2], u);
 
     vec3 pos = mix(p1, p2, v);
-    vec2 texCoord = vec2(pos.x, pos.z);
-    float height = float(textureLod( heightMap, texCoord/1000.0,  maxLogTessLevel[0] - logTessLevel[0]).r) / 100;
+    vec2 texCoord = vec2(pos.x, pos.z)/1000.0;
+    float height = float(textureLod( heightMap, texCoord,  maxLogTessLevel[0] - logTessLevel[0]).r) / 100;
 
     tePosition = vec3(pos.x, height, pos.z);
 
