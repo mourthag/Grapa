@@ -5,5 +5,5 @@ out vec4 frag;
 void main(void)
 {
     float gray = tePosition.y / 30.0;
-    frag = vec4(gray, gray, gray, 1.0);
+    frag = vec4(gray, 0.2, 0.0, 1.0);
 }

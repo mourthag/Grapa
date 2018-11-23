@@ -28,21 +28,23 @@ void main() {
         gl_TessLevelInner[1] = level;
         logTessLevel = int(log2(level));
         maxLogTessLevel = int(log2(getTessLevel(0)));
+        nextPatchX = 0;
+        nextPatchZ = 1;
     }
     if(gl_InvocationID == 1) {
-
-        nextPatchX = 0;
-        nextPatchZ = -1;
-    }
-    if(gl_InvocationID == 2) {
 
         nextPatchX = 1;
         nextPatchZ = 0;
     }
-    if(gl_InvocationID == 3) {
+    if(gl_InvocationID == 2) {
 
         nextPatchX = 0;
-        nextPatchZ = 1;
+        nextPatchZ = -1;
+    }
+    if(gl_InvocationID == 3) {
+
+        nextPatchX = -1;
+        nextPatchZ = 0;
     }
 
     vec3 nextPatchPos = mid + patchSize * vec3(nextPatchX, 0 , nextPatchZ);
