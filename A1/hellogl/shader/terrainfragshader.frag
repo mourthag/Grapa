@@ -30,9 +30,9 @@ uniform sampler2DArray materialTextures;
 void main(void)
 {
 
-    vec4 rockDiffuse = texture(materialTextures, vec3(UV, 0));
-    vec4 gravelDiffuse = texture(materialTextures, vec3(UV, 1));
-    vec4 sandDiffuse = texture(materialTextures, vec3(UV, 2));
+    vec4 rockDiffuse = texture(materialTextures, vec3(UV, 0)).bgra;
+    vec4 gravelDiffuse = texture(materialTextures, vec3(UV, 1)).bgra;
+    vec4 sandDiffuse = texture(materialTextures, vec3(UV, 2)).bgra;
 
     float heightInterpolation = smoothstep(sandHeight, sandHeight + sandMargin, tePosition.y);
     float normalInterpolation = smoothstep(rockSlope, rockSlope + rockMargin, teNormal.y);
@@ -52,7 +52,7 @@ void main(void)
     vec3 reflection = reflect(-lightDir,teNormal);
     vec3 viewDir = normalize(-vPos);
 
-    float fallOff = 1.0/ (pow(length(vPos-vLightPos),2.0));
+    float fallOff = 1.0;/// (pow(length(vPos-vLightPos),2.0));
 
     vec4 kd = slopeMixedDiffuse;
     vec4 dPart = kd * fallOff * lightInt * max(dot(teNormal, lightDir), 0.0);
@@ -65,5 +65,5 @@ void main(void)
     vec4 sPart = ks * fallOff * lightInt * pow(max(dot(reflection, viewDir), 0.0), n);
 
     vec4 col = aPart + dPart + sPart;
-    frag = col;
+    frag = vec4(teNormal,1);
 }

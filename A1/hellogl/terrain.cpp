@@ -22,6 +22,34 @@ void Terrain::readInt(QDataStream *stream, int *result)
     sscanf(widthText, "%d", result);
 }
 
+void Terrain::createHeightMap(int width, QDataStream *stream, int height)
+{
+    std::vector<char> data(2 * width * height);
+    stream->readRawData(&data.at(0), 2 * width * height);
+
+    std::vector<unsigned short> heights;
+
+    for(int i = 0; i < width * height * 2; i = i + 2) {
+        unsigned short value;
+        value = (unsigned short)data[i];
+        value <<=  CHAR_BIT;
+        value += (unsigned short)data[i+1];
+        heights.push_back(value);
+    }
+
+
+    glGenTextures(1, &heightMap);
+    glBindTexture(GL_TEXTURE_2D, heightMap);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_R16UI, width, height, 0, GL_RED_INTEGER, GL_UNSIGNED_SHORT, &heights.at(0));
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    glBindTexture(GL_TEXTURE_2D,0);
+}
+
 Terrain::Terrain(QFile *pgmFile)
 {
     initializeOpenGLFunctions();
@@ -50,32 +78,34 @@ Terrain::Terrain(QFile *pgmFile)
         return;
     }
 
-    std::vector<char> data(2 * width * height);
-    stream.readRawData(&data.at(0), 2 * width * height);
-
-    std::vector<unsigned short> heights;
-
-    for(int i = 0; i < width * height * 2; i = i + 2) {
-        unsigned short value;
-        value = (unsigned short)data[i];
-        value <<=  CHAR_BIT;
-        value += (unsigned short)data[i+1];
-        heights.push_back(value);
-    }
+    createHeightMap(width, &stream, height);
 
     generatePatches();
 
-    glGenTextures(1, &heightMap);
-    glBindTexture(GL_TEXTURE_2D, heightMap);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_R16UI, width, height, 0, GL_RED_INTEGER, GL_UNSIGNED_SHORT, &heights.at(0));
-    glGenerateMipmap(GL_TEXTURE_2D);
+    QString dir = pgmFile->fileName().section("/",0,-2);
+    QImage rockImage(dir + "/rock.jpg");
+    QImage gravelImage(dir + "/gravel.jpg");
+    QImage sandImage(dir + "/sand.jpg");
 
-    glBindTexture(GL_TEXTURE_2D,0);
+    glGenTextures(1, &materialArrayTexture);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, materialArrayTexture);
 
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA8, rockImage.width(), rockImage.height(),
+                 3,
+                 0,
+                 GL_RGBA,
+                 GL_UNSIGNED_BYTE,
+                 0);
+    glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 0, rockImage.width(), rockImage.height(), 1, GL_RGBA, GL_UNSIGNED_BYTE, rockImage.bits());
+    glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 1, gravelImage.width(), gravelImage.height(), 1, GL_RGBA, GL_UNSIGNED_BYTE, gravelImage.bits());
+    glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 2, sandImage.width(), sandImage.height(), 1, GL_RGBA, GL_UNSIGNED_BYTE, sandImage.bits());
+
+    glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 }
 
 void Terrain::drawTerrain(QOpenGLShaderProgram *prog, QVector3D camPos) {
@@ -85,6 +115,10 @@ void Terrain::drawTerrain(QOpenGLShaderProgram *prog, QVector3D camPos) {
     glActiveTexture(GL_TEXTURE4);
     glBindTexture(GL_TEXTURE_2D, heightMap);
 
+    prog->setUniformValue("materialTextures", 5);
+    glActiveTexture(GL_TEXTURE5);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, materialArrayTexture);
+
     camPos.setX((int)camPos.x()/(int)distanceBetweenVerts * distanceBetweenVerts);
     camPos.setZ((int)camPos.z()/(int)distanceBetweenVerts * distanceBetweenVerts);
 
@@ -92,6 +126,14 @@ void Terrain::drawTerrain(QOpenGLShaderProgram *prog, QVector3D camPos) {
     camTranslationMatrix.translate(camPos);
     prog->setUniformValue("modelMat", camTranslationMatrix);
     prog->setUniformValue("patchSize", distanceBetweenVerts);
+    prog->setUniformValue("heightMapSize", (GLfloat)4096.0);
+
+    prog->setUniformValue("rockSlope", (GLfloat)0.25);
+    prog->setUniformValue("rockMargin", (GLfloat)0.1);
+
+    prog->setUniformValue("sandHeight", (GLfloat)20.0);
+    prog->setUniformValue("sandMargin", (GLfloat)2.0);
+
     glBindVertexArray(vao);
 
     glPatchParameteri(GL_PATCH_VERTICES, 4);

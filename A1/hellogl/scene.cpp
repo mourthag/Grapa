@@ -260,6 +260,7 @@ void Scene::drawTerrain(QOpenGLShaderProgram *prog) {
     QVector3D camPos = getCamPos();
     camPos.setY(0);
     prog->setUniformValue("camPos", camPos);
+    prog->setUniformValue("normalMat", camLightInfo.viewMatrix.normalMatrix());
     for( int index = 0; index < terrains.size(); index++) {
         terrains[index]->drawTerrain(prog, camPos);
     }

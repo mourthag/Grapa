@@ -7,6 +7,7 @@
 #include <QFile>
 #include <QDataStream>
 #include <QDebug>
+#include <QImage>
 
 class Terrain : QOpenGLFunctions_4_0_Core
 {
@@ -32,8 +33,12 @@ private:
     GLuint vao;
     GLuint vbo;
     GLuint ibo;
+    GLuint materialArrayTexture;
+
+    //std::vector<QImage> textureImages;
 
     void readInt(QDataStream *stream, int *result);
+    void createHeightMap(int width, QDataStream *stream, int height);
 };
 
 #endif // TERRAIN_H

@@ -15,7 +15,7 @@ uniform usampler2D heightMap;
 uniform float heightMapSize;
 
 vec3 calculatePos(vec2 xzCoord) {
-    vec2 texCoord = vec2(xzCoord.x, xzCoord.y)/heightMapSize;
+    vec2 texCoord = xzCoord/heightMapSize;
     float height = float(textureLod( heightMap, texCoord,  maxLogTessLevel - logTessLevel).r) / 100;
     vec3 result = vec3(xzCoord.x, height, xzCoord.y);
     return result;
@@ -37,7 +37,7 @@ void main() {
     vec3 neighbourB = calculatePos(gridPos + vec2(0,1));
 
     vec3 worldNormal = normalize(cross(neighbourA - worldPos, neighbourB - worldPos));
-    teNormal = normalMat * worldNormal;
+    teNormal = worldNormal;
 
     UV = vec2(gl_TessCoord);
 
