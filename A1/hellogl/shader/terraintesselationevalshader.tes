@@ -39,7 +39,7 @@ void main() {
     vec3 worldNormal = normalize(-cross(neighbourA - worldPos, neighbourB - worldPos));
     teNormal = worldNormal;
 
-    UV = vec2(worldPos.x, worldPos.z) + vec2(worldPos.y, worldPos.y) / 100.0;
+    UV = vec2(worldPos.x, worldPos.z) + vec2(worldPos.y, worldPos.x) / 100.0;
 
     gl_Position = projMat * viewMat * vec4(tePosition, 1.0);
 

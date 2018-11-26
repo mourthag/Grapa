@@ -83,9 +83,11 @@ Terrain::Terrain(QFile *pgmFile)
     generatePatches();
 
     QString dir = pgmFile->fileName().section("/",0,-2);
+    qDebug() << dir;
     QImage rockImage(dir + "/rock.jpg");
     QImage gravelImage(dir + "/gravel.jpg");
     QImage sandImage(dir + "/sand.jpg");
+    QImage stoneImage(dir + "/stone.jpg");
 
     glGenTextures(1, &materialArrayTexture);
     glBindTexture(GL_TEXTURE_2D_ARRAY, materialArrayTexture);
@@ -96,7 +98,7 @@ Terrain::Terrain(QFile *pgmFile)
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
     glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA8, rockImage.width(), rockImage.height(),
-                 3,
+                 4,
                  0,
                  GL_RGBA,
                  GL_UNSIGNED_BYTE,
@@ -104,6 +106,7 @@ Terrain::Terrain(QFile *pgmFile)
     glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 0, rockImage.width(), rockImage.height(), 1, GL_RGBA, GL_UNSIGNED_BYTE, rockImage.bits());
     glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 1, gravelImage.width(), gravelImage.height(), 1, GL_RGBA, GL_UNSIGNED_BYTE, gravelImage.bits());
     glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 2, sandImage.width(), sandImage.height(), 1, GL_RGBA, GL_UNSIGNED_BYTE, sandImage.bits());
+    glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 3, stoneImage.width(), stoneImage.height(), 1, GL_RGBA, GL_UNSIGNED_BYTE, stoneImage.bits());
 
     glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 }
@@ -132,14 +135,24 @@ void Terrain::drawTerrain(QOpenGLShaderProgram *prog, QVector3D camPos) {
     prog->setUniformValue("heightMapSize", (GLfloat)4096.0);
 
     prog->setUniformValue("rockShininess", (GLfloat)12.0);
+    prog->setUniformValue("rockSpecular", QVector3D(0.5, 0.5, 0.5));
     prog->setUniformValue("rockSlope", (GLfloat)0.5);
     prog->setUniformValue("rockMargin", (GLfloat)0.1);
 
+    prog->setUniformValue("rockShininess", (GLfloat)12.0);
+    prog->setUniformValue("rockSpecular", QVector3D(0.5, 0.5, 0.5));
+    prog->setUniformValue("stoneSlope", (GLfloat)0.8);
+    prog->setUniformValue("stoneMargin", (GLfloat)0.1);
+
     prog->setUniformValue("sandShininess", (GLfloat)2.0);
+    prog->setUniformValue("sandSpecular", QVector3D(0.1, 0.1, 0.1));
     prog->setUniformValue("sandHeight", (GLfloat)17.0);
     prog->setUniformValue("sandMargin", (GLfloat)1.5);
 
     prog->setUniformValue("gravelShininess", (GLfloat)1.0);
+    prog->setUniformValue("gravelSpecular", QVector3D(0.1, 0.1, 0.1));
+    prog->setUniformValue("gravelHeight", (GLfloat)20.5);
+    prog->setUniformValue("gravelMargin", (GLfloat)1.5);
 
     glBindVertexArray(vao);
 
