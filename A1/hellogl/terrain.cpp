@@ -119,8 +119,11 @@ void Terrain::drawTerrain(QOpenGLShaderProgram *prog, QVector3D camPos) {
     glActiveTexture(GL_TEXTURE5);
     glBindTexture(GL_TEXTURE_2D_ARRAY, materialArrayTexture);
 
-    camPos.setX((int)camPos.x()/(int)distanceBetweenVerts * distanceBetweenVerts);
-    camPos.setZ((int)camPos.z()/(int)distanceBetweenVerts * distanceBetweenVerts);
+    int xFactor = camPos.x()/distanceBetweenVerts;
+    int zFactor = camPos.z() / distanceBetweenVerts;
+
+    camPos.setX(xFactor * distanceBetweenVerts);
+    camPos.setZ(zFactor * distanceBetweenVerts);
 
     QMatrix4x4 camTranslationMatrix;
     camTranslationMatrix.translate(camPos);
@@ -128,11 +131,11 @@ void Terrain::drawTerrain(QOpenGLShaderProgram *prog, QVector3D camPos) {
     prog->setUniformValue("patchSize", distanceBetweenVerts);
     prog->setUniformValue("heightMapSize", (GLfloat)4096.0);
 
-    prog->setUniformValue("rockSlope", (GLfloat)0.25);
+    prog->setUniformValue("rockSlope", (GLfloat)0.5);
     prog->setUniformValue("rockMargin", (GLfloat)0.1);
 
-    prog->setUniformValue("sandHeight", (GLfloat)20.0);
-    prog->setUniformValue("sandMargin", (GLfloat)2.0);
+    prog->setUniformValue("sandHeight", (GLfloat)1.80);
+    prog->setUniformValue("sandMargin", (GLfloat)0.1);
 
     glBindVertexArray(vao);
 

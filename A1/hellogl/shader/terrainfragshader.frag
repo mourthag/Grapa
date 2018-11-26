@@ -35,7 +35,7 @@ void main(void)
     vec4 sandDiffuse = texture(materialTextures, vec3(UV, 2)).bgra;
 
     float heightInterpolation = smoothstep(sandHeight, sandHeight + sandMargin, tePosition.y);
-    float normalInterpolation = smoothstep(rockSlope, rockSlope + rockMargin, teNormal.y);
+    float normalInterpolation = smoothstep(rockSlope, rockSlope + rockMargin, abs(teNormal.y));
 
     vec4 heightMixedDiffuse = mix(sandDiffuse, gravelDiffuse, heightInterpolation);
     vec4 slopeMixedDiffuse = mix(rockDiffuse, heightMixedDiffuse, normalInterpolation);
@@ -65,5 +65,5 @@ void main(void)
     vec4 sPart = ks * fallOff * lightInt * pow(max(dot(reflection, viewDir), 0.0), n);
 
     vec4 col = aPart + dPart + sPart;
-    frag = vec4(teNormal,1);
+    frag = slopeMixedDiffuse;
 }

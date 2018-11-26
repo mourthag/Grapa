@@ -16,7 +16,7 @@ uniform float heightMapSize;
 
 vec3 calculatePos(vec2 xzCoord) {
     vec2 texCoord = xzCoord/heightMapSize;
-    float height = float(textureLod( heightMap, texCoord,  maxLogTessLevel - logTessLevel).r) / 100;
+    float height = float(textureLod( heightMap, texCoord,  maxLogTessLevel - logTessLevel).r) / 100.0;
     vec3 result = vec3(xzCoord.x, height, xzCoord.y);
     return result;
 }
@@ -33,10 +33,10 @@ void main() {
     vec3 worldPos = calculatePos(gridPos);
     tePosition = worldPos;
 
-    vec3 neighbourA = calculatePos(gridPos + vec2(1,0));
-    vec3 neighbourB = calculatePos(gridPos + vec2(0,1));
+    vec3 neighbourA = calculatePos(gridPos + vec2(0.1,0));
+    vec3 neighbourB = calculatePos(gridPos + vec2(0,0.1));
 
-    vec3 worldNormal = normalize(cross(neighbourA - worldPos, neighbourB - worldPos));
+    vec3 worldNormal = normalize(-cross(neighbourA - worldPos, neighbourB - worldPos));
     teNormal = worldNormal;
 
     UV = vec2(gl_TessCoord);

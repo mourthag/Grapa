@@ -12,7 +12,7 @@ uniform vec3 camPos;
 uniform float patchSize;
 
 int getTessLevel(float distance) {
-    return int(40 * exp(-distance / 30.0));
+    return int(50 * exp(-distance / 50.0));
 }
 
 void main() {
