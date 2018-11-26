@@ -92,8 +92,8 @@ Terrain::Terrain(QFile *pgmFile)
 
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
     glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA8, rockImage.width(), rockImage.height(),
                  3,
@@ -134,8 +134,8 @@ void Terrain::drawTerrain(QOpenGLShaderProgram *prog, QVector3D camPos) {
     prog->setUniformValue("rockSlope", (GLfloat)0.5);
     prog->setUniformValue("rockMargin", (GLfloat)0.1);
 
-    prog->setUniformValue("sandHeight", (GLfloat)1.80);
-    prog->setUniformValue("sandMargin", (GLfloat)0.1);
+    prog->setUniformValue("sandHeight", (GLfloat)17.0);
+    prog->setUniformValue("sandMargin", (GLfloat)1.5);
 
     glBindVertexArray(vao);
 
