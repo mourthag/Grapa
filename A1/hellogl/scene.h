@@ -38,10 +38,17 @@ struct Material
 };
 
 struct CameraLightInfo {
-    QMatrix4x4 viewMatrix;
+    QVector3D camTranslation;
+    QMatrix4x4 camRotation;
     QMatrix4x4 projMatrix;
     QVector3D lightPos;
     float lightInt;
+
+    QMatrix4x4 viewMatrix() {
+        QMatrix4x4 translation;
+        translation.translate(camTranslation);
+        return camRotation * translation;
+    }
 };
 
 class Scene : QOpenGLFunctions_4_0_Core

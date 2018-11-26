@@ -80,7 +80,7 @@ void MainOpenGLWidget::resizeGL(int w, int h) {
     //projection matrix
     cam->projMatrix.setToIdentity();
     cam->projMatrix.perspective(45.0, (float)w/(float)h, 0.1, 10000);
-    cameraUpdated(&cam->viewMatrix);
+    cameraUpdated(cam->viewMatrix());
 }
 
 void MainOpenGLWidget::mousePressEvent(QMouseEvent *event) {
@@ -105,8 +105,8 @@ void MainOpenGLWidget::mouseMoveEvent(QMouseEvent *event) {
         drag.setY(-drag.y());
 
 
-        QVector3D dragVec = cam->viewMatrix.inverted().mapVector(QVector3D(drag));
-        cam->viewMatrix.translate(dragVec);
+        QVector3D dragVec = cam->camRotation.inverted().mapVector(QVector3D(drag));
+        cam->camTranslation += dragVec;
     }
     //rotate
     if(event->buttons() == Qt::LeftButton) {
@@ -137,18 +137,18 @@ void MainOpenGLWidget::mouseMoveEvent(QMouseEvent *event) {
         float angle =  qRadiansToDegrees(std::asin(axis.length()));
 
         //transform rotation vector with current rotation
-        axis = cam->viewMatrix.inverted().mapVector(axis);
+        axis = cam->camRotation.inverted().mapVector(axis);
         axis.normalize();
 
         //create quaternion and rotate with it
         QQuaternion q = QQuaternion::fromAxisAndAngle(axis, angle);
-        cam->viewMatrix.rotate(q);
+        cam->camRotation.rotate(q);
     }
 
     dragStart = event->pos();
     //update screen and camera/statusbar
     update();
-    cameraUpdated(&cam->viewMatrix);
+    cameraUpdated(cam->viewMatrix());
 }
 
 void MainOpenGLWidget::wheelEvent(QWheelEvent *event) {
@@ -158,15 +158,15 @@ void MainOpenGLWidget::wheelEvent(QWheelEvent *event) {
     CameraLightInfo *cam = scene.getCameraLightInfo();
 
     //calculate view direction
-    QVector3D currentPos = cam->viewMatrix.inverted().map(QVector3D(0,0,0));
+    QVector3D currentPos = cam->camTranslation;
     QVector3D viewDir = currentPos.normalized();
 
     //translate along viewdir
-    cam->viewMatrix.translate(val*viewDir);
+    cam->camTranslation += val*viewDir;
 
     //update screen etc
     update();
-    cameraUpdated(&cam->viewMatrix);
+    cameraUpdated(cam->viewMatrix());
 }
 
 void MainOpenGLWidget::keyPressEvent(QKeyEvent *event) {
@@ -175,36 +175,36 @@ void MainOpenGLWidget::keyPressEvent(QKeyEvent *event) {
 
     CameraLightInfo *cam = scene.getCameraLightInfo();
 
-    QVector3D forward = cam->viewMatrix.inverted().mapVector(QVector3D(0,0,1));
+    QVector3D forward = cam->camRotation.inverted().mapVector(QVector3D(0,0,1));
     forward.setY(0);
-    QVector3D right = cam->viewMatrix.inverted().mapVector(QVector3D(1,0,0));
+    QVector3D right = cam->camRotation.inverted().mapVector(QVector3D(1,0,0));
     right.setY(0);
     QVector3D up = QVector3D(0,1,0);
 
     if(key == Qt::Key_W) {
-        cam->viewMatrix.translate(forward);
+        cam->camTranslation += forward;
     }
     if(key == Qt::Key_A) {
-        cam->viewMatrix.translate(right);
+        cam->camTranslation += right;
     }
     if(key == Qt::Key_S) {
-        cam->viewMatrix.translate(-forward);
+        cam->camTranslation -= forward;
     }
     if(key == Qt::Key_D) {
-        cam->viewMatrix.translate(-right);
+        cam->camTranslation -= right;
     }
     if(key == Qt::Key_Q) {
 
-        cam->viewMatrix.rotate(-10, up);
+        cam->camRotation.rotate(-10, up);
     }
     if(key == Qt::Key_E) {
-        cam->viewMatrix.rotate(10, up);
+        cam->camRotation.rotate(10, up);
     }
     if(key == Qt::Key_Control) {
-        cam->viewMatrix.translate(QVector3D(0,1,0));
+        cam->camTranslation += up;
     }
     if(key == Qt::Key_Shift) {
-        cam->viewMatrix.translate(QVector3D(0,-1,0));
+        cam->camTranslation -= up;
     }
 
 
@@ -221,10 +221,10 @@ void MainOpenGLWidget::resetCamera() {
     //restore initial view matrix and update screen
     CameraLightInfo *cam = scene.getCameraLightInfo();
 
-    cam->viewMatrix.setToIdentity();
-    cam->viewMatrix.lookAt(QVector3D(2,2,3), QVector3D(0,0,0), QVector3D(0,1,0));
+    cam->camRotation.setToIdentity();
+    cam->camTranslation = QVector3D(0,0,0);
     update();
-    cameraUpdated(&cam->viewMatrix);
+    cameraUpdated(cam->viewMatrix());
 }
 
 void MainOpenGLWidget::setShininess(int s) {

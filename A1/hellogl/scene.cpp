@@ -237,7 +237,7 @@ void Scene::setUpUniforms(QOpenGLShaderProgram *prog, bool bufferUniformBlocks)
         glBindTexture(GL_TEXTURE_2D_ARRAY, textures);
     }
 
-    prog->setUniformValue("viewMat", camLightInfo.viewMatrix);
+    prog->setUniformValue("viewMat", camLightInfo.viewMatrix());
     prog->setUniformValue("projMat", camLightInfo.projMatrix);
     prog->setUniformValue("lightPos", camLightInfo.lightPos);
     prog->setUniformValue("lightInt", camLightInfo.lightInt);
@@ -251,7 +251,7 @@ void Scene::loadTerrain(QFile *pgmFile) {
 }
 
 QVector3D Scene::getCamPos() {
-    QVector3D pos = camLightInfo.viewMatrix.inverted() .map(QVector3D(0,0,0));
+    QVector3D pos = camLightInfo.viewMatrix().inverted() .map(QVector3D(0,0,0));
     return pos;
 }
 
@@ -260,8 +260,10 @@ void Scene::drawTerrain(QOpenGLShaderProgram *prog) {
     QVector3D camPos = getCamPos();
     camPos.setY(0);
     prog->setUniformValue("camPos", camPos);
-    prog->setUniformValue("normalMat", camLightInfo.viewMatrix.normalMatrix());
+    prog->setUniformValue("normalMat", camLightInfo.viewMatrix().normalMatrix());
     for( int index = 0; index < terrains.size(); index++) {
+        float height = terrains[index]->getHeight(camPos);
+        camLightInfo.camTranslation.setY(std::min(-height -2, camLightInfo.camTranslation.y()));
         terrains[index]->drawTerrain(prog, camPos);
     }
 }
@@ -284,7 +286,7 @@ void Scene::drawScene(QOpenGLShaderProgram *prog, bool setUpUniformBlocks) {
     setUpUniforms(prog, setUpUniformBlocks);
 
     for(int i=0 ; i < rootNodes.size(); i++) {
-        rootNodes[i]->draw(prog, camLightInfo.viewMatrix);
+        rootNodes[i]->draw(prog, camLightInfo.viewMatrix());
     }
 
 }

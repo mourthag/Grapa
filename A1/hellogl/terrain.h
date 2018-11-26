@@ -19,6 +19,7 @@ public:
     int height;
 
     void drawTerrain(QOpenGLShaderProgram *prog, QVector3D camPos);
+    float getHeight(QVector3D gridPos);
 
 protected:
     void generatePatches();
@@ -35,7 +36,8 @@ private:
     GLuint ibo;
     GLuint materialArrayTexture;
 
-    //std::vector<QImage> textureImages;
+    int heightMapSize;
+    std::vector<unsigned short> heights;
 
     void readInt(QDataStream *stream, int *result);
     void createHeightMap(int width, QDataStream *stream, int height);

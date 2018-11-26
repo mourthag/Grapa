@@ -27,8 +27,6 @@ void Terrain::createHeightMap(int width, QDataStream *stream, int height)
     std::vector<char> data(2 * width * height);
     stream->readRawData(&data.at(0), 2 * width * height);
 
-    std::vector<unsigned short> heights;
-
     for(int i = 0; i < width * height * 2; i = i + 2) {
         unsigned short value;
         value = (unsigned short)data[i];
@@ -66,6 +64,8 @@ Terrain::Terrain(QFile *pgmFile)
 
     int width;
     readInt(&stream, &width);
+
+    heightMapSize = width;
 
     int height;
     readInt(&stream, &height);
@@ -111,6 +111,17 @@ Terrain::Terrain(QFile *pgmFile)
     glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 }
 
+float Terrain::getHeight(QVector3D gridPos) {
+
+    int x = std::max(std::min((int)gridPos.x(), heightMapSize), 0);
+    int y = std::max(std::min((int)gridPos.z(), heightMapSize), 0);
+
+    int index = x * heightMapSize + y;
+    float height = (float)heights.at(index);
+    return height/100.0;
+
+}
+
 void Terrain::drawTerrain(QOpenGLShaderProgram *prog, QVector3D camPos) {
 
 
@@ -132,7 +143,7 @@ void Terrain::drawTerrain(QOpenGLShaderProgram *prog, QVector3D camPos) {
     camTranslationMatrix.translate(camPos);
     prog->setUniformValue("modelMat", camTranslationMatrix);
     prog->setUniformValue("patchSize", distanceBetweenVerts);
-    prog->setUniformValue("heightMapSize", (GLfloat)4096.0);
+    prog->setUniformValue("heightMapSize", (GLfloat)heightMapSize);
 
     prog->setUniformValue("rockShininess", (GLfloat)12.0);
     prog->setUniformValue("rockSpecular", QVector3D(0.5, 0.5, 0.5));
@@ -142,7 +153,7 @@ void Terrain::drawTerrain(QOpenGLShaderProgram *prog, QVector3D camPos) {
     prog->setUniformValue("rockShininess", (GLfloat)12.0);
     prog->setUniformValue("rockSpecular", QVector3D(0.5, 0.5, 0.5));
     prog->setUniformValue("stoneSlope", (GLfloat)0.8);
-    prog->setUniformValue("stoneMargin", (GLfloat)0.1);
+    prog->setUniformValue("stoneMargin", (GLfloat)0.18);
 
     prog->setUniformValue("sandShininess", (GLfloat)2.0);
     prog->setUniformValue("sandSpecular", QVector3D(0.1, 0.1, 0.1));

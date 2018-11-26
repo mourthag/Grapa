@@ -15,7 +15,7 @@ public:
 
 public slots:
     void showAboutBox();
-    void updateStatusBar(QMatrix4x4 *viewMat);
+    void updateStatusBar(QMatrix4x4 viewMat);
     void loadModel();
     void loadTerrain();
     void updateLightPos();

@@ -47,7 +47,7 @@ public slots:
 
     QChartView* getChartView();
 signals:
-    void cameraUpdated(QMatrix4x4 *viewMat);
+    void cameraUpdated(QMatrix4x4 viewMat);
 
 protected:
     void initializeGL() override;
