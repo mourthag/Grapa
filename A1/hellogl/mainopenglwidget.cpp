@@ -247,6 +247,11 @@ void MainOpenGLWidget::setLightPos(QVector3D v) {
     update();
 }
 
+void MainOpenGLWidget::setLightCol(QVector3D color) {
+    scene.getCameraLightInfo()->lightCol = color;
+    update();
+}
+
 void MainOpenGLWidget::setLightIntensity(int i) {
     scene.getCameraLightInfo()->lightInt = (float)i/10.0;
     update();

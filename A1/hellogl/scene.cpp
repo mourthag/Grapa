@@ -240,6 +240,7 @@ void Scene::setUpUniforms(QOpenGLShaderProgram *prog, bool bufferUniformBlocks)
     prog->setUniformValue("viewMat", camLightInfo.viewMatrix());
     prog->setUniformValue("projMat", camLightInfo.projMatrix);
     prog->setUniformValue("lightPos", camLightInfo.lightPos);
+    prog->setUniformValue("lightColor", camLightInfo.lightCol);
     prog->setUniformValue("lightInt", camLightInfo.lightInt);
 
 }

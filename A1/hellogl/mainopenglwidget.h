@@ -35,6 +35,7 @@ public slots:
     void setGouraud();
     void setPhong();
     void setLightPos(QVector3D v);
+    void setLightCol(QVector3D color);
     void setDeferredPhong();
     void setDeferredNormal();
     void setDeferredUV();

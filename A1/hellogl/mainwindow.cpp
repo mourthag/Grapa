@@ -128,6 +128,23 @@ MainWindow::MainWindow(QWidget *parent)
     toolBar->addWidget(lightPosYInput);
     toolBar->addWidget(lightPosZInput);
 
+    lightColRInput = new QLineEdit();
+    lightColGInput = new QLineEdit();
+    lightColBInput = new QLineEdit();
+    lightColRInput->setValidator(posValidator);
+    lightColRInput->setMaximumWidth(40);
+    lightColRInput->setText("1.00");
+    lightColGInput->setValidator(posValidator);
+    lightColGInput->setMaximumWidth(40);
+    lightColGInput->setText("1.00");
+    lightColBInput->setValidator(posValidator);
+    lightColBInput->setMaximumWidth(40);
+    lightColBInput->setText("1.00");
+
+    toolBar->addWidget(lightColRInput);
+    toolBar->addWidget(lightColGInput);
+    toolBar->addWidget(lightColBInput);
+
     //Slider for light intensity
     QSlider *lightIntSlider = new QSlider();
     lightIntSlider->setMaximum(1000);
@@ -175,6 +192,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(lightPosXInput, SIGNAL(returnPressed()), this, SLOT(updateLightPos()));
     connect(lightPosYInput, SIGNAL(returnPressed()), this, SLOT(updateLightPos()));
     connect(lightPosZInput, SIGNAL(returnPressed()), this, SLOT(updateLightPos()));
+    connect(lightColRInput, SIGNAL(returnPressed()), this, SLOT(updateLightCol()));
+    connect(lightColGInput, SIGNAL(returnPressed()), this, SLOT(updateLightCol()));
+    connect(lightColBInput, SIGNAL(returnPressed()), this, SLOT(updateLightCol()));
     connect(lightIntSlider, SIGNAL(valueChanged(int)), widget, SLOT(setLightIntensity(int)));
 
     connect(shininessSlider, SIGNAL(valueChanged(int)), widget, SLOT(setShininess(int)));
@@ -234,6 +254,14 @@ void MainWindow::updateLightPos() {
     position.setY(lightPosYInput->text().toFloat());
     position.setZ(lightPosZInput->text().toFloat());
     widget->setLightPos(position);
+}
+
+void MainWindow::updateLightCol() {
+    QVector3D color = QVector3D(0,0,0);
+    color.setX(lightColRInput->text().toFloat());
+    color.setY(lightColGInput->text().toFloat());
+    color.setZ(lightColBInput->text().toFloat());
+    widget->setLightCol(color);
 }
 
 void MainWindow::loadModel() {

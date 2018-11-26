@@ -8,6 +8,7 @@ out vec4 frag;
 uniform mat4 modelMat, viewMat, projMat;
 uniform mat3 normalMat;
 uniform vec3 lightPos;
+uniform vec3 lightColor;
 uniform float lightInt;
 
 uniform vec3 rockSpecular;
@@ -66,16 +67,17 @@ void main(void)
     vec3 viewDir = normalize(-vPos);
 
     float fallOff = 1.0/ (pow(length(vPos-vLightPos),0.2));
+    vec4 light = vec4(lightColor,1.0) * lightInt * fallOff;
 
     vec4 kd =  0.5 * slopeMixedDiffuse;
-    vec4 dPart = kd * fallOff * lightInt * max(dot(normal, lightDir), 0.0);
+    vec4 dPart = kd * light * max(dot(normal, lightDir), 0.0);
 
     vec4 ka = 0.4 * slopeMixedDiffuse;
-    vec4 aPart = ka * fallOff * lightInt;
+    vec4 aPart = ka * light;
 
     vec4 ks = vec4(slopeMixedSpecular,1.0);
     float n = slopeMixedShininess;
-    vec4 sPart = ks * fallOff * lightInt * pow(max(dot(reflection, viewDir), 0.0), n);
+    vec4 sPart = ks * light * pow(max(dot(reflection, viewDir), 0.0), n);
 
     vec4 col = aPart + dPart + sPart;
     frag = col;

@@ -42,6 +42,7 @@ struct CameraLightInfo {
     QMatrix4x4 camRotation;
     QMatrix4x4 projMatrix;
     QVector3D lightPos;
+    QVector3D lightCol;
     float lightInt;
 
     QMatrix4x4 viewMatrix() {

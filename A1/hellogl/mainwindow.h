@@ -19,6 +19,7 @@ public slots:
     void loadModel();
     void loadTerrain();
     void updateLightPos();
+    void updateLightCol();
 
 private:
 
@@ -27,6 +28,9 @@ private:
     QLineEdit *lightPosXInput;
     QLineEdit *lightPosYInput;
     QLineEdit *lightPosZInput;
+    QLineEdit *lightColRInput;
+    QLineEdit *lightColGInput;
+    QLineEdit *lightColBInput;
 
     QSlider *tesselationSlider;
 
