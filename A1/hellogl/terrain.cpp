@@ -131,11 +131,15 @@ void Terrain::drawTerrain(QOpenGLShaderProgram *prog, QVector3D camPos) {
     prog->setUniformValue("patchSize", distanceBetweenVerts);
     prog->setUniformValue("heightMapSize", (GLfloat)4096.0);
 
+    prog->setUniformValue("rockShininess", (GLfloat)12.0);
     prog->setUniformValue("rockSlope", (GLfloat)0.5);
     prog->setUniformValue("rockMargin", (GLfloat)0.1);
 
+    prog->setUniformValue("sandShininess", (GLfloat)2.0);
     prog->setUniformValue("sandHeight", (GLfloat)17.0);
     prog->setUniformValue("sandMargin", (GLfloat)1.5);
+
+    prog->setUniformValue("gravelShininess", (GLfloat)1.0);
 
     glBindVertexArray(vao);
 

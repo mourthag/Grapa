@@ -6,6 +6,7 @@ in vec2 UV;
 out vec4 frag;
 
 uniform mat4 modelMat, viewMat, projMat;
+uniform mat3 normalMat;
 uniform vec3 lightPos;
 uniform float lightInt;
 
@@ -46,16 +47,17 @@ void main(void)
     vec3 heightMixedSpecular = mix(sandSpecular, gravelSpecular, heightInterpolation);
     vec3 slopeMixedSpecular = mix(rockSpecular, heightMixedSpecular, normalInterpolation);
 
+    vec3 normal = normalMat * teNormal;
     vec3 vPos = vec3(viewMat * vec4(tePosition, 1.0));
     vec3 vLightPos = vec3( viewMat * vec4(lightPos, 1.0));
     vec3 lightDir = normalize(vLightPos - vPos);
-    vec3 reflection = reflect(-lightDir,teNormal);
+    vec3 reflection = reflect(-lightDir,normal);
     vec3 viewDir = normalize(-vPos);
 
-    float fallOff = 1.0;/// (pow(length(vPos-vLightPos),2.0));
+    float fallOff = 1.0/ (pow(length(vPos-vLightPos),2.0));
 
     vec4 kd = slopeMixedDiffuse;
-    vec4 dPart = kd * fallOff * lightInt * max(dot(teNormal, lightDir), 0.0);
+    vec4 dPart = kd * fallOff * lightInt * max(dot(normal, lightDir), 0.0);
 
     vec4 ka = 0.1 * kd;
     vec4 aPart = ka * fallOff * lightInt;
@@ -65,5 +67,5 @@ void main(void)
     vec4 sPart = ks * fallOff * lightInt * pow(max(dot(reflection, viewDir), 0.0), n);
 
     vec4 col = aPart + dPart + sPart;
-    frag = slopeMixedDiffuse;
+    frag = col;
 }
