@@ -24,30 +24,30 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 
 SOURCES += \
-        main.cpp \
-        mainwindow.cpp \
-    mainopenglwidget.cpp \
-    openglmodel.cpp \
-    scene.cpp \
-    node.cpp \
-    animation.cpp \
-    performancechart.cpp \
-    scenerenderer.cpp \
-    terrain.cpp
+    terrain/terrain.cpp \
+    util/performancechart.cpp \
+    scenegraph/animation.cpp \
+    scenegraph/node.cpp \
+    scenegraph/openglmodel.cpp \
+    scenegraph/scene.cpp \
+    scenegraph/scenerenderer.cpp \
+    main/main.cpp \
+    main/mainopenglwidget.cpp \
+    main/mainwindow.cpp
 
 HEADERS += \
-        mainwindow.h \
-    mainopenglwidget.h \
     json.hpp \
     tiny_gltf.h \
     stb_image.h \
-    openglmodel.h \
-    scene.h \
-    node.h \
-    animation.h \
-    performancechart.h \
-    scenerenderer.h \
-    terrain.h
+    terrain/terrain.h \
+    util/performancechart.h \
+    scenegraph/animation.h \
+    scenegraph/node.h \
+    scenegraph/openglmodel.h \
+    scenegraph/scene.h \
+    scenegraph/scenerenderer.h \
+    main/mainopenglwidget.h \
+    main/mainwindow.h
 
 DISTFILES += \
     shader/phongfragshader.frag \
