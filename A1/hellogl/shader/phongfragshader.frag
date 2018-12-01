@@ -39,6 +39,8 @@ void main(void)
     float fallOff = 1.0/ (pow(length(vPos-vLightPos),2.0));
 
     vec4 kd = mat.diffuseFactor * texture(matTextures, vec3(texCoord,mat.diffuseTexture));
+    if(kd.w == 0)
+        discard;
     vec4 dPart = kd * fallOff * lightInt * max(dot(normal, lightDir), 0.0);
 
     vec4 ka = 0.1 * kd;
