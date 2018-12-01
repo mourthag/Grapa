@@ -118,7 +118,7 @@ float Terrain::getHeight(QVector3D gridPos) {
 
     int index = x * heightMapSize + y;
     float height = (float)heights.at(index);
-    return height/100.0;
+    return height;
 
 }
 
@@ -150,17 +150,17 @@ void Terrain::drawTerrain(QOpenGLShaderProgram *prog, QVector3D camPos) {
     prog->setUniformValue("rockSlope", (GLfloat)0.5);
     prog->setUniformValue("rockMargin", (GLfloat)0.1);
 
-    prog->setUniformValue("rockShininess", (GLfloat)12.0);
+    prog->setUniformValue("rockShininess", (GLfloat)120.0);
     prog->setUniformValue("rockSpecular", QVector3D(0.5, 0.5, 0.5));
     prog->setUniformValue("stoneSlope", (GLfloat)0.8);
     prog->setUniformValue("stoneMargin", (GLfloat)0.18);
 
-    prog->setUniformValue("sandShininess", (GLfloat)2.0);
+    prog->setUniformValue("sandShininess", (GLfloat)20.0);
     prog->setUniformValue("sandSpecular", QVector3D(0.1, 0.1, 0.1));
     prog->setUniformValue("sandHeight", (GLfloat)17.0);
     prog->setUniformValue("sandMargin", (GLfloat)1.5);
 
-    prog->setUniformValue("gravelShininess", (GLfloat)1.0);
+    prog->setUniformValue("gravelShininess", (GLfloat)10.0);
     prog->setUniformValue("gravelSpecular", QVector3D(0.1, 0.1, 0.1));
     prog->setUniformValue("gravelHeight", (GLfloat)20.5);
     prog->setUniformValue("gravelMargin", (GLfloat)1.5);

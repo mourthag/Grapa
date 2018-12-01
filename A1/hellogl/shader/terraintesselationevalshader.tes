@@ -11,12 +11,15 @@ out vec2 UV;
 
 uniform mat4 viewMat, projMat;
 uniform mat3 normalMat;
+
 uniform usampler2D heightMap;
+uniform float heightScaling;
+uniform float widthScaling;
 uniform float heightMapSize;
 
 vec3 calculatePos(vec2 xzCoord) {
-    vec2 texCoord = xzCoord/heightMapSize;
-    float height = float(textureLod( heightMap, texCoord,  maxLogTessLevel - logTessLevel).r) / 100.0;
+    vec2 texCoord = xzCoord/2000.0;
+    float height = float(textureLod( heightMap, texCoord,  maxLogTessLevel - logTessLevel).r) * heightScaling;
     vec3 result = vec3(xzCoord.x, height, xzCoord.y);
     return result;
 }
@@ -39,7 +42,7 @@ void main() {
     vec3 worldNormal = normalize(-cross(neighbourA - worldPos, neighbourB - worldPos));
     teNormal = worldNormal;
 
-    UV = vec2(worldPos.x, worldPos.z) + vec2(worldPos.y, worldPos.x) / 100.0;
+    UV = vec2(worldPos.x, worldPos.z) + vec2(worldPos.y, worldPos.x) * heightScaling;
 
     gl_Position = projMat * viewMat * vec4(tePosition, 1.0);
 

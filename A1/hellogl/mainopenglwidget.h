@@ -32,7 +32,7 @@ public slots:
     void setLightIntensity(int i);
     void setTesselation(int t);
     void setWireframe();
-    void setGouraud();
+    void setHeightScaling(int scaling);
     void setPhong();
     void setLightPos(QVector3D v);
     void setLightCol(QVector3D color);

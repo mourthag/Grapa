@@ -31,6 +31,8 @@ uniform float stoneShininess;
 uniform float stoneSlope;
 uniform float stoneMargin;
 
+uniform float heightScaling;
+
 //0-rockMaterial
 //1-gravelMaterial
 //2-sandMaterial
@@ -69,10 +71,10 @@ void main(void)
     float fallOff = 1.0/ (pow(length(vPos-vLightPos),0.2));
     vec4 light = vec4(lightColor,1.0) * lightInt * fallOff;
 
-    vec4 kd =  0.5 * slopeMixedDiffuse;
+    vec4 kd =  1.0 * slopeMixedDiffuse;
     vec4 dPart = kd * light * max(dot(normal, lightDir), 0.0);
 
-    vec4 ka = 0.4 * slopeMixedDiffuse;
+    vec4 ka = 0.1 * slopeMixedDiffuse;
     vec4 aPart = ka * light;
 
     vec4 ks = vec4(slopeMixedSpecular,1.0);

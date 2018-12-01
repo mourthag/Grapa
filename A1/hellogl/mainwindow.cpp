@@ -37,11 +37,6 @@ MainWindow::MainWindow(QWidget *parent)
     wireframeAction->setCheckable(true);
     wireframeAction->setIcon(QIcon(":/img/wireframe.png"));
 
-    QAction *gouraudAction = shadingMenu->addAction("Gouraud");
-    gouraudAction->setShortcut(QKeySequence("Ctrl+2"));
-    gouraudAction->setCheckable(true);
-    gouraudAction->setIcon(QIcon(":/img/gouraud.png"));
-
     QAction *phongAction =shadingMenu->addAction("Display standard phong shading");
     phongAction->setShortcut(QKeySequence("Ctrl+3"));
     phongAction->setCheckable(true);
@@ -50,7 +45,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     shadingOptions->setExclusive(true);
     shadingOptions->addAction(wireframeAction);
-    shadingOptions->addAction(gouraudAction);
     shadingOptions->addAction(phongAction);
 
     QMenu *animationMenu = menuBar->addMenu("&Animation");
@@ -155,10 +149,11 @@ MainWindow::MainWindow(QWidget *parent)
     toolBar->addSeparator();
 
     //slider for phong exponent
-    QSlider *shininessSlider = new QSlider();
-    shininessSlider->setMaximum(20);
-    shininessSlider->setOrientation(Qt::Horizontal);
-    toolBar->addWidget(shininessSlider);
+    QSlider *terrainHeightSlider = new QSlider();
+    terrainHeightSlider->setMinimum(0);
+    terrainHeightSlider->setMaximum(1000);
+    terrainHeightSlider->setOrientation(Qt::Horizontal);
+    toolBar->addWidget(terrainHeightSlider);
 
     //slider for tesselation level
     tesselationSlider = new QSlider();
@@ -168,7 +163,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     //add shading options to toolbar here, layout...
     toolBar->addAction(wireframeAction);
-    toolBar->addAction(gouraudAction);
     toolBar->addAction(phongAction);
 
     addToolBar(toolBar);
@@ -197,11 +191,10 @@ MainWindow::MainWindow(QWidget *parent)
     connect(lightColBInput, SIGNAL(returnPressed()), this, SLOT(updateLightCol()));
     connect(lightIntSlider, SIGNAL(valueChanged(int)), widget, SLOT(setLightIntensity(int)));
 
-    connect(shininessSlider, SIGNAL(valueChanged(int)), widget, SLOT(setShininess(int)));
+    connect(terrainHeightSlider, SIGNAL(valueChanged(int)), widget, SLOT(setHeightScaling(int)));
     connect(tesselationSlider, SIGNAL(valueChanged(int)), widget, SLOT(setTesselation(int)));
 
     connect(wireframeAction, SIGNAL(triggered(bool)), widget, SLOT(setWireframe()));
-    connect(gouraudAction, SIGNAL(triggered(bool)), widget, SLOT(setGouraud()));
     connect(phongAction, SIGNAL(triggered(bool)), widget, SLOT(setPhong()));
 
     connect(checkStandardPhongAction , SIGNAL(triggered()), widget, SLOT(setPhong()));
@@ -216,7 +209,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     widget->resetCamera();
     //adjust slider here to init correct value in widget
-    shininessSlider->setValue(2);
+    terrainHeightSlider->setValue(2);
 }
 
 MainWindow::~MainWindow()

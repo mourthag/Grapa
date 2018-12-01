@@ -264,9 +264,9 @@ void MainOpenGLWidget::setPhong() {
     update();
 }
 
-void MainOpenGLWidget::setGouraud() {
+void MainOpenGLWidget::setHeightScaling(int scaling) {
 
-    isWireframe = false;
+    scene.setHeightScaling(scaling);
     update();
 }
 

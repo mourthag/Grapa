@@ -73,6 +73,7 @@ public:
     void setUpUniforms(QOpenGLShaderProgram *prog, bool bufferUniformBlocks);
 
     void setAnimationPlay(bool play);
+    void setHeightScaling(float scaling);
 
 private:
     void loadTextures();
@@ -85,6 +86,8 @@ private:
 
     bool wasLoaded;
     bool animationPlaying;
+
+    float terrainHeightScaling;
 
     tinygltf::Model model;
 

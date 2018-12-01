@@ -36,6 +36,10 @@ void Scene::initGL(){
   initializeOpenGLFunctions();
 }
 
+void Scene::setHeightScaling(float scaling) {
+    terrainHeightScaling = 1.0 / scaling;
+}
+
 void Scene::setAnimationPlay(bool play) {
     animationPlaying = play;
     if(play) {
@@ -262,8 +266,9 @@ void Scene::drawTerrain(QOpenGLShaderProgram *prog) {
     camPos.setY(0);
     prog->setUniformValue("camPos", camPos);
     prog->setUniformValue("normalMat", camLightInfo.viewMatrix().normalMatrix());
+    prog->setUniformValue("heightScaling", terrainHeightScaling);
     for( int index = 0; index < terrains.size(); index++) {
-        float height = terrains[index]->getHeight(camPos);
+        float height = terrains[index]->getHeight(camPos)*terrainHeightScaling;
         camLightInfo.camTranslation.setY(std::min(-height -2, camLightInfo.camTranslation.y()));
         terrains[index]->drawTerrain(prog, camPos);
     }
