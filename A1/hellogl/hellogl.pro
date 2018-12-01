@@ -33,7 +33,9 @@ SOURCES += \
     scenegraph/scenerenderer.cpp \
     main/main.cpp \
     main/mainopenglwidget.cpp \
-    main/mainwindow.cpp
+    main/mainwindow.cpp \
+    terrain/forrest.cpp \
+    terrain/tree.cpp
 
 HEADERS += \
     json.hpp \
@@ -47,7 +49,9 @@ HEADERS += \
     scenegraph/scene.h \
     scenegraph/scenerenderer.h \
     main/mainopenglwidget.h \
-    main/mainwindow.h
+    main/mainwindow.h \
+    terrain/forrest.h \
+    terrain/tree.h
 
 DISTFILES += \
     shader/phongfragshader.frag \
