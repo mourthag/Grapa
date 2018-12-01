@@ -9,15 +9,12 @@ OpenGLModel::OpenGLModel()
     glGenBuffers(1, &nbo);
     glGenBuffers(1, &tcbo);
 
-    qDebug() << "Allocated: " << vao << " at: " << &vao;
 }
 
 OpenGLModel::~OpenGLModel() {
 }
 
 void OpenGLModel::clear() {
-
-    qDebug() << "Deleted: " << vao << " at: " << &vao;
     glDeleteVertexArrays(1, &vao);
     glDeleteBuffers(1, &ebo);
     glDeleteBuffers(1, &vbo);
