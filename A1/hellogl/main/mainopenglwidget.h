@@ -10,9 +10,9 @@
 #include <QQuaternion>
 #include <QTimer>
 
-#include <scenerenderer.h>
-#include <performancechart.h>
-#include <scene.h>
+#include "scenegraph/scenerenderer.h"
+#include "util/performancechart.h"
+#include "scenegraph/scene.h"
 
 #define TINYGLTF_NO_STB_IMAGE_WRITE
 #include <tiny_gltf.h>
@@ -47,6 +47,7 @@ public slots:
     void loadTerrain(QFile *pgmFile);
 
     QChartView* getChartView();
+
 signals:
     void cameraUpdated(QMatrix4x4 viewMat);
 
@@ -68,9 +69,7 @@ private:
     int height;
     int shininess;
 
-    int tesselation;
     bool isWireframe;
-    bool modelLoaded;
 
     QPointF dragStart;
 };

@@ -3,9 +3,9 @@
 
 #include <QMatrix4x4>
 #include <QOpenGLShaderProgram>
-#include <openglmodel.h>
 #include <QDebug>
 
+#include "openglmodel.h"
 #include "tiny_gltf.h"
 
 

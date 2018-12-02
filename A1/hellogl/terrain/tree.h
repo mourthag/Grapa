@@ -1,11 +1,22 @@
 #ifndef TREE_H
 #define TREE_H
 
+#include <QOpenGLFunctions_4_0_Core>
 
-class tree
+#include "tiny_gltf.h"
+
+#include <scenegraph/openglmodel.h>
+
+class Tree
 {
 public:
-    tree();
+    Tree();
+
+    void loadTree(tinygltf::Model *gltf_model, int meshIndex);
+    std::vector<GLuint> getVAOs();
+
+    std::vector<OpenGLModel*> meshes;
+
 };
 
 #endif // TREE_H

@@ -6,7 +6,8 @@
 #include <QOpenGLShaderProgram>
 
 #include "scene.h"
-#include "performancechart.h"
+#include "light.h"
+#include "util/performancechart.h"
 
 
 class SceneRenderer : QOpenGLFunctions_4_0_Core
@@ -23,12 +24,15 @@ public:
         Material=3,
         ViewSpacePosition=4,
         Depth,
-        Phong
+        Phong,
+        TerrainPhong
     };
 
     void setRenderMode(RenderMode newMode);
     void drawScene(Scene *scene);
+
     PerformanceChart* getLogger();
+    Light* getLight();
 
     void setTesselation(int t);
     void updateFramebuffeSize(int width, int height);
@@ -36,6 +40,7 @@ public:
 private:
     enum UniformMode{
         PhongUniforms,
+        TerrainUniforms,
         LightingPassUniforms,
         GeometryPassUniforms
     };
@@ -43,6 +48,8 @@ private:
     void setUpUniforms(QOpenGLShaderProgram *prog, UniformMode uniformMode);
 
     int tesselation;
+
+    Light light;
 
     const int scr_size = 512;
 

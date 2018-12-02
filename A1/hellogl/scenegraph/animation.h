@@ -1,9 +1,10 @@
 #ifndef ANIMATION_H
 #define ANIMATION_H
 
-#include <node.h>
 #include <QTime>
 #include <iterator>
+
+#include "node.h"
 #include "tiny_gltf.h"
 
 class Animation

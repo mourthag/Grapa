@@ -147,6 +147,10 @@ void SceneRenderer::updateFramebuffeSize(int width, int height) {
 
 }
 
+Light* SceneRenderer::getLight() {
+    return &light;
+}
+
 void SceneRenderer::queryTime(int index)
 {
     if(useQueryB)
@@ -179,7 +183,7 @@ void SceneRenderer::drawScene(Scene *scene) {
 
     QOpenGLShaderProgram *activeProgram;
     UniformMode uniformMode;
-    bool bufferUniformBLocks;
+    bool bufferUniformBlocks;
 
     GLint defaultFBO;
     glGetIntegerv(GL_FRAMEBUFFER_BINDING_EXT, &defaultFBO);
@@ -187,13 +191,18 @@ void SceneRenderer::drawScene(Scene *scene) {
     if(mode == Phong) {
         activeProgram = phongProgram;
         uniformMode = PhongUniforms;
-        bufferUniformBLocks = true;
+        bufferUniformBlocks = true;
+    }
+    else if(mode == TerrainPhong) {
+        activeProgram = terrainProgram;
+        uniformMode = TerrainUniforms;
+        bufferUniformBlocks = true;
     }
     else {
 
         activeProgram = deferredGeomPassProgram;
         uniformMode = GeometryPassUniforms;
-        bufferUniformBLocks = false;
+        bufferUniformBlocks = false;
 
         glBindFramebuffer(GL_FRAMEBUFFER, fbo);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -204,16 +213,13 @@ void SceneRenderer::drawScene(Scene *scene) {
 
     queryTime(0);
 
-    scene->drawScene(activeProgram, bufferUniformBLocks);
-    terrainProgram->bind();
-    terrainProgram->setUniformValue("tessLevel", tesselation);
-    scene->drawTerrain(terrainProgram);
+    scene->drawScene(activeProgram, bufferUniformBlocks);
 
     queryTime(1);
 
     glBindFramebuffer(GL_FRAMEBUFFER, defaultFBO);
 
-    if(mode != Phong) {
+    if(mode != Phong && mode != TerrainPhong) {
         deferredLightingPassProgram->bind();
 
         //Set up Textures;
@@ -237,6 +243,10 @@ void SceneRenderer::drawScene(Scene *scene) {
 }
 
 void SceneRenderer::setUpUniforms(QOpenGLShaderProgram *prog,UniformMode uniformMode) {
+
+    prog->setUniformValue("lightPos", light.lightPos);
+    prog->setUniformValue("lightColor", light.lightCol);
+    prog->setUniformValue("lightInt", light.lightInt);
 
     switch (uniformMode) {
     case PhongUniforms:

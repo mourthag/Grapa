@@ -16,8 +16,6 @@ MainOpenGLWidget::MainOpenGLWidget(QWidget *parent) : QOpenGLWidget(parent)
 
     //set up data and shading
     isWireframe = false;
-    modelLoaded = false;
-    tesselation = 1;
 
 }
 
@@ -35,10 +33,6 @@ void MainOpenGLWidget::initializeGL() {
     makeCurrent();
     renderer.initGL();
     doneCurrent();
-
-    scene.getCameraLightInfo()->lightInt = 1;
-    scene.getCameraLightInfo()->lightPos = QVector3D(0,0,0);
-
     renderer.setRenderMode(SceneRenderer::Phong);
 
 }
@@ -71,15 +65,16 @@ void MainOpenGLWidget::resizeGL(int w, int h) {
 
     doneCurrent();
 
-    CameraLightInfo *cam = scene.getCameraLightInfo();
+    Camera *cam = scene.getCamera();
 
     //for trackball calculations
     width = w;
     height = h;
 
     //projection matrix
-    cam->projMatrix.setToIdentity();
-    cam->projMatrix.perspective(45.0, (float)w/(float)h, 0.1, 10000);
+    QMatrix4x4 projMatrix;
+    projMatrix.perspective(45.0, (float)w/(float)h, 0.1, 10000);
+    cam->setProjectionMatrix(projMatrix);
     cameraUpdated(cam->viewMatrix());
 }
 
@@ -95,7 +90,8 @@ void MainOpenGLWidget::mouseMoveEvent(QMouseEvent *event) {
 
     QPoint p = event->pos();
 
-    CameraLightInfo *cam = scene.getCameraLightInfo();
+    Camera *cam = scene.getCamera();
+    QMatrix4x4 camRotation = cam->rotation();
 
     //Translate
     if(event->buttons() == Qt::RightButton) {
@@ -105,8 +101,8 @@ void MainOpenGLWidget::mouseMoveEvent(QMouseEvent *event) {
         drag.setY(-drag.y());
 
 
-        QVector3D dragVec = cam->camRotation.inverted().mapVector(QVector3D(drag));
-        cam->camTranslation += dragVec;
+        QVector3D dragVec = camRotation.inverted().mapVector(QVector3D(drag));
+        cam->translate(dragVec);
     }
     //rotate
     if(event->buttons() == Qt::LeftButton) {
@@ -137,12 +133,15 @@ void MainOpenGLWidget::mouseMoveEvent(QMouseEvent *event) {
         float angle =  qRadiansToDegrees(std::asin(axis.length()));
 
         //transform rotation vector with current rotation
-        axis = cam->camRotation.inverted().mapVector(axis);
+        axis = camRotation.inverted().mapVector(axis);
         axis.normalize();
 
         //create quaternion and rotate with it
         QQuaternion q = QQuaternion::fromAxisAndAngle(axis, angle);
-        cam->camRotation.rotate(q);
+
+        QMatrix4x4 rotation;
+        rotation.rotate(q);
+        cam->rotate(rotation);
     }
 
     dragStart = event->pos();
@@ -155,14 +154,14 @@ void MainOpenGLWidget::wheelEvent(QWheelEvent *event) {
     //slow zooming down, cause delta is in degrees
     float val = event->delta() / 360.0;
 
-    CameraLightInfo *cam = scene.getCameraLightInfo();
+    Camera *cam = scene.getCamera();
 
     //calculate view direction
-    QVector3D currentPos = cam->camTranslation;
-    QVector3D viewDir = currentPos.normalized();
+    QVector3D currentPos = cam->position();
+    QVector3D viewDir = -currentPos.normalized();
 
     //translate along viewdir
-    cam->camTranslation += val*viewDir;
+    cam->translate(val * viewDir);
 
     //update screen etc
     update();
@@ -173,38 +172,45 @@ void MainOpenGLWidget::keyPressEvent(QKeyEvent *event) {
     //QOpenGLWidget::keyPressEvent(event);
     int key = event->key();
 
-    CameraLightInfo *cam = scene.getCameraLightInfo();
+    Camera *cam = scene.getCamera();
+    QMatrix4x4 cameraRotation = cam->rotation();
 
-    QVector3D forward = cam->camRotation.inverted().mapVector(QVector3D(0,0,1));
+    QVector3D forward = cameraRotation.inverted().mapVector(QVector3D(0,0,1));
     forward.setY(0);
-    QVector3D right = cam->camRotation.inverted().mapVector(QVector3D(1,0,0));
+    forward.normalize();
+    QVector3D right = cameraRotation.inverted().mapVector(QVector3D(1,0,0));
     right.setY(0);
+    right.normalize();
     QVector3D up = QVector3D(0,1,0);
 
     if(key == Qt::Key_W) {
-        cam->camTranslation += forward;
+        cam->translate(-forward);
     }
     if(key == Qt::Key_A) {
-        cam->camTranslation += right;
+        cam->translate(-right);
     }
     if(key == Qt::Key_S) {
-        cam->camTranslation -= forward;
+        cam->translate(forward);
     }
     if(key == Qt::Key_D) {
-        cam->camTranslation -= right;
+        cam->translate(right);
     }
     if(key == Qt::Key_Q) {
 
-        cam->camRotation.rotate(-10, up);
+        QMatrix4x4 rotation;
+        rotation.rotate(-10, up);
+        cam->rotate(rotation);
     }
     if(key == Qt::Key_E) {
-        cam->camRotation.rotate(10, up);
+        QMatrix4x4 rotation;
+        rotation.rotate(10, up);
+        cam->rotate(rotation);
     }
     if(key == Qt::Key_Control) {
-        cam->camTranslation += up;
+        cam->translate(up);
     }
     if(key == Qt::Key_Shift) {
-        cam->camTranslation -= up;
+        cam->translate(-up);
     }
 
 
@@ -219,10 +225,10 @@ QPointF MainOpenGLWidget::pixelPosToViewPos(const QPointF &point) {
 void MainOpenGLWidget::resetCamera() {
 
     //restore initial view matrix and update screen
-    CameraLightInfo *cam = scene.getCameraLightInfo();
+    Camera *cam = scene.getCamera();
 
-    cam->camRotation.setToIdentity();
-    cam->camTranslation = QVector3D(0,0,0);
+    cam->resetCamera();
+    cam->setPosition(QVector3D(2,2,2));
     update();
     cameraUpdated(cam->viewMatrix());
 }
@@ -243,17 +249,20 @@ void MainOpenGLWidget::setWireframe() {
 }
 
 void MainOpenGLWidget::setLightPos(QVector3D v) {
-    scene.getCameraLightInfo()->lightPos = v;
+
+    renderer.getLight()->lightPos = v;
     update();
 }
 
 void MainOpenGLWidget::setLightCol(QVector3D color) {
-    scene.getCameraLightInfo()->lightCol = color;
+
+    renderer.getLight()->lightCol = color;
     update();
 }
 
 void MainOpenGLWidget::setLightIntensity(int i) {
-    scene.getCameraLightInfo()->lightInt = (float)i/10.0;
+
+    renderer.getLight()->lightInt = i;
     update();
 }
 
@@ -266,7 +275,8 @@ void MainOpenGLWidget::setPhong() {
 
 void MainOpenGLWidget::setHeightScaling(int scaling) {
 
-    scene.setHeightScaling(scaling);
+    //TODO: TerrainScene
+    //scene.setHeightScaling(scaling);
     update();
 }
 
@@ -322,7 +332,8 @@ void MainOpenGLWidget::loadModel(tinygltf::Model* gltf_model) {
 void MainOpenGLWidget::loadTerrain(QFile *pgmFile) {
 
     makeCurrent();
-    scene.loadTerrain(pgmFile);
+    //TODO: Terrainscene
+    //scene.loadTerrain(pgmFile);
     doneCurrent();
 }
 

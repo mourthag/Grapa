@@ -24,20 +24,11 @@ void Scene::clear() {
         delete(animations[j]);
     }
     animations.clear();
-
-    for(int k = 0; k < terrains.size(); k++) {
-        delete(terrains[k]);
-    }
-    terrains.clear();
 }
 
 void Scene::initGL(){
 
   initializeOpenGLFunctions();
-}
-
-void Scene::setHeightScaling(float scaling) {
-    terrainHeightScaling = 1.0 / scaling;
 }
 
 void Scene::setAnimationPlay(bool play) {
@@ -58,8 +49,8 @@ void Scene::loadFromGLTF(tinygltf::Model gltf_model) {
     wasLoaded = true;
 }
 
-CameraLightInfo* Scene::getCameraLightInfo() {
-    return &camLightInfo;
+Camera* Scene::getCamera() {
+    return &camera;
 }
 
 void Scene::loadTextures() {
@@ -241,38 +232,12 @@ void Scene::setUpUniforms(QOpenGLShaderProgram *prog, bool bufferUniformBlocks)
         glBindTexture(GL_TEXTURE_2D_ARRAY, textures);
     }
 
-    prog->setUniformValue("viewMat", camLightInfo.viewMatrix());
-    prog->setUniformValue("projMat", camLightInfo.projMatrix);
-    prog->setUniformValue("lightPos", camLightInfo.lightPos);
-    prog->setUniformValue("lightColor", camLightInfo.lightCol);
-    prog->setUniformValue("lightInt", camLightInfo.lightInt);
-
+    prog->setUniformValue("viewMat", camera.viewMatrix());
+    prog->setUniformValue("projMat", camera.projectionMatrix());
 }
 
-void Scene::loadTerrain(QFile *pgmFile) {
-    Terrain *terr = (Terrain*)malloc(sizeof(Terrain));
-    terr = new Terrain(pgmFile);
-    terrains.push_back(terr);
-}
 
-QVector3D Scene::getCamPos() {
-    QVector3D pos = camLightInfo.viewMatrix().inverted() .map(QVector3D(0,0,0));
-    return pos;
-}
 
-void Scene::drawTerrain(QOpenGLShaderProgram *prog) {
-    setUpUniforms(prog, false);
-    QVector3D camPos = getCamPos();
-    camPos.setY(0);
-    prog->setUniformValue("camPos", camPos);
-    prog->setUniformValue("normalMat", camLightInfo.viewMatrix().normalMatrix());
-    prog->setUniformValue("heightScaling", terrainHeightScaling);
-    for( int index = 0; index < terrains.size(); index++) {
-        float height = terrains[index]->getHeight(camPos)*terrainHeightScaling;
-        camLightInfo.camTranslation.setY(std::min(-height -2, camLightInfo.camTranslation.y()));
-        terrains[index]->drawTerrain(prog, camPos);
-    }
-}
 
 void Scene::drawScene(QOpenGLShaderProgram *prog, bool setUpUniformBlocks) {
 
@@ -292,7 +257,7 @@ void Scene::drawScene(QOpenGLShaderProgram *prog, bool setUpUniformBlocks) {
     setUpUniforms(prog, setUpUniformBlocks);
 
     for(int i=0 ; i < rootNodes.size(); i++) {
-        rootNodes[i]->draw(prog, camLightInfo.viewMatrix());
+        rootNodes[i]->draw(prog, camera.viewMatrix());
     }
 
 }

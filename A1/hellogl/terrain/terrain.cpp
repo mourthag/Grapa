@@ -51,7 +51,11 @@ void Terrain::createHeightMap(int width, QDataStream *stream, int height)
 Terrain::Terrain(QFile *pgmFile)
 {
     initializeOpenGLFunctions();
+    loadFromFile(pgmFile);
 
+}
+
+void Terrain::loadFromFile(QFile *pgmFile) {
     pgmFile->open(QIODevice::ReadOnly);
     QDataStream stream(pgmFile);
 
@@ -111,16 +115,41 @@ Terrain::Terrain(QFile *pgmFile)
     glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 }
 
-float Terrain::getHeight(QVector3D gridPos) {
+float Terrain::getHeight(QVector2D gridPos) {
 
-    int x = std::max(std::min((int)(gridPos.x()+ 0.5), heightMapSize), 0);
-    int y = std::max(std::min((int)(gridPos.z()+0.5), heightMapSize), 0);
+    int x = std::max(std::min((int)(gridPos.x() + 0.5), heightMapSize), 0);
+    int y = std::max(std::min((int)(gridPos.y() + 0.5), heightMapSize), 0);
 
     int index = x * heightMapSize + y;
     float height = (float)heights.at(index);
     return height;
 
 }
+
+QVector3D Terrain::getNormal(QVector2D gridPos) {
+    QVector2D neighbourXGrid = gridPos + QVector2D(1,0);
+    QVector2D neighbourZGrid = gridPos + QVector2D(0,1);
+
+    float heightPos = getHeight(gridPos);
+    float heightX = getHeight(neighbourXGrid);
+    float heightZ = getHeight(neighbourZGrid);
+
+    QVector3D pos(gridPos.x(), heightPos, gridPos.y());
+    QVector3D neighbourX(neighbourXGrid.x(), heightX, neighbourXGrid.y());
+    QVector3D neighbourZ(neighbourZGrid.x(), heightZ, neighbourZGrid.y());
+
+    QVector3D normal = QVector3D::crossProduct(
+                                     neighbourX-pos,
+                                     neighbourZ-pos);
+    normal.normalize();
+    return normal;
+}
+
+
+float Terrain::getSlope(QVector2D gridPos) {
+    return getNormal(gridPos).y();
+}
+
 
 void Terrain::drawTerrain(QOpenGLShaderProgram *prog, QVector3D camPos) {
 
@@ -212,4 +241,8 @@ void Terrain::generatePatches() {
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+}
+
+QVector2D Terrain::getSize() {
+    return QVector2D(heightMapSize, heightMapSize);
 }

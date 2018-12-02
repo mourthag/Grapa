@@ -18,8 +18,12 @@ public:
     int width;
     int height;
 
+    void loadFromFile(QFile *pgmFile);
     void drawTerrain(QOpenGLShaderProgram *prog, QVector3D camPos);
-    float getHeight(QVector3D gridPos);
+    float getHeight(QVector2D gridPos);
+    float getSlope(QVector2D gridPos);
+    QVector3D getNormal(QVector2D gridPos);
+    QVector2D getSize();
 
 protected:
     void generatePatches();
