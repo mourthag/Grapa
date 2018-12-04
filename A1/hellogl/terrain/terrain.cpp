@@ -1,5 +1,8 @@
 #include "terrain.h"
 
+Terrain::Terrain() {
+}
+
 Terrain::~Terrain() {
     glDeleteVertexArrays(1, &vao);
     glDeleteTextures(1, &heightMap);
@@ -56,6 +59,8 @@ Terrain::Terrain(QFile *pgmFile)
 }
 
 void Terrain::loadFromFile(QFile *pgmFile) {
+
+    initializeOpenGLFunctions();
     pgmFile->open(QIODevice::ReadOnly);
     QDataStream stream(pgmFile);
 
@@ -77,6 +82,7 @@ void Terrain::loadFromFile(QFile *pgmFile) {
     int maxVal;
     readInt(&stream, &maxVal);
 
+
     if( maxVal  != 65535) {
         qDebug() << "Invalid Values";
         return;
@@ -87,7 +93,6 @@ void Terrain::loadFromFile(QFile *pgmFile) {
     generatePatches();
 
     QString dir = pgmFile->fileName().section("/",0,-2);
-    qDebug() << dir;
     QImage rockImage(dir + "/rock.jpg");
     QImage gravelImage(dir + "/gravel.jpg");
     QImage sandImage(dir + "/sand.jpg");
@@ -150,13 +155,17 @@ float Terrain::getSlope(QVector2D gridPos) {
     return getNormal(gridPos).y();
 }
 
-
-void Terrain::drawTerrain(QOpenGLShaderProgram *prog, QVector3D camPos) {
-
+void Terrain::setHeightMapUniform(QOpenGLShaderProgram *prog) {
 
     prog->setUniformValue("heightMap", 4);
     glActiveTexture(GL_TEXTURE4);
     glBindTexture(GL_TEXTURE_2D, heightMap);
+
+}
+
+void Terrain::drawTerrain(QOpenGLShaderProgram *prog, QVector3D camPos) {
+
+    setHeightMapUniform(prog);
 
     prog->setUniformValue("materialTextures", 5);
     glActiveTexture(GL_TEXTURE5);

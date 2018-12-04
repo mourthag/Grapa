@@ -33,7 +33,7 @@ public:
 protected:
     Camera camera;
 
-private:
+protected:
     void loadTextures();
     void loadMaterials();
     void loadAnimations();

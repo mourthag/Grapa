@@ -30,9 +30,12 @@ void MainOpenGLWidget::initializeGL() {
 
     makeCurrent();
     scene.initGL();
+    terrainScene.initGL();
     makeCurrent();
     renderer.initGL();
+    terrainRenderer.initGL();
     doneCurrent();
+    terrainRenderer.setRenderMode(SceneRenderer::Phong);
     renderer.setRenderMode(SceneRenderer::Phong);
 
 }
@@ -49,10 +52,8 @@ void MainOpenGLWidget::paintGL()
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
 
-
-
-    renderer.drawScene(&scene);
-
+    terrainRenderer.drawScene(&terrainScene);
+    //renderer.drawScene(&scene);
 
 }
 
@@ -275,8 +276,7 @@ void MainOpenGLWidget::setPhong() {
 
 void MainOpenGLWidget::setHeightScaling(int scaling) {
 
-    //TODO: TerrainScene
-    //scene.setHeightScaling(scaling);
+    terrainScene.setHeightScaling(scaling);
     update();
 }
 
@@ -320,8 +320,8 @@ void MainOpenGLWidget::loadModel(tinygltf::Model* gltf_model) {
 
 
     makeCurrent();
-    scene.clear();
-    scene.loadFromGLTF(*gltf_model);
+    terrainScene.loadTree(*gltf_model);
+    terrainScene.setUpForrest();
     doneCurrent();
 
     update();
@@ -332,8 +332,7 @@ void MainOpenGLWidget::loadModel(tinygltf::Model* gltf_model) {
 void MainOpenGLWidget::loadTerrain(QFile *pgmFile) {
 
     makeCurrent();
-    //TODO: Terrainscene
-    //scene.loadTerrain(pgmFile);
+    terrainScene.loadTerrain(pgmFile);
     doneCurrent();
 }
 

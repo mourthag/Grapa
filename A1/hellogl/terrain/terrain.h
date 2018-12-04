@@ -12,6 +12,7 @@
 class Terrain : QOpenGLFunctions_4_0_Core
 {
 public:
+    Terrain();
     Terrain(QFile *pgmFile);
     ~Terrain();
 
@@ -20,6 +21,7 @@ public:
 
     void loadFromFile(QFile *pgmFile);
     void drawTerrain(QOpenGLShaderProgram *prog, QVector3D camPos);
+    void setHeightMapUniform(QOpenGLShaderProgram *prog);
     float getHeight(QVector2D gridPos);
     float getSlope(QVector2D gridPos);
     QVector3D getNormal(QVector2D gridPos);

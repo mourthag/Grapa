@@ -9,6 +9,7 @@
 class Forrest : QOpenGLFunctions_4_0_Core
 {
 public:
+    Forrest();
     Forrest(int numberTrees, float maxHeight, float maxSlope, float minScale, float maxScale, Terrain* terrain);
 
     void setTree(Tree* tree);

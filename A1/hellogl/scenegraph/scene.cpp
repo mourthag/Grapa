@@ -236,9 +236,6 @@ void Scene::setUpUniforms(QOpenGLShaderProgram *prog, bool bufferUniformBlocks)
     prog->setUniformValue("projMat", camera.projectionMatrix());
 }
 
-
-
-
 void Scene::drawScene(QOpenGLShaderProgram *prog, bool setUpUniformBlocks) {
 
     bool allAnimationsFinished = true;

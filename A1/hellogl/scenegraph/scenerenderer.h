@@ -10,7 +10,7 @@
 #include "util/performancechart.h"
 
 
-class SceneRenderer : QOpenGLFunctions_4_0_Core
+class SceneRenderer : public QOpenGLFunctions_4_0_Core
 {
 public:
     SceneRenderer();
@@ -24,8 +24,7 @@ public:
         Material=3,
         ViewSpacePosition=4,
         Depth,
-        Phong,
-        TerrainPhong
+        Phong
     };
 
     void setRenderMode(RenderMode newMode);
@@ -37,7 +36,7 @@ public:
     void setTesselation(int t);
     void updateFramebuffeSize(int width, int height);
 
-private:
+protected:
     enum UniformMode{
         PhongUniforms,
         TerrainUniforms,
@@ -74,7 +73,6 @@ private:
     QOpenGLShaderProgram *phongProgram;
     QOpenGLShaderProgram *deferredGeomPassProgram;
     QOpenGLShaderProgram *deferredLightingPassProgram;
-    QOpenGLShaderProgram *terrainProgram;
 
     RenderMode mode;
     void setUpFBOTextures();

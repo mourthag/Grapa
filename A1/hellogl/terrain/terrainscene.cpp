@@ -1,5 +1,8 @@
 #include "terrainscene.h"
 
+TerrainScene::TerrainScene() {
+}
+
 void TerrainScene::loadTerrain(QFile *pgmFile) {
     terrain.loadFromFile(pgmFile);
 }
@@ -10,19 +13,23 @@ void TerrainScene::setHeightScaling(float scaling) {
 
 void TerrainScene::drawForrest(QOpenGLShaderProgram *treeProg) {
 
-    setUpUniforms(treeProg, false);
+    if(!wasLoaded)
+            return;
+
+    setUpUniforms(treeProg, true);
     QVector3D camPos = camera.position();
     camPos.setY(0);
     treeProg->setUniformValue("camPos", camPos);
     treeProg->setUniformValue("normalMat", camera.viewMatrix().normalMatrix());
     treeProg->setUniformValue("heightScaling", terrainHeightScaling);
 
-    for(int i=0; i < forrests.size(); i++) {
-        forrests[i].draw(treeProg);
-    }
+    forrest.draw(treeProg);
 }
 
 void TerrainScene::drawTerrain(QOpenGLShaderProgram *terrainProg) {
+    if(!wasLoaded)
+        return;
+
     setUpUniforms(terrainProg, false);
     QVector3D camPos = camera.position();
     float cameraHeight = camPos.y();
@@ -36,4 +43,19 @@ void TerrainScene::drawTerrain(QOpenGLShaderProgram *terrainProg) {
     camPos.setY(std::min(-height -2, cameraHeight));
     camera.setPosition(camPos);
     terrain.drawTerrain(terrainProg, camPos);
+}
+
+void TerrainScene::loadTree(tinygltf::Model gltf_model) {
+    model = gltf_model;
+
+    loadTextures();
+    loadMaterials();
+    tree.loadTree(&model, 0);
+
+    forrest.setTree(&tree);
+    wasLoaded = true;
+}
+
+void TerrainScene::setUpForrest() {
+    forrest = Forrest(1000, 20, 0.5, 0.8, 1.4, &terrain);
 }

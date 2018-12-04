@@ -10,9 +10,11 @@
 
 #include "tiny_gltf.h"
 
-class TerrainScene : Scene
+class TerrainScene : public Scene
 {
 public:
+    TerrainScene();
+
     void drawScene(QOpenGLShaderProgram *terrainShader, QOpenGLShaderProgram *treeShader, bool setUpUniforms);
 
     void setHeightScaling(float scaling);
@@ -20,14 +22,15 @@ public:
     void drawForrest(QOpenGLShaderProgram *treeProg);
     void loadTerrain(QFile *pgmFile);
     void loadTree(tinygltf::Model gltf_model);
+    void setUpForrest();
 
 private:
     float terrainHeightScaling;
     float terrainWidthScaling;
 
     Terrain terrain;
-    std::vector<Forrest> forrests;
-    std::vector<Tree> trees;
+    Forrest forrest;
+    Tree tree;
 
 };
 

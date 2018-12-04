@@ -107,13 +107,6 @@ void SceneRenderer::initGL() {
     deferredLightingPassProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shader/lightingpassfragshader.frag");
     deferredLightingPassProgram->link();
 
-    terrainProgram = new QOpenGLShaderProgram();
-    terrainProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shader/terrainvertshader.vert");
-    terrainProgram->addShaderFromSourceFile(QOpenGLShader::TessellationControl, ":/shader/terraintesselationcontrolshader.tcs");
-    terrainProgram->addShaderFromSourceFile(QOpenGLShader::TessellationEvaluation, ":/shader/terraintesselationevalshader.tes");
-    terrainProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shader/terrainfragshader.frag");
-    terrainProgram->link();
-
     glGenFramebuffers(1, &fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 
@@ -193,11 +186,6 @@ void SceneRenderer::drawScene(Scene *scene) {
         uniformMode = PhongUniforms;
         bufferUniformBlocks = true;
     }
-    else if(mode == TerrainPhong) {
-        activeProgram = terrainProgram;
-        uniformMode = TerrainUniforms;
-        bufferUniformBlocks = true;
-    }
     else {
 
         activeProgram = deferredGeomPassProgram;
@@ -219,7 +207,7 @@ void SceneRenderer::drawScene(Scene *scene) {
 
     glBindFramebuffer(GL_FRAMEBUFFER, defaultFBO);
 
-    if(mode != Phong && mode != TerrainPhong) {
+    if(mode != Phong) {
         deferredLightingPassProgram->bind();
 
         //Set up Textures;

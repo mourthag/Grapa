@@ -14,6 +14,9 @@
 #include "util/performancechart.h"
 #include "scenegraph/scene.h"
 
+#include "terrain/terrainscene.h"
+#include "terrain/terrainscenerenderer.h"
+
 #define TINYGLTF_NO_STB_IMAGE_WRITE
 #include <tiny_gltf.h>
 
@@ -64,6 +67,9 @@ protected:
 private:
     Scene scene;
     SceneRenderer renderer;
+
+    TerrainScene terrainScene;
+    TerrainSceneRenderer terrainRenderer;
 
     int width;
     int height;

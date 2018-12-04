@@ -1,5 +1,9 @@
 #include "forrest.h"
 
+Forrest::Forrest() {
+
+}
+
 Forrest::Forrest(int numberTrees, float maxHeight, float maxSlope, float minScale, float maxScale, Terrain *terrain)
 {
     treeAmount = numberTrees;
@@ -18,6 +22,7 @@ Forrest::Forrest(int numberTrees, float maxHeight, float maxSlope, float minScal
 }
 
 void Forrest::draw(QOpenGLShaderProgram *treeProg) {
+
     std::vector<GLuint> vaos = tree->getVAOs();
     for(int i=0; i < vaos.size(); i++) {
         glBindVertexArray(vaos[i]);
