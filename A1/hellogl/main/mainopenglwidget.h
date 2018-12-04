@@ -65,8 +65,8 @@ protected:
 
     QPointF pixelPosToViewPos(const QPointF& point);
 private:
-    Scene scene;
-    SceneRenderer renderer;
+    //Scene scene;
+    //SceneRenderer renderer;
 
     TerrainScene terrainScene;
     TerrainSceneRenderer terrainRenderer;

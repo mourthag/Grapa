@@ -22,7 +22,7 @@ void TerrainScene::drawForrest(QOpenGLShaderProgram *treeProg) {
     treeProg->setUniformValue("camPos", camPos);
     treeProg->setUniformValue("normalMat", camera.viewMatrix().normalMatrix());
     treeProg->setUniformValue("heightScaling", terrainHeightScaling);
-
+    terrain.setHeightMapUniform(treeProg);
     forrest.draw(treeProg);
 }
 
@@ -40,7 +40,7 @@ void TerrainScene::drawTerrain(QOpenGLShaderProgram *terrainProg) {
 
     QVector2D camGridPos(camPos.x(), camPos.z());
     float height = terrain.getHeight(camGridPos)*terrainHeightScaling;
-    camPos.setY(std::min(-height -2, cameraHeight));
+    camPos.setY(std::max(height +2, cameraHeight));
     camera.setPosition(camPos);
     terrain.drawTerrain(terrainProg, camPos);
 }
@@ -57,5 +57,5 @@ void TerrainScene::loadTree(tinygltf::Model gltf_model) {
 }
 
 void TerrainScene::setUpForrest() {
-    forrest = Forrest(1000, 20, 0.5, 0.8, 1.4, &terrain);
+    forrest = Forrest(1000, 20, 0.2, 2, 4, &terrain);
 }

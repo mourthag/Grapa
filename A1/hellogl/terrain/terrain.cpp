@@ -122,8 +122,8 @@ void Terrain::loadFromFile(QFile *pgmFile) {
 
 float Terrain::getHeight(QVector2D gridPos) {
 
-    int x = std::max(std::min((int)(gridPos.x() + 0.5), heightMapSize), 0);
-    int y = std::max(std::min((int)(gridPos.y() + 0.5), heightMapSize), 0);
+    int x = std::max(std::min((int)(gridPos.x() + 0.5), heightMapSize-1), 0);
+    int y = std::max(std::min((int)(gridPos.y() + 0.5), heightMapSize-1), 0);
 
     int index = x * heightMapSize + y;
     float height = (float)heights.at(index);

@@ -231,7 +231,9 @@ void SceneRenderer::drawScene(Scene *scene) {
 }
 
 void SceneRenderer::setUpUniforms(QOpenGLShaderProgram *prog,UniformMode uniformMode) {
-
+    QMatrix4x4 test;
+    prog->setUniformValue("modelMat", test);
+    prog->setUniformValue("normalMat", test.normalMatrix());
     prog->setUniformValue("lightPos", light.lightPos);
     prog->setUniformValue("lightColor", light.lightCol);
     prog->setUniformValue("lightInt", light.lightInt);

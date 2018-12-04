@@ -36,7 +36,7 @@ void main(void)
     vec3 reflection = reflect(-lightDir,normal);
     vec3 viewDir = normalize(-vPos);
 
-    float fallOff = 1.0/ (pow(length(vPos-vLightPos),2.0));
+    float fallOff = 1.0/ (pow(length(vPos-vLightPos),0.2));
 
     vec4 kd = mat.diffuseFactor * texture(matTextures, vec3(texCoord,mat.diffuseTexture));
     if(kd.w == 0)

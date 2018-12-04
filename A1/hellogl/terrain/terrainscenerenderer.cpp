@@ -5,7 +5,7 @@ TerrainSceneRenderer::TerrainSceneRenderer() {
 }
 
 void TerrainSceneRenderer::initGL() {
-    SceneRenderer::initializeOpenGLFunctions();
+    SceneRenderer::initGL();
 
     terrainProgram = new QOpenGLShaderProgram();
     terrainProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shader/terrainvertshader.vert");
@@ -25,6 +25,7 @@ void TerrainSceneRenderer::drawScene(TerrainScene *scene) {
 
     queryTime(0);
     terrainProgram->bind();
+    terrainProgram->setUniformValue("tessLevel", tesselation);
     setUpUniforms(terrainProgram, PhongUniforms);
     scene->drawTerrain(terrainProgram);
     queryTime(1);

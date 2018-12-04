@@ -29,14 +29,11 @@ void MainOpenGLWidget::initializeGL() {
 
 
     makeCurrent();
-    scene.initGL();
     terrainScene.initGL();
     makeCurrent();
-    renderer.initGL();
     terrainRenderer.initGL();
     doneCurrent();
     terrainRenderer.setRenderMode(SceneRenderer::Phong);
-    renderer.setRenderMode(SceneRenderer::Phong);
 
 }
 
@@ -62,11 +59,11 @@ void MainOpenGLWidget::resizeGL(int w, int h) {
     glViewport(0,0,w,h);
 
     makeCurrent();
-    renderer.updateFramebuffeSize(w, h);
+    terrainRenderer.updateFramebuffeSize(w, h);
 
     doneCurrent();
 
-    Camera *cam = scene.getCamera();
+    Camera *cam = terrainScene.getCamera();
 
     //for trackball calculations
     width = w;
@@ -91,7 +88,7 @@ void MainOpenGLWidget::mouseMoveEvent(QMouseEvent *event) {
 
     QPoint p = event->pos();
 
-    Camera *cam = scene.getCamera();
+    Camera *cam = terrainScene.getCamera();
     QMatrix4x4 camRotation = cam->rotation();
 
     //Translate
@@ -155,7 +152,7 @@ void MainOpenGLWidget::wheelEvent(QWheelEvent *event) {
     //slow zooming down, cause delta is in degrees
     float val = event->delta() / 360.0;
 
-    Camera *cam = scene.getCamera();
+    Camera *cam = terrainScene.getCamera();
 
     //calculate view direction
     QVector3D currentPos = cam->position();
@@ -173,7 +170,7 @@ void MainOpenGLWidget::keyPressEvent(QKeyEvent *event) {
     //QOpenGLWidget::keyPressEvent(event);
     int key = event->key();
 
-    Camera *cam = scene.getCamera();
+    Camera *cam = terrainScene.getCamera();
     QMatrix4x4 cameraRotation = cam->rotation();
 
     QVector3D forward = cameraRotation.inverted().mapVector(QVector3D(0,0,1));
@@ -226,7 +223,7 @@ QPointF MainOpenGLWidget::pixelPosToViewPos(const QPointF &point) {
 void MainOpenGLWidget::resetCamera() {
 
     //restore initial view matrix and update screen
-    Camera *cam = scene.getCamera();
+    Camera *cam = terrainScene.getCamera();
 
     cam->resetCamera();
     cam->setPosition(QVector3D(2,2,2));
@@ -240,7 +237,7 @@ void MainOpenGLWidget::setShininess(int s) {
 }
 
 void MainOpenGLWidget::setTesselation(int t) {
-    renderer.setTesselation(t);
+    terrainRenderer.setTesselation(t);
     update();
 }
 
@@ -251,26 +248,26 @@ void MainOpenGLWidget::setWireframe() {
 
 void MainOpenGLWidget::setLightPos(QVector3D v) {
 
-    renderer.getLight()->lightPos = v;
+    terrainRenderer.getLight()->lightPos = v;
     update();
 }
 
 void MainOpenGLWidget::setLightCol(QVector3D color) {
 
-    renderer.getLight()->lightCol = color;
+    terrainRenderer.getLight()->lightCol = color;
     update();
 }
 
 void MainOpenGLWidget::setLightIntensity(int i) {
 
-    renderer.getLight()->lightInt = i;
+    terrainRenderer.getLight()->lightInt = i;
     update();
 }
 
 void MainOpenGLWidget::setPhong() {
 
     isWireframe = false;
-    renderer.setRenderMode(SceneRenderer::Phong);
+    terrainRenderer.setRenderMode(SceneRenderer::Phong);
     update();
 }
 
@@ -281,47 +278,47 @@ void MainOpenGLWidget::setHeightScaling(int scaling) {
 }
 
 void MainOpenGLWidget::setDeferredPhong() {
-    renderer.setRenderMode(SceneRenderer::Deferred);
+    terrainRenderer.setRenderMode(SceneRenderer::Deferred);
     update();
 }
 
 void MainOpenGLWidget::setDeferredNormal() {
-    renderer.setRenderMode(SceneRenderer::Normal);
+    terrainRenderer.setRenderMode(SceneRenderer::Normal);
     update();
 }
 
 void MainOpenGLWidget::setDeferredUV() {
-    renderer.setRenderMode(SceneRenderer::UV);
+    terrainRenderer.setRenderMode(SceneRenderer::UV);
     update();
 }
 
 void MainOpenGLWidget::setDeferredMaterial() {
-    renderer.setRenderMode(SceneRenderer::Material);
+    terrainRenderer.setRenderMode(SceneRenderer::Material);
     update();
 }
 void MainOpenGLWidget::setDeferredViewPos() {
-    renderer.setRenderMode(SceneRenderer::ViewSpacePosition);
+    terrainRenderer.setRenderMode(SceneRenderer::ViewSpacePosition);
     update();
 }
 
 void MainOpenGLWidget::playAnimation() {
-    scene.setAnimationPlay(true);
+    terrainScene.setAnimationPlay(true);
 }
 
 void MainOpenGLWidget::pauseAnimation() {
-    scene.setAnimationPlay(false);
+    terrainScene.setAnimationPlay(false);
 }
 
 QChartView* MainOpenGLWidget::getChartView() {
-    return renderer.getLogger()->getChartView();
+    return terrainRenderer.getLogger()->getChartView();
 }
 
 void MainOpenGLWidget::loadModel(tinygltf::Model* gltf_model) {
 
 
     makeCurrent();
-    terrainScene.loadTree(*gltf_model);
     terrainScene.setUpForrest();
+    terrainScene.loadTree(*gltf_model);
     doneCurrent();
 
     update();

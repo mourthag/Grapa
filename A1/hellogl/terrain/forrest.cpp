@@ -23,15 +23,20 @@ Forrest::Forrest(int numberTrees, float maxHeight, float maxSlope, float minScal
 
 void Forrest::draw(QOpenGLShaderProgram *treeProg) {
 
-    std::vector<GLuint> vaos = tree->getVAOs();
-    for(int i=0; i < vaos.size(); i++) {
-        glBindVertexArray(vaos[i]);
-        glDrawElementsInstanced(GL_TRIANGLES, 3*tree->meshes[i]->num_tris, tree->meshes[i]->index_type, (void*)tree->meshes[i]->index_offset, treeAmount);
+    QMatrix4x4 test;
+    test.rotate(-90, 1, 0, 0);
+    treeProg->setUniformValue("modelMat", test);
+
+    for(int i=0; i < tree->meshes.size(); i++) {
+        glBindVertexArray(tree->meshes[i]->vao);
+        treeProg->setUniformValue("materialIndex", tree->meshes[i]->materialIndex);
+        glDrawElementsInstanced(GL_TRIANGLES, 3*tree->meshes[i]->num_tris, tree->meshes[i]->index_type, (void*)tree->meshes[i]->index_offset, treeData.size());
         glBindVertexArray(0);
     }
 }
 
 void Forrest::setTree(Tree *tree) {
+    initializeOpenGLFunctions();
     this->tree = tree;
     std::vector<GLuint> vaos = tree->getVAOs();
 
@@ -58,12 +63,12 @@ void Forrest::generateTreeData(Terrain* terrain) {
         float xCoord = 0;
         float zCoord = 0;
         do {
-            xCoord = rand() * terrainSize.x();
-            zCoord = rand() * terrainSize.y();
+            xCoord = rand() % (int)terrainSize.x();
+            zCoord = rand() % (int)terrainSize.y();
         }while(isTreeValid(xCoord, zCoord, terrain));
 
-        float scale = minimumScale + rand() * (maximumScale - minimumScale);
-        float angle = 360.0 * rand();
+        float scale = minimumScale + fmod(rand() , (maximumScale - minimumScale));
+        float angle = rand() % 360;
         QVector4D data(xCoord, zCoord, scale, angle);
         treeData.push_back(data);
     }
