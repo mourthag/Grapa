@@ -13,8 +13,16 @@ public:
     void drawScene(TerrainScene *scene);
 
 private:
+    GLuint treeDataImpostorBuffer;
+    GLuint treeDataGeometryBuffer;
+    GLuint drawCommandImpostorBuffer;
+    GLuint drawCommandGeometryBuffer;
+
     QOpenGLShaderProgram *terrainProgram;
+    QOpenGLShaderProgram *treeDataProgram;
     QOpenGLShaderProgram *treeProgram;
+    void loadShader();
+    void setUpTreeBuffers();
 };
 
 #endif // TERRAINSCENERENDERER_H

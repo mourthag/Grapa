@@ -20,6 +20,13 @@ Forrest::Forrest(int numberTrees, float maxHeight, float maxSlope, float minScal
     glBufferData(GL_ARRAY_BUFFER, sizeof(QVector4D) * treeData.size(), &treeData.at(0), GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
+Tree* Forrest::getTree() {
+    return tree;
+}
+
+GLuint Forrest::getTreeDataBuffer() {
+    return treeDataBuffer;
+}
 
 void Forrest::draw(QOpenGLShaderProgram *treeProg) {
 

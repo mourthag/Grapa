@@ -4,7 +4,7 @@
 #include <QOpenGLWidget>
 #include <QWheelEvent>
 #include <QMouseEvent>
-#include <QOpenGLFunctions_4_0_Core>
+#include <QOpenGLFunctions_4_3_Core>
 #include <QOpenGLShaderProgram>
 #include <QMatrix4x4>
 #include <QQuaternion>
@@ -20,7 +20,7 @@
 #define TINYGLTF_NO_STB_IMAGE_WRITE
 #include <tiny_gltf.h>
 
-class MainOpenGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_4_0_Core
+class MainOpenGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_4_3_Core
 {
     Q_OBJECT
 

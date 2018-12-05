@@ -4,21 +4,22 @@
         <file>img/gouraud.png</file>
         <file>img/phong.png</file>
         <file>img/wireframe.png</file>
-        <file>shader/phongfragshader.frag</file>
-        <file>shader/phongvertshader.vert</file>
-        <file>shader/gouraudfragshader.frag</file>
-        <file>shader/gouraudvertshader.vert</file>
-        <file>shader/geometrypassfragshader.frag</file>
-        <file>shader/geometrypassvertshader.vert</file>
-        <file>shader/lightingpassfragshader.frag</file>
-        <file>shader/lightingpassvertshader.vert</file>
-        <file>shader/lightingpasspointsfragshader.frag</file>
-        <file>shader/lightingpasspointsvertshader.vert</file>
-        <file>shader/terrainfragshader.frag</file>
-        <file>shader/terrainvertshader.vert</file>
-        <file>shader/terraintesselationcontrolshader.tcs</file>
-        <file>shader/terraintesselationevalshader.tes</file>
-        <file>shader/treefragshader.frag</file>
-        <file>shader/treevertshader.vert</file>
+        <file>shader/terrain/terrainfragshader.frag</file>
+        <file>shader/terrain/terraintesselationcontrolshader.tcs</file>
+        <file>shader/terrain/terraintesselationevalshader.tes</file>
+        <file>shader/terrain/terrainvertshader.vert</file>
+        <file>shader/terrain/treefragshader.frag</file>
+        <file>shader/terrain/treevertshader.vert</file>
+        <file>shader/deferred/geometrypassfragshader.frag</file>
+        <file>shader/deferred/geometrypassvertshader.vert</file>
+        <file>shader/deferred/lightingpassfragshader.frag</file>
+        <file>shader/deferred/lightingpasspointsfragshader.frag</file>
+        <file>shader/deferred/lightingpasspointsvertshader.vert</file>
+        <file>shader/deferred/lightingpassvertshader.vert</file>
+        <file>shader/default/gouraudfragshader.frag</file>
+        <file>shader/default/gouraudvertshader.vert</file>
+        <file>shader/default/phongfragshader.frag</file>
+        <file>shader/default/phongvertshader.vert</file>
+        <file>shader/terrain/treecompshader.comp</file>
     </qresource>
 </RCC>

@@ -93,18 +93,18 @@ void SceneRenderer::initGL() {
     glGenQueries(NumQueries, queryObjectsB.data());
 
     phongProgram = new QOpenGLShaderProgram();
-    phongProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shader/phongvertshader.vert");
-    phongProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shader/phongfragshader.frag");
+    phongProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shader/default/phongvertshader.vert");
+    phongProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shader/default/phongfragshader.frag");
     phongProgram->link();
 
     deferredGeomPassProgram = new QOpenGLShaderProgram();
-    deferredGeomPassProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shader/geometrypassvertshader.vert");
-    deferredGeomPassProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shader/geometrypassfragshader.frag");
+    deferredGeomPassProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shader/deferred/geometrypassvertshader.vert");
+    deferredGeomPassProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shader/deferred/geometrypassfragshader.frag");
     deferredGeomPassProgram->link();
 
     deferredLightingPassProgram = new QOpenGLShaderProgram();
-    deferredLightingPassProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shader/lightingpassvertshader.vert");
-    deferredLightingPassProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shader/lightingpassfragshader.frag");
+    deferredLightingPassProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shader/deferred/lightingpassvertshader.vert");
+    deferredLightingPassProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shader/deferred/lightingpassfragshader.frag");
     deferredLightingPassProgram->link();
 
     glGenFramebuffers(1, &fbo);

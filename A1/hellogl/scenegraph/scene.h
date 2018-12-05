@@ -1,7 +1,7 @@
 #ifndef SCENE_H
 #define SCENE_H
 
-#include <QOpenGLFunctions_4_0_Core>
+#include <QOpenGLFunctions_4_3_Core>
 #include <QDebug>
 #include <QOpenGLShaderProgram>
 #include <QTime>
@@ -14,7 +14,7 @@
 #include "openglmodel.h"
 #include "tiny_gltf.h"
 
-class Scene : QOpenGLFunctions_4_0_Core
+class Scene : QOpenGLFunctions_4_3_Core
 {
 public:
 

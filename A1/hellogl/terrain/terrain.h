@@ -1,7 +1,7 @@
 #ifndef TERRAIN_H
 #define TERRAIN_H
 
-#include <QOpenGLFunctions_4_0_Core>
+#include <QOpenGLFunctions_4_3_Core>
 #include <QOpenGLShaderProgram>
 
 #include <QFile>
@@ -9,7 +9,7 @@
 #include <QDebug>
 #include <QImage>
 
-class Terrain : QOpenGLFunctions_4_0_Core
+class Terrain : QOpenGLFunctions_4_3_Core
 {
 public:
     Terrain();

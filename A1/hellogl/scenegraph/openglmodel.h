@@ -1,13 +1,13 @@
 #ifndef OPENGLMODEL_H
 #define OPENGLMODEL_H
 
-#include <QOpenGLFunctions_4_0_Core>
+#include <QOpenGLFunctions_4_3_Core>
 #include <QOpenGLShaderProgram>
 #define TINYGLTF_NO_STB_IMAGE_WRITE
 
 #include "tiny_gltf.h"
 
-class OpenGLModel : QOpenGLFunctions_4_0_Core
+class OpenGLModel : QOpenGLFunctions_4_3_Core
 {
 
 

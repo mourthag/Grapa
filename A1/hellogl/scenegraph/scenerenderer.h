@@ -1,7 +1,7 @@
 #ifndef SCENERENDERER_H
 #define SCENERENDERER_H
 
-#include <QOpenGLFunctions_4_0_Core>
+#include <QOpenGLFunctions_4_3_Core>
 #include <QDebug>
 #include <QOpenGLShaderProgram>
 
@@ -10,7 +10,7 @@
 #include "util/performancechart.h"
 
 
-class SceneRenderer : public QOpenGLFunctions_4_0_Core
+class SceneRenderer : public QOpenGLFunctions_4_3_Core
 {
 public:
     SceneRenderer();

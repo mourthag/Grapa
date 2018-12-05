@@ -17,20 +17,13 @@ void TerrainScene::drawForrest(QOpenGLShaderProgram *treeProg) {
             return;
 
     setUpUniforms(treeProg, true);
-    QVector3D camPos = camera.position();
-    camPos.setY(0);
-    treeProg->setUniformValue("camPos", camPos);
-    treeProg->setUniformValue("normalMat", camera.viewMatrix().normalMatrix());
-    treeProg->setUniformValue("heightScaling", terrainHeightScaling);
+    setUpCameraUniforms(treeProg);
     terrain.setHeightMapUniform(treeProg);
     forrest.draw(treeProg);
 }
 
-void TerrainScene::drawTerrain(QOpenGLShaderProgram *terrainProg) {
-    if(!wasLoaded)
-        return;
-
-    setUpUniforms(terrainProg, false);
+float TerrainScene::setUpCameraUniforms(QOpenGLShaderProgram *terrainProg)
+{
     QVector3D camPos = camera.position();
     float cameraHeight = camPos.y();
     camPos.setY(0);
@@ -38,6 +31,17 @@ void TerrainScene::drawTerrain(QOpenGLShaderProgram *terrainProg) {
     terrainProg->setUniformValue("normalMat", camera.viewMatrix().normalMatrix());
     terrainProg->setUniformValue("heightScaling", terrainHeightScaling);
 
+    return cameraHeight;
+}
+
+void TerrainScene::drawTerrain(QOpenGLShaderProgram *terrainProg) {
+    if(!wasLoaded)
+        return;
+
+    setUpUniforms(terrainProg, false);
+    float cameraHeight = setUpCameraUniforms(terrainProg);
+
+    QVector3D camPos = camera.position();
     QVector2D camGridPos(camPos.x(), camPos.z());
     float height = terrain.getHeight(camGridPos)*terrainHeightScaling;
     camPos.setY(std::max(height +2, cameraHeight));

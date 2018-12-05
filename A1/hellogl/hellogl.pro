@@ -62,22 +62,25 @@ HEADERS += \
     terrain/terrainscenerenderer.h
 
 DISTFILES += \
-    shader/phongfragshader.frag \
-    shader/phongvertshader.vert \
-    shader/gouraudvertshader.vert \
-    shader/gouraudfragshader.frag \
-    shader/geometrypassfragshader.frag \
-    shader/geometrypassvertshader.vert \
-    shader/lightingpassvertshader.vert \
-    shader/lightingpassfragshader.frag \
-    shader/lightingpasspointsvertshader.vert \
-    shader/lightingpasspointsfragshader.frag \
-    shader/terrainvertshader.vert \
-    shader/terrainfragshader.frag \
-    shader/terraintesselationcontrolshader.tcs \
-    shader/terraintesselationevalshader.tes \
-    shader/treefragshader.frag \
-    shader/treevertshader.vert
+    shader/default/phongfragshader.frag \
+    shader/default/phongvertshader.vert \
+    shader/default/gouraudvertshader.vert \
+    shader/default/gouraudfragshader.frag \
+    shader/deferred/geometrypassfragshader.frag \
+    shader/deferred/geometrypassvertshader.vert \
+    shader/deferred/lightingpassvertshader.vert \
+    shader/deferred/lightingpassfragshader.frag \
+    shader/deferred/lightingpasspointsvertshader.vert \
+    shader/deferred/lightingpasspointsfragshader.frag \
+    shader/terrain/terrainvertshader.vert \
+    shader/terrain/terrainfragshader.frag \
+    shader/terrain/terraintesselationcontrolshader.tcs \
+    shader/terrain/terraintesselationevalshader.tes \
+    shader/terrain/treefragshader.frag \
+    shader/terrain/treevertshader.vert \
+    shader/terrain/treecompshader.comp
 
 RESOURCES += \
     hellogl.qrc
+
+STATECHARTS +=

@@ -24,7 +24,8 @@ public:
     void loadTree(tinygltf::Model gltf_model);
     void setUpForrest();
 
-private:
+    float setUpCameraUniforms(QOpenGLShaderProgram *terrainProg);
+
     float terrainHeightScaling;
     float terrainWidthScaling;
 

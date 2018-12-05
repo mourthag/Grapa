@@ -1,12 +1,12 @@
 #ifndef FORREST_H
 #define FORREST_H
 
-#include <QOpenGLFunctions_4_0_Core>
+#include <QOpenGLFunctions_4_3_Core>
 
 #include "tree.h"
 #include "terrain.h"
 
-class Forrest : QOpenGLFunctions_4_0_Core
+class Forrest : QOpenGLFunctions_4_3_Core
 {
 public:
     Forrest();
@@ -14,6 +14,10 @@ public:
 
     void setTree(Tree* tree);
     void draw(QOpenGLShaderProgram *treeProg);
+
+    Tree* getTree();
+    GLuint getTreeDataBuffer();
+
 private:
     void generateTreeData(Terrain *terrain);
     bool isTreeValid(float x, float z, Terrain *terrain);
