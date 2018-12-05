@@ -44,6 +44,7 @@ IndirectDrawCommand impostorCommands [ ] ;
 layout (local_size_x = 16) in;
 
 void main() {
+        treeDataImpostor[0] = vec4(10,11, 12,13);
 	if(gl_GlobalInvocationID == uvec3(0,0,0)) {
 		readIndexGlobal = 0;
 		geomIndexGlobal = 0;
@@ -52,7 +53,7 @@ void main() {
 	memoryBarrierShared();
     barrier();
 
-	uint readIndex = atomicAdd(readIndexGlobal, 1);
+ 	uint readIndex = atomicAdd(readIndexGlobal, 1);
 	if(treeDataIn.length() <= readIndex )
 		return;
 	
@@ -66,7 +67,7 @@ void main() {
 	else {
 		uint writeIndex = atomicAdd(impostorIndexGlobal, 1);
 		treeDataImpostor[writeIndex] = read;
-	}
+	} 
 	
 
 }

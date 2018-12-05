@@ -26,9 +26,20 @@ void TerrainSceneRenderer::loadShader()
 void TerrainSceneRenderer::setUpTreeBuffers()
 {
     glGenBuffers(1, &treeDataGeometryBuffer);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, treeDataGeometryBuffer);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, 4000 * sizeof(GLfloat), NULL, GL_STATIC_DRAW);
+
     glGenBuffers(1, &treeDataImpostorBuffer);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, treeDataImpostorBuffer);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, 4000 * sizeof(GLfloat), NULL, GL_STATIC_DRAW);
+
     glGenBuffers(1, &drawCommandGeometryBuffer);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, drawCommandGeometryBuffer);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, 4000 * sizeof(GLfloat), NULL, GL_STATIC_DRAW);
+
     glGenBuffers(1, &drawCommandImpostorBuffer);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, drawCommandImpostorBuffer);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, 4000 * sizeof(GLfloat), NULL, GL_STATIC_DRAW);
 
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, treeDataGeometryBuffer);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, treeDataImpostorBuffer);
@@ -50,21 +61,13 @@ void TerrainSceneRenderer::drawScene(TerrainScene *scene) {
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, scene->forrest.getTreeDataBuffer());
 
     treeDataProgram->bind();
-    treeDataProgram->setUniformValue("maxGeomTreeDistance", 1000);
+    treeDataProgram->setUniformValue("maxGeomTreeDistance", (GLfloat)1000.0);
     scene->setUpCameraUniforms(treeDataProgram);
     GLint workGroupSize[3];
     glGetProgramiv(treeDataProgram->programId(), GL_COMPUTE_WORK_GROUP_SIZE, workGroupSize);
-    GLint numInvocations = 1000/workGroupSize[1] + 1;
+    GLint numInvocations = 1000/workGroupSize[0] + 1;
     glDispatchCompute(numInvocations, 1, 1);
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-
-    GLfloat data[12];
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER,scene->forrest.getTreeDataBuffer());
-    glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, 12 * sizeof(GLfloat),data );
-    for ( int i = 0; i < 12; i ++ ) {
-        qDebug() << data[i];
-    }
-    qDebug() << "-----------------";
 
     queryTime(0);
     terrainProgram->bind();
