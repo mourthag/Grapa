@@ -232,7 +232,7 @@ void MainWindow::updateStatusBar(QMatrix4x4 viewMat) {
     //calculate position by applying the inverse viewmatrix to a null vector
     QVector3D position = viewMat.inverted().map(QVector3D(0,0,0));
     //view dir is obviously the negative position but normalized
-    QVector3D viewDir = viewMat.inverted().mapVector(QVector3D(0,0,1));
+    QVector3D viewDir = viewMat.mapVector(QVector3D(0,0,1));
 
     //wrap it into a string
     std::stringstream message;
