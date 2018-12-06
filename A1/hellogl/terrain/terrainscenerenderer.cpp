@@ -33,18 +33,13 @@ void TerrainSceneRenderer::setUpTreeBuffers()
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, treeDataImpostorBuffer);
     glBufferData(GL_SHADER_STORAGE_BUFFER, 4000 * sizeof(GLfloat), NULL, GL_STATIC_DRAW);
 
-    glGenBuffers(1, &drawCommandGeometryBuffer);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, drawCommandGeometryBuffer);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, 4000 * sizeof(GLfloat), NULL, GL_STATIC_DRAW);
-
-    glGenBuffers(1, &drawCommandImpostorBuffer);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, drawCommandImpostorBuffer);
+    glGenBuffers(1, &drawCommandBuffer);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, drawCommandBuffer);
     glBufferData(GL_SHADER_STORAGE_BUFFER, 4000 * sizeof(GLfloat), NULL, GL_STATIC_DRAW);
 
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, treeDataGeometryBuffer);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, treeDataImpostorBuffer);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, drawCommandGeometryBuffer);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, drawCommandImpostorBuffer);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, drawCommandBuffer);
 }
 
 void TerrainSceneRenderer::initGL() {

@@ -15,8 +15,7 @@ public:
 private:
     GLuint treeDataImpostorBuffer;
     GLuint treeDataGeometryBuffer;
-    GLuint drawCommandImpostorBuffer;
-    GLuint drawCommandGeometryBuffer;
+    GLuint drawCommandBuffer;
 
     QOpenGLShaderProgram *terrainProgram;
     QOpenGLShaderProgram *treeDataProgram;
