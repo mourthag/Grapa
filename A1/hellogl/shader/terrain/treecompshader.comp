@@ -31,14 +31,9 @@ layout (std430 , binding = 3 ) buffer TreeDataImpostor
 vec4 treeDataImpostor [ ] ;
 };
 
-layout (std430 , binding = 4 ) buffer IndirectDrawGeom
+layout (std430 , binding = 4 ) buffer IndirectDraw
 {
-IndirectDrawCommand geomCommands [ ] ;
-};
-
-layout (std430 , binding = 5 ) buffer IndirectDrawImpostor
-{
-IndirectDrawCommand impostorCommands [ ] ;
+IndirectDrawCommand drawCommands [ ] ;
 };
 
 layout (local_size_x = 16) in;

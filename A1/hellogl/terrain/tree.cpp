@@ -11,7 +11,7 @@ void Tree::loadTree(tinygltf::Model *gltf_model, int meshIndex) {
 
         OpenGLModel *oglModel = (OpenGLModel*)malloc(sizeof(OpenGLModel));
         oglModel = new OpenGLModel();
-        oglModel->loadGLTF(gltf_model, meshIndex, i);
+        oglModel->loadGLTF(gltf_model, meshIndex, i, false);
         meshes.push_back(oglModel);
     }
 }

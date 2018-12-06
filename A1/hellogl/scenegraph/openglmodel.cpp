@@ -21,15 +21,15 @@ void OpenGLModel::clear() {
     glDeleteBuffers(1, &nbo);
     glDeleteBuffers(1, &tcbo);
 }
-void OpenGLModel::loadGLTF(tinygltf::Model *gltf_model, int mesh, int primIndex) {
+void OpenGLModel::loadGLTF(tinygltf::Model *gltf_model, int mesh, int primIndex, bool additive) {
 
     glBindVertexArray(vao);
 
-    loadGLTFAttribute("POSITION", gltf_model, mesh, primIndex, vbo, 0);
-    loadGLTFAttribute("NORMAL", gltf_model, mesh, primIndex, nbo, 1);
-    loadGLTFAttribute("TEXCOORD_0", gltf_model, mesh, primIndex, tcbo, 2);
+    loadGLTFAttribute("POSITION", gltf_model, mesh, primIndex, vbo, 0, additive);
+    loadGLTFAttribute("NORMAL", gltf_model, mesh, primIndex, nbo, 1, additive);
+    loadGLTFAttribute("TEXCOORD_0", gltf_model, mesh, primIndex, tcbo, 2, additive);
 
-    loadGLTFIndices(gltf_model, mesh, primIndex);
+    loadGLTFIndices(gltf_model, mesh, primIndex, additive);
 
     materialIndex = gltf_model->meshes[mesh].primitives[primIndex].material;
 
@@ -39,7 +39,8 @@ void OpenGLModel::loadGLTF(tinygltf::Model *gltf_model, int mesh, int primIndex)
 
 }
 
-void OpenGLModel::loadGLTFAttribute(std::string name, tinygltf::Model *model, int mesh, int primitive, GLuint glBufferIndex, GLint glAttributeIndex) {
+
+void OpenGLModel::loadGLTFAttribute(std::string name, tinygltf::Model *model, int mesh, int primitive, GLuint glBufferIndex, GLint glAttributeIndex, bool additive) {
 
     tinygltf::Primitive prim = model->meshes[mesh].primitives[primitive];
 
@@ -55,25 +56,70 @@ void OpenGLModel::loadGLTFAttribute(std::string name, tinygltf::Model *model, in
     int size = accessor.type;
 
     glBindBuffer(bufferView.target, glBufferIndex);
-    glBufferData(bufferView.target, bufferView.byteLength, &buffer.data[bufferView.byteOffset], GL_STATIC_DRAW);
+    if(additive) {
+        GLint bufferSize;
+        glGetBufferParameteriv(bufferView.target, GL_BUFFER_SIZE, &bufferSize);
+
+        if(bufferSize > 0) {
+            std::vector<GLfloat> oldData(bufferSize/sizeof(GLfloat));
+
+            glGetBufferSubData(bufferView.target, 0, bufferSize, &oldData.at(0));
+
+            glBufferData(bufferView.target, bufferSize + bufferView.byteLength, NULL, GL_STATIC_DRAW);
+            glBufferSubData(bufferView.target, 0, bufferSize, &oldData.at(0));
+            glBufferSubData(bufferView.target, bufferSize, bufferView.byteLength, &buffer.data[bufferView.byteOffset]);
+        }
+        else {
+            glBufferData(bufferView.target, bufferView.byteLength, &buffer.data[bufferView.byteOffset], GL_STATIC_DRAW);
+
+        }
+
+    }
+    else{
+        glBufferData(bufferView.target, bufferView.byteLength, &buffer.data[bufferView.byteOffset], GL_STATIC_DRAW);
+    }
 
     glVertexAttribPointer(glAttributeIndex, size, accessor.componentType, GL_FALSE, bufferView.byteStride, (void*)accessor.byteOffset);
     glEnableVertexAttribArray(glAttributeIndex);
 }
 
-void OpenGLModel::loadGLTFIndices(tinygltf::Model *model, int mesh, int primitive) {
+void OpenGLModel::loadGLTFIndices(tinygltf::Model *model, int mesh, int primitive, bool additive) {
     int attributeID = model->meshes[mesh].primitives[primitive].indices;
 
     tinygltf::Accessor accessor = model->accessors[attributeID];
     tinygltf::BufferView bufferView = model->bufferViews[accessor.bufferView];
     tinygltf::Buffer buffer = model->buffers[bufferView.buffer];
 
-    glBindBuffer(bufferView.target, ebo);
-    glBufferData(bufferView.target, bufferView.byteLength, &buffer.data[bufferView.byteOffset], GL_STATIC_DRAW);
+    glBindBuffer(bufferView.target, ebo);    if(additive) {
+        GLint bufferSize;
+        glGetBufferParameteriv(bufferView.target, GL_BUFFER_SIZE, &bufferSize);
+        if(bufferSize > 0) {
+            std::vector<GLfloat> oldData(bufferSize/sizeof(GLfloat));
 
-    index_type = accessor.componentType;
-    index_offset = accessor.byteOffset;
-    num_tris = accessor.count / 3;
+            glGetBufferSubData(bufferView.target, 0, bufferSize, &oldData.at(0));
+
+            glBufferData(bufferView.target, bufferSize + bufferView.byteLength, NULL, GL_STATIC_DRAW);
+            glBufferSubData(bufferView.target, 0, bufferSize, &oldData.at(0));
+            glBufferSubData(bufferView.target, bufferSize, bufferView.byteLength, &buffer.data[bufferView.byteOffset]);
+            index_offset += accessor.byteOffset;
+            num_tris += accessor.count / 3;
+        }
+        else {
+            glBufferData(bufferView.target, bufferView.byteLength, &buffer.data[bufferView.byteOffset], GL_STATIC_DRAW);
+            index_type = accessor.componentType;
+            index_offset = accessor.byteOffset;
+            num_tris = accessor.count / 3;
+        }
+
+    }
+    else{
+        glBufferData(bufferView.target, bufferView.byteLength, &buffer.data[bufferView.byteOffset], GL_STATIC_DRAW);
+        index_type = accessor.componentType;
+        index_offset = accessor.byteOffset;
+        num_tris = accessor.count / 3;
+    }
+
+
 }
 
 void OpenGLModel::convertBuffer(const int size, int offset, int stride, int length, std::vector<unsigned char> *data, std::vector<GLfloat> *convertedData) {

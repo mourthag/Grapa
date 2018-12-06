@@ -15,7 +15,7 @@ public:
     OpenGLModel();
     ~OpenGLModel();
 
-    void loadGLTF(tinygltf::Model *gltf_model, int mesh, int primIndex);
+    void loadGLTF(tinygltf::Model *gltf_model, int mesh, int primIndex, bool additive);
     //void generateCube(int tesselation);
 
     void clear();
@@ -30,8 +30,8 @@ public:
     int num_tris;
 
 private:
-    void loadGLTFAttribute(std::string name, tinygltf::Model *model, int mesh, int primitive, GLuint glBufferIndex, GLint glAttributeIndex);
-    void loadGLTFIndices(tinygltf::Model *model, int mesh, int primitive);
+    void loadGLTFAttribute(std::string name, tinygltf::Model *model, int mesh, int primitive, GLuint glBufferIndex, GLint glAttributeIndex, bool additive);
+    void loadGLTFIndices(tinygltf::Model *model, int mesh, int primitive, bool additive);
     void convertBuffer(int size, int offset, int stride, int length, std::vector<unsigned char> *data, std::vector<GLfloat> *convertedData);
     void adjustVBOSize(int numberElements);
 
