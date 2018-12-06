@@ -30,6 +30,7 @@ public:
     void setUpUniforms(QOpenGLShaderProgram *prog, bool bufferUniformBlocks);
     void setAnimationPlay(bool play);
 
+    bool wasLoaded;
 protected:
     Camera camera;
 
@@ -41,7 +42,6 @@ protected:
 
     QTime timer;
 
-    bool wasLoaded;
     bool animationPlaying;
 
     tinygltf::Model model;

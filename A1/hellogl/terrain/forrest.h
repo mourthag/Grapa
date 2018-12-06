@@ -18,6 +18,7 @@ public:
     Tree* getTree();
     GLuint getTreeDataBuffer();
 
+    int treeAmount;
 private:
     void generateTreeData(Terrain *terrain);
     bool isTreeValid(float x, float z, Terrain *terrain);
@@ -25,7 +26,6 @@ private:
     std::vector<QVector4D> treeData;
     Tree* tree;
 
-    int treeAmount;
     float maximumHeight;
     float maximumSlope;
     float minimumScale;
