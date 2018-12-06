@@ -16,6 +16,14 @@ void Tree::loadTree(tinygltf::Model *gltf_model, int meshIndex) {
     }
 }
 
+std::vector<GLuint> Tree::getVertexCounts(GLuint minSize) {
+    std::vector<GLuint> numVertices(minSize);
+    for(int i=0; i <meshes.size(); i++) {
+        numVertices[i] = meshes[i]->num_verts;
+    }
+    return numVertices;
+}
+
 std::vector<GLuint> Tree::getVAOs() {
     std::vector<GLuint> vaos;
     for(int i=0; i <meshes.size(); i++) {

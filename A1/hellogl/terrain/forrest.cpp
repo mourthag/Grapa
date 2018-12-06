@@ -37,7 +37,7 @@ void Forrest::draw(QOpenGLShaderProgram *treeProg) {
     for(int i=0; i < tree->meshes.size(); i++) {
         glBindVertexArray(tree->meshes[i]->vao);
         treeProg->setUniformValue("materialIndex", tree->meshes[i]->materialIndex);
-        glDrawElementsInstanced(GL_TRIANGLES, 3*tree->meshes[i]->num_tris, tree->meshes[i]->index_type, (void*)tree->meshes[i]->index_offset, treeData.size());
+        glDrawElementsInstanced(GL_TRIANGLES, tree->meshes[i]->num_verts, tree->meshes[i]->index_type, (void*)tree->meshes[i]->index_offset, treeData.size());
         glBindVertexArray(0);
     }
 }

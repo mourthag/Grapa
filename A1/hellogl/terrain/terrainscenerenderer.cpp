@@ -56,7 +56,12 @@ void TerrainSceneRenderer::drawScene(TerrainScene *scene) {
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, scene->forrest.getTreeDataBuffer());
 
     treeDataProgram->bind();
+    std::vector<GLuint> vertexCounts = scene->tree.getVertexCounts(20);
+
     treeDataProgram->setUniformValue("maxGeomTreeDistance", (GLfloat)1000.0);
+    GLint arrayLoc = treeDataProgram->uniformLocation("vertexCount");
+    glUniform1uiv(arrayLoc, 20,  reinterpret_cast<GLuint *>(&vertexCounts.at(0)));
+
     scene->setUpCameraUniforms(treeDataProgram);
     GLint workGroupSize[3];
     glGetProgramiv(treeDataProgram->programId(), GL_COMPUTE_WORK_GROUP_SIZE, workGroupSize);
@@ -74,8 +79,6 @@ void TerrainSceneRenderer::drawScene(TerrainScene *scene) {
     setUpUniforms(treeProgram, PhongUniforms);
     scene->drawForrest(treeProgram);
     queryTime(2);
-
-    logTimes();
 
     useQueryB = !useQueryB;
     frameCounter++;

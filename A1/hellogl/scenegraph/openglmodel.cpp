@@ -102,13 +102,13 @@ void OpenGLModel::loadGLTFIndices(tinygltf::Model *model, int mesh, int primitiv
             glBufferSubData(bufferView.target, 0, bufferSize, &oldData.at(0));
             glBufferSubData(bufferView.target, bufferSize, bufferView.byteLength, &buffer.data[bufferView.byteOffset]);
             index_offset += accessor.byteOffset;
-            num_tris += accessor.count / 3;
+            num_verts += accessor.count;
         }
         else {
             glBufferData(bufferView.target, bufferView.byteLength, &buffer.data[bufferView.byteOffset], GL_STATIC_DRAW);
             index_type = accessor.componentType;
             index_offset = accessor.byteOffset;
-            num_tris = accessor.count / 3;
+            num_verts = accessor.count;
         }
 
     }
@@ -116,7 +116,7 @@ void OpenGLModel::loadGLTFIndices(tinygltf::Model *model, int mesh, int primitiv
         glBufferData(bufferView.target, bufferView.byteLength, &buffer.data[bufferView.byteOffset], GL_STATIC_DRAW);
         index_type = accessor.componentType;
         index_offset = accessor.byteOffset;
-        num_tris = accessor.count / 3;
+        num_verts = accessor.count;
     }
 
 
@@ -141,7 +141,7 @@ void OpenGLModel::drawModel(QOpenGLShaderProgram *program) {
 
     program->setUniformValue("materialIndex", materialIndex);
     glBindVertexArray(vao);
-    glDrawElements(GL_TRIANGLES, 3 * num_tris, index_type, (void*)index_offset);
+    glDrawElements(GL_TRIANGLES, 3 * num_verts, index_type, (void*)index_offset);
     glBindVertexArray(0);
 }
 

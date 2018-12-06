@@ -15,6 +15,8 @@ public:
     void loadTree(tinygltf::Model *gltf_model, int meshIndex);
     std::vector<GLuint> getVAOs();
 
+    std::vector<GLuint> getVertexCounts(GLuint minSize);
+
     std::vector<OpenGLModel*> meshes;
 
 };

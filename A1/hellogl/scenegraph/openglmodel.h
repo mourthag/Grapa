@@ -27,7 +27,7 @@ public:
 
     GLenum index_type;
     size_t index_offset;
-    int num_tris;
+    int num_verts;
 
 private:
     void loadGLTFAttribute(std::string name, tinygltf::Model *model, int mesh, int primitive, GLuint glBufferIndex, GLint glAttributeIndex, bool additive);

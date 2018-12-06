@@ -11,7 +11,7 @@ MainOpenGLWidget::MainOpenGLWidget(QWidget *parent) : QOpenGLWidget(parent)
     //update at ~60FPS
     QTimer *timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(update()));
-    timer->start(16);
+    timer->start(1000);
 
 
     //set up data and shading
