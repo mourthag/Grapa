@@ -205,14 +205,15 @@ void MainOpenGLWidget::keyPressEvent(QKeyEvent *event) {
         cam->rotate(rotation);
     }
     if(key == Qt::Key_Control) {
-        cam->translate(up);
+        cam->translate(-up);
     }
     if(key == Qt::Key_Shift) {
-        cam->translate(-up);
+        cam->translate(up);
     }
 
 
     update();
+    cameraUpdated(cam->viewMatrix());
 }
 
 QPointF MainOpenGLWidget::pixelPosToViewPos(const QPointF &point) {
