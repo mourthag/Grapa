@@ -38,7 +38,9 @@ SOURCES += \
     terrain/tree.cpp \
     terrain/terrainscene.cpp \
     scenegraph/camera.cpp \
-    terrain/terrainscenerenderer.cpp
+    terrain/terrainscenerenderer.cpp \
+    util/treewidget/treedockwidget.cpp \
+    util/openglfunctions.cpp
 
 HEADERS += \
     json.hpp \
@@ -59,7 +61,10 @@ HEADERS += \
     scenegraph/camera.h \
     scenegraph/material.h \
     scenegraph/light.h \
-    terrain/terrainscenerenderer.h
+    terrain/terrainscenerenderer.h \
+    util/treewidget/treedockwidget.h \
+    terrain/forrestdata.h \
+    util/openglfunctions.h
 
 DISTFILES += \
     shader/default/phongfragshader.frag \

@@ -4,6 +4,7 @@
 #include <QtWidgets>
 
 #include "mainopenglwidget.h"
+#include "util/treewidget/treedockwidget.h"
 
 class MainWindow : public QMainWindow
 {
@@ -35,6 +36,7 @@ private:
     QSlider *tesselationSlider;
 
     MainOpenGLWidget *widget;
+    TreeDockWidget *treeDataWidget;
 };
 
 #endif // MAINWINDOW_H

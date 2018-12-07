@@ -1,8 +1,6 @@
 #ifndef TREE_H
 #define TREE_H
 
-#include <QOpenGLFunctions_4_3_Core>
-
 #include "tiny_gltf.h"
 
 #include <scenegraph/openglmodel.h>

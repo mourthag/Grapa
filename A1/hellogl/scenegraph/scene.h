@@ -1,10 +1,10 @@
 #ifndef SCENE_H
 #define SCENE_H
 
-#include <QOpenGLFunctions_4_3_Core>
 #include <QDebug>
 #include <QOpenGLShaderProgram>
 #include <QTime>
+#include <QObject>
 
 #include "node.h"
 #include "camera.h"
@@ -14,13 +14,12 @@
 #include "openglmodel.h"
 #include "tiny_gltf.h"
 
-class Scene : QOpenGLFunctions_4_3_Core
+class Scene : public QObject
 {
 public:
 
     Scene();
     ~Scene();
-    void initGL();
     void clear();
 
     void loadFromGLTF(tinygltf::Model gltf_model);

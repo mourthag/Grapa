@@ -1,13 +1,12 @@
 #include "terrain.h"
 
-Terrain::Terrain() {
-}
-
 Terrain::~Terrain() {
-    glDeleteVertexArrays(1, &vao);
-    glDeleteTextures(1, &heightMap);
-    glDeleteBuffers(1, &vbo);
-    glDeleteBuffers(1, &ibo);
+    OpenGLFunctions *f = OpenGLFunctions::instance();
+
+    f->glDeleteVertexArrays(1, &vao);
+    f->glDeleteTextures(1, &heightMap);
+    f->glDeleteBuffers(1, &vbo);
+    f->glDeleteBuffers(1, &ibo);
 
 
 }
@@ -38,29 +37,24 @@ void Terrain::createHeightMap(int width, QDataStream *stream, int height)
         heights.push_back(value);
     }
 
+    OpenGLFunctions *f = OpenGLFunctions::instance();
 
-    glGenTextures(1, &heightMap);
-    glBindTexture(GL_TEXTURE_2D, heightMap);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_R16UI, width, height, 0, GL_RED_INTEGER, GL_UNSIGNED_SHORT, &heights.at(0));
-    glGenerateMipmap(GL_TEXTURE_2D);
+    f->glGenTextures(1, &heightMap);
+    f->glBindTexture(GL_TEXTURE_2D, heightMap);
+    f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    f->glTexImage2D(GL_TEXTURE_2D, 0, GL_R16UI, width, height, 0, GL_RED_INTEGER, GL_UNSIGNED_SHORT, &heights.at(0));
+    f->glGenerateMipmap(GL_TEXTURE_2D);
 
-    glBindTexture(GL_TEXTURE_2D,0);
-}
-
-Terrain::Terrain(QFile *pgmFile)
-{
-    initializeOpenGLFunctions();
-    loadFromFile(pgmFile);
-
+    f->glBindTexture(GL_TEXTURE_2D,0);
 }
 
 void Terrain::loadFromFile(QFile *pgmFile) {
 
-    initializeOpenGLFunctions();
+    OpenGLFunctions *f = OpenGLFunctions::instance();
+
     pgmFile->open(QIODevice::ReadOnly);
     QDataStream stream(pgmFile);
 
@@ -98,29 +92,32 @@ void Terrain::loadFromFile(QFile *pgmFile) {
     QImage sandImage(dir + "/sand.jpg");
     QImage stoneImage(dir + "/stone.jpg");
 
-    glGenTextures(1, &materialArrayTexture);
-    glBindTexture(GL_TEXTURE_2D_ARRAY, materialArrayTexture);
+    f->glGenTextures(1, &materialArrayTexture);
+    f->glBindTexture(GL_TEXTURE_2D_ARRAY, materialArrayTexture);
 
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    f->glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    f->glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    f->glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    f->glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-    glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA8, rockImage.width(), rockImage.height(),
+    f->glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA8, rockImage.width(), rockImage.height(),
                  4,
                  0,
                  GL_RGBA,
                  GL_UNSIGNED_BYTE,
                  0);
-    glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 0, rockImage.width(), rockImage.height(), 1, GL_RGBA, GL_UNSIGNED_BYTE, rockImage.bits());
-    glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 1, gravelImage.width(), gravelImage.height(), 1, GL_RGBA, GL_UNSIGNED_BYTE, gravelImage.bits());
-    glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 2, sandImage.width(), sandImage.height(), 1, GL_RGBA, GL_UNSIGNED_BYTE, sandImage.bits());
-    glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 3, stoneImage.width(), stoneImage.height(), 1, GL_RGBA, GL_UNSIGNED_BYTE, stoneImage.bits());
+    f->glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 0, rockImage.width(), rockImage.height(), 1, GL_RGBA, GL_UNSIGNED_BYTE, rockImage.bits());
+    f->glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 1, gravelImage.width(), gravelImage.height(), 1, GL_RGBA, GL_UNSIGNED_BYTE, gravelImage.bits());
+    f->glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 2, sandImage.width(), sandImage.height(), 1, GL_RGBA, GL_UNSIGNED_BYTE, sandImage.bits());
+    f->glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 3, stoneImage.width(), stoneImage.height(), 1, GL_RGBA, GL_UNSIGNED_BYTE, stoneImage.bits());
 
-    glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+    f->glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 }
 
 float Terrain::getHeight(QVector2D gridPos) {
+
+    if(heights.size() == 0)
+        return 0;
 
     int x = std::max(std::min((int)(gridPos.x() + 0.5), heightMapSize-1), 0);
     int y = std::max(std::min((int)(gridPos.y() + 0.5), heightMapSize-1), 0);
@@ -156,20 +153,23 @@ float Terrain::getSlope(QVector2D gridPos) {
 }
 
 void Terrain::setHeightMapUniform(QOpenGLShaderProgram *prog) {
+    OpenGLFunctions *f = OpenGLFunctions::instance();
 
     prog->setUniformValue("heightMap", 4);
-    glActiveTexture(GL_TEXTURE4);
-    glBindTexture(GL_TEXTURE_2D, heightMap);
+    f->glActiveTexture(GL_TEXTURE4);
+    f->glBindTexture(GL_TEXTURE_2D, heightMap);
 
 }
 
 void Terrain::drawTerrain(QOpenGLShaderProgram *prog, QVector3D camPos) {
 
+    OpenGLFunctions *f = OpenGLFunctions::instance();
+
     setHeightMapUniform(prog);
 
     prog->setUniformValue("materialTextures", 5);
-    glActiveTexture(GL_TEXTURE5);
-    glBindTexture(GL_TEXTURE_2D_ARRAY, materialArrayTexture);
+    f->glActiveTexture(GL_TEXTURE5);
+    f->glBindTexture(GL_TEXTURE_2D_ARRAY, materialArrayTexture);
 
     int xFactor = camPos.x()/distanceBetweenVerts;
     int zFactor = camPos.z() / distanceBetweenVerts;
@@ -203,17 +203,19 @@ void Terrain::drawTerrain(QOpenGLShaderProgram *prog, QVector3D camPos) {
     prog->setUniformValue("gravelHeight", (GLfloat)20.5);
     prog->setUniformValue("gravelMargin", (GLfloat)1.5);
 
-    glBindVertexArray(vao);
+    f->glBindVertexArray(vao);
 
-    glPatchParameteri(GL_PATCH_VERTICES, 4);
-    glDrawElements(GL_PATCHES, numpatches, GL_UNSIGNED_INT, 0 );
-    glBindVertexArray(0);
+    f->glPatchParameteri(GL_PATCH_VERTICES, 4);
+    f->glDrawElements(GL_PATCHES, numpatches, GL_UNSIGNED_INT, 0 );
+    f->glBindVertexArray(0);
 
 }
 
 void Terrain::generatePatches() {
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
+    OpenGLFunctions *f = OpenGLFunctions::instance();
+
+    f->glGenVertexArrays(1, &vao);
+    f->glBindVertexArray(vao);
 
     std::vector<GLfloat> vertices;
     std::vector<GLuint> indices;
@@ -237,19 +239,19 @@ void Terrain::generatePatches() {
         }
     }
 
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat)* vertices.size(), &vertices.at(0), GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(0);
+    f->glGenBuffers(1, &vbo);
+    f->glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    f->glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat)* vertices.size(), &vertices.at(0), GL_STATIC_DRAW);
+    f->glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
+    f->glEnableVertexAttribArray(0);
 
-    glGenBuffers(1, &ibo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * indices.size(), &indices.at(0), GL_STATIC_DRAW);
+    f->glGenBuffers(1, &ibo);
+    f->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+    f->glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * indices.size(), &indices.at(0), GL_STATIC_DRAW);
 
-    glBindVertexArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    f->glBindVertexArray(0);
+    f->glBindBuffer(GL_ARRAY_BUFFER, 0);
+    f->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 QVector2D Terrain::getSize() {

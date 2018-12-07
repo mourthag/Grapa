@@ -32,65 +32,71 @@ SceneRenderer::SceneRenderer()
 
 void SceneRenderer::setUpFBOTextures()
 {
-    glGenTextures(1, &ntcTex);
-    glBindTexture(GL_TEXTURE_2D, ntcTex);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, scr_size, scr_size, 0, GL_RGBA, GL_FLOAT, NULL);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ntcTex, 0);
+    OpenGLFunctions *f = OpenGLFunctions::instance();
 
-    glGenTextures(1, &matTex);
-    glBindTexture(GL_TEXTURE_2D, matTex);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_R8UI, scr_size, scr_size, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, NULL);
+    f->glGenTextures(1, &ntcTex);
+    f->glBindTexture(GL_TEXTURE_2D, ntcTex);
+    f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    f->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, scr_size, scr_size, 0, GL_RGBA, GL_FLOAT, NULL);
+    f->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ntcTex, 0);
 
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, matTex, 0);
+    f->glGenTextures(1, &matTex);
+    f->glBindTexture(GL_TEXTURE_2D, matTex);
+    f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    f->glTexImage2D(GL_TEXTURE_2D, 0, GL_R8UI, scr_size, scr_size, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, NULL);
 
-    glGenTextures(1, &depthTex);
-    glBindTexture(GL_TEXTURE_2D, depthTex);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    f->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, matTex, 0);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, scr_size, scr_size, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTex, 0);
-    glBindTexture(GL_TEXTURE_2D, 0);
+    f->glGenTextures(1, &depthTex);
+    f->glBindTexture(GL_TEXTURE_2D, depthTex);
+    f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+
+    f->glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, scr_size, scr_size, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    f->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTex, 0);
+    f->glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 
 void SceneRenderer::setUpQuad()
 {
-    glGenVertexArrays(1, &quadVAO);
-    glBindVertexArray(quadVAO);
+    OpenGLFunctions *f = OpenGLFunctions::instance();
 
-    glGenBuffers(1, &quadVBO);
-    glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-    glBufferData(GL_ARRAY_BUFFER,  8 * sizeof(GLfloat), &quad_UV, GL_STATIC_DRAW);
+    f->glGenVertexArrays(1, &quadVAO);
+    f->glBindVertexArray(quadVAO);
+
+    f->glGenBuffers(1, &quadVBO);
+    f->glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+    f->glBufferData(GL_ARRAY_BUFFER,  8 * sizeof(GLfloat), &quad_UV, GL_STATIC_DRAW);
     deferredLightingPassProgram->setAttributeBuffer("UV", GL_FLOAT, 0, 2);
 
-    glGenBuffers(1, &quadIBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quadIBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 4 * sizeof(GLuint), &quad_Ind, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(0);
+    f->glGenBuffers(1, &quadIBO);
+    f->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quadIBO);
+    f->glBufferData(GL_ELEMENT_ARRAY_BUFFER, 4 * sizeof(GLuint), &quad_Ind, GL_STATIC_DRAW);
+    f->glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
+    f->glEnableVertexAttribArray(0);
 
-    glBindVertexArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    f->glBindVertexArray(0);
+    f->glBindBuffer(GL_ARRAY_BUFFER, 0);
+    f->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void SceneRenderer::initGL() {
-    initializeOpenGLFunctions();
-    glClearColor(1,1,1,1);
+void SceneRenderer::init() {
 
-    glGenQueries(NumQueries, queryObjectsA.data());
-    glGenQueries(NumQueries, queryObjectsB.data());
+    OpenGLFunctions *f = OpenGLFunctions::instance();
+
+    f->glClearColor(1,1,1,1);
+
+    f->glGenQueries(NumQueries, queryObjectsA.data());
+    f->glGenQueries(NumQueries, queryObjectsB.data());
 
     phongProgram = new QOpenGLShaderProgram();
     phongProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shader/default/phongvertshader.vert");
@@ -107,20 +113,20 @@ void SceneRenderer::initGL() {
     deferredLightingPassProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shader/deferred/lightingpassfragshader.frag");
     deferredLightingPassProgram->link();
 
-    glGenFramebuffers(1, &fbo);
-    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    f->glGenFramebuffers(1, &fbo);
+    f->glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 
     setUpFBOTextures();
 
     unsigned int attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
-    glDrawBuffers(2,  attachments);
+    f->glDrawBuffers(2,  attachments);
 
-    GLenum fbo_complete = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    GLenum fbo_complete = f->glCheckFramebufferStatus(GL_FRAMEBUFFER);
     if(fbo_complete != GL_FRAMEBUFFER_COMPLETE)
         qDebug() << "Framebuffer incomplete!";
 
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glBindTexture(GL_TEXTURE_2D, 0);
+    f->glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    f->glBindTexture(GL_TEXTURE_2D, 0);
 
     setUpQuad();
 
@@ -128,15 +134,17 @@ void SceneRenderer::initGL() {
 
 void SceneRenderer::updateFramebuffeSize(int width, int height) {
 
-    glBindTexture(GL_TEXTURE_2D, ntcTex);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
+    OpenGLFunctions *f = OpenGLFunctions::instance();
 
-    glBindTexture(GL_TEXTURE_2D, matTex);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_R8UI, width, height, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, NULL);
+    f->glBindTexture(GL_TEXTURE_2D, ntcTex);
+    f->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
 
-    glBindTexture(GL_TEXTURE_2D, depthTex);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-    glBindTexture(GL_TEXTURE_2D, 0);
+    f->glBindTexture(GL_TEXTURE_2D, matTex);
+    f->glTexImage2D(GL_TEXTURE_2D, 0, GL_R8UI, width, height, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, NULL);
+
+    f->glBindTexture(GL_TEXTURE_2D, depthTex);
+    f->glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    f->glBindTexture(GL_TEXTURE_2D, 0);
 
 }
 
@@ -146,20 +154,24 @@ Light* SceneRenderer::getLight() {
 
 void SceneRenderer::queryTime(int index)
 {
+    OpenGLFunctions *f = OpenGLFunctions::instance();
+
     if(useQueryB)
-        glQueryCounter(queryObjectsB[index], GL_TIMESTAMP);
+        f->glQueryCounter(queryObjectsB[index], GL_TIMESTAMP);
     else
-        glQueryCounter(queryObjectsA[index], GL_TIMESTAMP);
+        f->glQueryCounter(queryObjectsA[index], GL_TIMESTAMP);
 }
 
 void SceneRenderer::logTimes()
 {
+    OpenGLFunctions *f = OpenGLFunctions::instance();
+
     for (auto i = 0 ; i < NumQueries ; ++i ) {
         if(useQueryB) {
-            glGetQueryObjectui64v(queryObjectsA[i], GL_QUERY_RESULT , queryResultsA.data() + i);
+            f->glGetQueryObjectui64v(queryObjectsA[i], GL_QUERY_RESULT , queryResultsA.data() + i);
         }
         else if(frameCounter > 0){
-            glGetQueryObjectui64v(queryObjectsB[i], GL_QUERY_RESULT , queryResultsB.data() + i);
+            f->glGetQueryObjectui64v(queryObjectsB[i], GL_QUERY_RESULT , queryResultsB.data() + i);
         }
     }
     if(frameCounter % 33 == 0) {
@@ -173,13 +185,14 @@ void SceneRenderer::logTimes()
 }
 
 void SceneRenderer::drawScene(Scene *scene) {
+    OpenGLFunctions *f = OpenGLFunctions::instance();
 
     QOpenGLShaderProgram *activeProgram;
     UniformMode uniformMode;
     bool bufferUniformBlocks;
 
     GLint defaultFBO;
-    glGetIntegerv(GL_FRAMEBUFFER_BINDING_EXT, &defaultFBO);
+    f->glGetIntegerv(GL_FRAMEBUFFER_BINDING_EXT, &defaultFBO);
 
     if(mode == Phong) {
         activeProgram = phongProgram;
@@ -192,8 +205,8 @@ void SceneRenderer::drawScene(Scene *scene) {
         uniformMode = GeometryPassUniforms;
         bufferUniformBlocks = false;
 
-        glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        f->glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+        f->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 
     activeProgram->bind();
@@ -205,7 +218,7 @@ void SceneRenderer::drawScene(Scene *scene) {
 
     queryTime(1);
 
-    glBindFramebuffer(GL_FRAMEBUFFER, defaultFBO);
+    f->glBindFramebuffer(GL_FRAMEBUFFER, defaultFBO);
 
     if(mode != Phong) {
         deferredLightingPassProgram->bind();
@@ -215,9 +228,9 @@ void SceneRenderer::drawScene(Scene *scene) {
 
         scene->setUpUniforms(deferredLightingPassProgram, true);
 
-        glBindVertexArray(quadVAO);
-        glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);
+        f->glBindVertexArray(quadVAO);
+        f->glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_INT, 0);
+        f->glBindVertexArray(0);
 
     }
 
@@ -231,9 +244,11 @@ void SceneRenderer::drawScene(Scene *scene) {
 }
 
 void SceneRenderer::setUpUniforms(QOpenGLShaderProgram *prog,UniformMode uniformMode) {
-    QMatrix4x4 test;
-    prog->setUniformValue("modelMat", test);
-    prog->setUniformValue("normalMat", test.normalMatrix());
+    OpenGLFunctions *f = OpenGLFunctions::instance();
+
+    QMatrix4x4 idMat;
+    prog->setUniformValue("modelMat", idMat);
+    prog->setUniformValue("normalMat", idMat.normalMatrix());
     prog->setUniformValue("lightPos", light.lightPos);
     prog->setUniformValue("lightColor", light.lightCol);
     prog->setUniformValue("lightInt", light.lightInt);
@@ -246,16 +261,16 @@ void SceneRenderer::setUpUniforms(QOpenGLShaderProgram *prog,UniformMode uniform
 
 
         prog->setUniformValue("ntcTexture", 0);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, ntcTex);
+        f->glActiveTexture(GL_TEXTURE0);
+        f->glBindTexture(GL_TEXTURE_2D, ntcTex);
 
         prog->setUniformValue("materialTexture", 1);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, matTex);
+        f->glActiveTexture(GL_TEXTURE1);
+        f->glBindTexture(GL_TEXTURE_2D, matTex);
 
         prog->setUniformValue("depthTexture", 2);
-        glActiveTexture(GL_TEXTURE2);
-        glBindTexture(GL_TEXTURE_2D, depthTex);
+        f->glActiveTexture(GL_TEXTURE2);
+        f->glBindTexture(GL_TEXTURE_2D, depthTex);
 
         prog->setUniformValue("renderMode", int(mode));
         break;

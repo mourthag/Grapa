@@ -1,37 +1,42 @@
 #ifndef FORREST_H
 #define FORREST_H
 
-#include <QOpenGLFunctions_4_3_Core>
 
 #include "tree.h"
 #include "terrain.h"
+#include "forrestdata.h"
 
-class Forrest : QOpenGLFunctions_4_3_Core
+class Forrest
 {
 public:
     Forrest();
-    Forrest(int numberTrees, float maxHeight, float maxSlope, float minScale, float maxScale, Terrain* terrain);
 
     void setTree(Tree* tree);
     void draw(QOpenGLShaderProgram *treeProg);
 
+    void generateTreeData(Terrain *terrain);
+    void init();
+
+
     Tree* getTree();
     GLuint getTreeDataBuffer();
+    int getNumTrees() {
+        return parameters.numTrees;
+    }
+public slots:
 
-    int treeAmount;
+    void setData(ForrestData data, Terrain *terrain);
+
 private:
-    void generateTreeData(Terrain *terrain);
     bool isTreeValid(float x, float z, Terrain *terrain);
 
     std::vector<QVector4D> treeData;
     Tree* tree;
 
-    float maximumHeight;
-    float maximumSlope;
-    float minimumScale;
-    float maximumScale;
-
+    ForrestData parameters;
     GLuint treeDataBuffer;
+
+    bool isInited;
 };
 
 #endif // FORREST_H

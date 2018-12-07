@@ -3,6 +3,7 @@
 TerrainScene::TerrainScene() {
 }
 
+
 void TerrainScene::loadTerrain(QFile *pgmFile) {
     terrain.loadFromFile(pgmFile);
 }
@@ -49,6 +50,10 @@ void TerrainScene::drawTerrain(QOpenGLShaderProgram *terrainProg) {
     terrain.drawTerrain(terrainProg, camPos);
 }
 
+void TerrainScene::changeForrestParameter(ForrestData data) {
+    forrest.setData(data, &terrain);
+}
+
 void TerrainScene::loadTree(tinygltf::Model gltf_model) {
     model = gltf_model;
 
@@ -61,5 +66,5 @@ void TerrainScene::loadTree(tinygltf::Model gltf_model) {
 }
 
 void TerrainScene::setUpForrest() {
-    forrest = Forrest(100000, 20, 0.2, 2, 4, &terrain);
+    forrest.generateTreeData(&terrain);
 }

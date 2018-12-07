@@ -175,9 +175,14 @@ MainWindow::MainWindow(QWidget *parent)
     widget->setFormat(QSurfaceFormat::defaultFormat());
     setCentralWidget(widget);
 
-    QDockWidget *dockWidget = new QDockWidget(tr("Performance Log"), this);
-    dockWidget->setWidget(widget->getChartView());
-    addDockWidget(Qt::RightDockWidgetArea, dockWidget);
+    treeDataWidget = new TreeDockWidget();
+    QDockWidget *forrestDockWidget = new QDockWidget(tr("Forrest parameters"), this);
+    forrestDockWidget->setWidget(treeDataWidget);
+    addDockWidget(Qt::RightDockWidgetArea, forrestDockWidget);
+
+    QDockWidget *performanceDockWidget = new QDockWidget(tr("Performance Log"), this);
+    performanceDockWidget->setWidget(widget->getChartView());
+    addDockWidget(Qt::BottomDockWidgetArea, performanceDockWidget);
 
     //connect all the widget slots and signals for the interface
     connect(resetCameraAction, SIGNAL(triggered()), widget, SLOT(resetCamera()));
@@ -206,6 +211,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(playAnimationAction, SIGNAL(triggered(bool)), widget, SLOT(playAnimation()));
     connect(pauseAnimationAction, SIGNAL(triggered(bool)), widget, SLOT(pauseAnimation()));
+
+    connect(treeDataWidget, SIGNAL(dataChanged(ForrestData)), &widget->terrainScene, SLOT(changeForrestParameter(ForrestData)));
 
     widget->resetCamera();
     //adjust slider here to init correct value in widget

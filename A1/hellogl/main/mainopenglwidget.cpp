@@ -11,7 +11,7 @@ MainOpenGLWidget::MainOpenGLWidget(QWidget *parent) : QOpenGLWidget(parent)
     //update at ~60FPS
     QTimer *timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(update()));
-    timer->start(1000);
+    timer->start(16);
 
 
     //set up data and shading
@@ -22,14 +22,16 @@ MainOpenGLWidget::MainOpenGLWidget(QWidget *parent) : QOpenGLWidget(parent)
 MainOpenGLWidget::~MainOpenGLWidget() {
 }
 
+void MainOpenGLWidget::setForrestData(ForrestData data) {
+    terrainScene.changeForrestParameter(data);
+    update();
+}
+
 
 void MainOpenGLWidget::initializeGL() {
 
-    initializeOpenGLFunctions();
+    OpenGLFunctions::initGL();
 
-
-    makeCurrent();
-    terrainScene.initGL();
     makeCurrent();
     terrainRenderer.initGL();
     doneCurrent();
@@ -39,14 +41,16 @@ void MainOpenGLWidget::initializeGL() {
 
 void MainOpenGLWidget::paintGL()
 {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glEnable(GL_DEPTH_TEST);
+    OpenGLFunctions *f = OpenGLFunctions::instance();
+
+    f->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    f->glEnable(GL_DEPTH_TEST);
 
     if(isWireframe) {
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        f->glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     }
     else {
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        f->glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
 
     terrainRenderer.drawScene(&terrainScene);
@@ -55,8 +59,10 @@ void MainOpenGLWidget::paintGL()
 }
 
 void MainOpenGLWidget::resizeGL(int w, int h) {
+    OpenGLFunctions *f = OpenGLFunctions::instance();
+
     //update viewport
-    glViewport(0,0,w,h);
+    f->glViewport(0,0,w,h);
 
     makeCurrent();
     terrainRenderer.updateFramebuffeSize(w, h);

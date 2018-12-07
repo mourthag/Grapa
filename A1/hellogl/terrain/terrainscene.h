@@ -7,11 +7,14 @@
 #include "terrain.h"
 #include "forrest.h"
 #include "tree.h"
+#include "forrestdata.h"
 
 #include "tiny_gltf.h"
 
 class TerrainScene : public Scene
 {
+    Q_OBJECT
+
 public:
     TerrainScene();
 
@@ -32,6 +35,9 @@ public:
     Terrain terrain;
     Forrest forrest;
     Tree tree;
+
+public slots:
+    void changeForrestParameter(ForrestData data);
 
 };
 

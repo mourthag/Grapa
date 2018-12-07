@@ -4,14 +4,15 @@
 #include <QOpenGLWidget>
 #include <QWheelEvent>
 #include <QMouseEvent>
-#include <QOpenGLFunctions_4_3_Core>
 #include <QOpenGLShaderProgram>
 #include <QMatrix4x4>
 #include <QQuaternion>
 #include <QTimer>
 
-#include "scenegraph/scenerenderer.h"
 #include "util/performancechart.h"
+#include "util/openglfunctions.h"
+
+#include "scenegraph/scenerenderer.h"
 #include "scenegraph/scene.h"
 
 #include "terrain/terrainscene.h"
@@ -20,7 +21,7 @@
 #define TINYGLTF_NO_STB_IMAGE_WRITE
 #include <tiny_gltf.h>
 
-class MainOpenGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_4_3_Core
+class MainOpenGLWidget : public QOpenGLWidget
 {
     Q_OBJECT
 
@@ -28,6 +29,9 @@ public:
     MainOpenGLWidget(QWidget *parent = 0);
     ~MainOpenGLWidget();
 
+    QChartView* getChartView();
+    TerrainScene terrainScene;
+    TerrainSceneRenderer terrainRenderer;
 
 public slots:
     void resetCamera();
@@ -48,8 +52,9 @@ public slots:
     void pauseAnimation();
     void loadModel(tinygltf::Model *gltf_model);
     void loadTerrain(QFile *pgmFile);
+    void setForrestData(ForrestData data);
 
-    QChartView* getChartView();
+
 
 signals:
     void cameraUpdated(QMatrix4x4 viewMat);
@@ -68,8 +73,6 @@ private:
     //Scene scene;
     //SceneRenderer renderer;
 
-    TerrainScene terrainScene;
-    TerrainSceneRenderer terrainRenderer;
 
     int width;
     int height;

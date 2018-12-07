@@ -26,11 +26,6 @@ void Scene::clear() {
     animations.clear();
 }
 
-void Scene::initGL(){
-
-  initializeOpenGLFunctions();
-}
-
 void Scene::setAnimationPlay(bool play) {
     animationPlaying = play;
     if(play) {
@@ -56,28 +51,29 @@ Camera* Scene::getCamera() {
 void Scene::loadTextures() {
     int texCount = model.textures.size();
     if(texCount > 0) {
+        OpenGLFunctions *f = OpenGLFunctions::instance();
 
         tinygltf::Texture firstTex = model.textures[0];
         tinygltf::Sampler firstSampler = model.samplers[firstTex.sampler];
         tinygltf::Image firstImg =  model.images[firstTex.source];
 
-        glActiveTexture(GL_TEXTURE3);
-        glGenTextures(1, &textures);
-        glBindTexture(GL_TEXTURE_2D_ARRAY, textures);
+        f->glActiveTexture(GL_TEXTURE3);
+        f->glGenTextures(1, &textures);
+        f->glBindTexture(GL_TEXTURE_2D_ARRAY, textures);
 
         //texcount + 1 for the fallback texture in white
-        glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA8, firstImg.width, firstImg.height, texCount+ 1,
+        f->glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA8, firstImg.width, firstImg.height, texCount+ 1,
                      0,
                      GL_RGBA,
                      GL_UNSIGNED_BYTE,
                      0
                      );
-        glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
+        f->glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
 
-        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, firstSampler.magFilter);
-        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, firstSampler.minFilter);
-        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, firstSampler.wrapS);
-        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, firstSampler.wrapT);
+        f->glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, firstSampler.magFilter);
+        f->glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, firstSampler.minFilter);
+        f->glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, firstSampler.wrapS);
+        f->glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, firstSampler.wrapT);
 
 
 
@@ -91,7 +87,7 @@ void Scene::loadTextures() {
                 fallBackTexData.push_back(255);
             }
         }
-        glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 0, firstImg.width, firstImg.height, 1, GL_RGBA, GL_UNSIGNED_BYTE, &fallBackTexData[0]);
+        f->glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 0, firstImg.width, firstImg.height, 1, GL_RGBA, GL_UNSIGNED_BYTE, &fallBackTexData[0]);
 
         for(int texture=0; texture < texCount; texture++) {
 
@@ -104,10 +100,10 @@ void Scene::loadTextures() {
 
             tinygltf::Image img =  model.images[tex.source];
 
-            glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, texture+1, img.width, img.height, 1, GL_RGBA, GL_UNSIGNED_BYTE, &img.image[0]);
+            f->glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, texture+1, img.width, img.height, 1, GL_RGBA, GL_UNSIGNED_BYTE, &img.image[0]);
         }
-        glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
-        glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+        f->glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
+        f->glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 
     }
 }
@@ -160,11 +156,12 @@ void Scene::loadMaterials() {
         Material mat;
         materials.push_back(mat);
     }
+    OpenGLFunctions *f = OpenGLFunctions::instance();
 
-    glGenBuffers(1, &materialBuffer);
-    glBindBuffer(GL_UNIFORM_BUFFER, materialBuffer);
+    f->glGenBuffers(1, &materialBuffer);
+    f->glBindBuffer(GL_UNIFORM_BUFFER, materialBuffer);
     //64 is size of struct in std140 -> size on GPU
-    glBufferData(GL_UNIFORM_BUFFER, 256 * 48, &materials.at(0), GL_STATIC_DRAW);
+    f->glBufferData(GL_UNIFORM_BUFFER, 256 * 48, &materials.at(0), GL_STATIC_DRAW);
 
 
 }
@@ -219,17 +216,18 @@ Node* Scene::findNode(int nodeIndex) {
 void Scene::setUpUniforms(QOpenGLShaderProgram *prog, bool bufferUniformBlocks)
 {
     if(materials.size() > 0) {
+        OpenGLFunctions *f = OpenGLFunctions::instance();
 
         if(bufferUniformBlocks) {
 
-            GLuint uniformIndex = glGetUniformBlockIndex(prog->programId(), "MaterialBlock");
-            glUniformBlockBinding(1, uniformIndex,0);
-            glBindBufferBase(GL_UNIFORM_BUFFER, 0, materialBuffer);
+            GLuint uniformIndex = f->glGetUniformBlockIndex(prog->programId(), "MaterialBlock");
+            f->glUniformBlockBinding(1, uniformIndex,0);
+            f->glBindBufferBase(GL_UNIFORM_BUFFER, 0, materialBuffer);
         }
 
         prog->setUniformValue("matTextures", 3);
-        glActiveTexture(GL_TEXTURE3);
-        glBindTexture(GL_TEXTURE_2D_ARRAY, textures);
+        f->glActiveTexture(GL_TEXTURE3);
+        f->glBindTexture(GL_TEXTURE_2D_ARRAY, textures);
     }
 
     prog->setUniformValue("viewMat", camera.viewMatrix());
