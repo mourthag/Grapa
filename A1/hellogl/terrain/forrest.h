@@ -20,8 +20,16 @@ public:
 
     Tree* getTree();
     GLuint getTreeDataBuffer();
+
     int getNumTrees() {
         return parameters.numTrees;
+    }
+
+    int getMaxGeometryDistance() {
+        return parameters.maxGeometryDistance;
+    }
+    int getMaxImpostorDistance() {
+        return parameters.maxImpostorDistance;
     }
 public slots:
 

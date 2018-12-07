@@ -2,6 +2,7 @@
 #define TREEDOCKWIDGET_H
 
 #include <QWidget>
+#include <QLabel>
 #include <QSlider>
 #include <QBoxLayout>
 #include <QGroupBox>

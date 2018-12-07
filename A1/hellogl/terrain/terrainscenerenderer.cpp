@@ -50,13 +50,47 @@ void TerrainSceneRenderer::setUpTreeBuffers()
     f->glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, indexBuffer);
 }
 
+void TerrainSceneRenderer::createImpostorObjects()
+{
+    OpenGLFunctions *f = OpenGLFunctions::instance();
+
+    f->glGenFramebuffers(1, &impostorFBO);
+    f->glBindFramebuffer(GL_FRAMEBUFFER, impostorFBO);
+
+    f->glGenTextures(1, &impostorTex);
+    f->glBindTexture(GL_TEXTURE_2D_ARRAY, impostorTex);
+    f->glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    f->glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    f->glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    f->glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    f->glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA8,
+                    640, 640, numImpostorImages,
+                    0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+    f->glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    f->glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+}
+
 void TerrainSceneRenderer::initGL() {
 
     SceneRenderer::init();
+
+    OpenGLFunctions *f = OpenGLFunctions::instance();
+
+
+
     loadShader();
 
     setUpTreeBuffers();
+    createImpostorObjects();
 
+    f->glBindFramebuffer(GL_FRAMEBUFFER, impostorFBO);
+    f->glBindTexture(GL_TEXTURE_2D_ARRAY, impostorTex);
+    phongProgram->bind();
+    for(int i = 0; i < numImpostorImages; i++) {
+        f->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        f->glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_ARRAY, impostorTex, i);
+
+    }
 }
 
 void TerrainSceneRenderer::drawScene(TerrainScene *scene) {
@@ -79,8 +113,7 @@ void TerrainSceneRenderer::drawScene(TerrainScene *scene) {
 
     treeDataProgram->bind();
     std::vector<GLuint> vertexCounts = scene->tree.getVertexCounts(20);
-
-    treeDataProgram->setUniformValue("maxGeomTreeDistance", (GLfloat) 100.0);
+    treeDataProgram->setUniformValue("maxGeomTreeDistance", (GLfloat) scene->forrest.getMaxGeometryDistance());
     GLint arrayLoc = treeDataProgram->uniformLocation("vertexCount");
     f->glUniform1uiv(arrayLoc, 20,  reinterpret_cast<GLuint *>(&vertexCounts.at(0)));
 
@@ -97,6 +130,7 @@ void TerrainSceneRenderer::drawScene(TerrainScene *scene) {
     setUpUniforms(terrainProgram, PhongUniforms);
     scene->drawTerrain(terrainProgram);
     queryTime(1);
+
     treeProgram->bind();
     setUpUniforms(treeProgram, PhongUniforms);
     QMatrix4x4 test;
@@ -127,6 +161,7 @@ void TerrainSceneRenderer::drawScene(TerrainScene *scene) {
 
     queryTime(2);
 
+    logTimes();
 
     useQueryB = !useQueryB;
     frameCounter++;

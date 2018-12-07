@@ -5,9 +5,14 @@ void TreeDockWidget::createLODGroup()
     lodGroup = new QGroupBox(tr("Level of Detial"));
 
     QVBoxLayout *lodLayout = new QVBoxLayout;
+    lodLayout->addWidget(new QLabel(tr("Max distance full geometry")));
+
     maxGeometryDistanceSlider = new QSlider(Qt::Horizontal);
     maxGeometryDistanceSlider->setRange(0, 10000);
     lodLayout->addWidget(maxGeometryDistanceSlider);
+
+    lodLayout->addWidget(new QLabel(tr("Max distance impostor")));
+
     maxImpostorDistanceSlider = new QSlider(Qt::Horizontal);
     maxImpostorDistanceSlider->setRange(0, 10000);
     lodLayout->addWidget(maxImpostorDistanceSlider);
@@ -20,6 +25,8 @@ void TreeDockWidget::createTreesGroup()
     treeGroup = new QGroupBox(tr("Trees"));
 
     QVBoxLayout *treeLayout = new QVBoxLayout;
+    treeLayout->addWidget(new QLabel(tr("Number of trees")));
+
     numTreesSlider = new QSlider(Qt::Horizontal);
     numTreesSlider->setRange(1, 1000000);
 

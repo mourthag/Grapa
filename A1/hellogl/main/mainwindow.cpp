@@ -212,7 +212,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(playAnimationAction, SIGNAL(triggered(bool)), widget, SLOT(playAnimation()));
     connect(pauseAnimationAction, SIGNAL(triggered(bool)), widget, SLOT(pauseAnimation()));
 
-    connect(treeDataWidget, SIGNAL(dataChanged(ForrestData)), &widget->terrainScene, SLOT(changeForrestParameter(ForrestData)));
+    connect(treeDataWidget, SIGNAL(dataChanged(ForrestData)), widget, SLOT(setForrestData(ForrestData)));
 
     widget->resetCamera();
     //adjust slider here to init correct value in widget

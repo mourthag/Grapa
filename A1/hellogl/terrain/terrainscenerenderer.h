@@ -13,6 +13,10 @@ public:
     void drawScene(TerrainScene *scene);
 
 private:
+    GLuint impostorFBO;
+    GLuint impostorTex;
+    int numImpostorImages;
+
     GLuint treeDataImpostorBuffer;
     GLuint treeDataGeometryBuffer;
     GLuint drawCommandBuffer;
@@ -22,6 +26,7 @@ private:
     QOpenGLShaderProgram *treeProgram;
     void loadShader();
     void setUpTreeBuffers();
+    void createImpostorObjects();
 };
 
 #endif // TERRAINSCENERENDERER_H
