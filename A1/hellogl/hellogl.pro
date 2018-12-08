@@ -83,7 +83,9 @@ DISTFILES += \
     shader/terrain/terraintesselationevalshader.tes \
     shader/terrain/treefragshader.frag \
     shader/terrain/treevertshader.vert \
-    shader/terrain/treecompshader.comp
+    shader/terrain/treecompshader.comp \
+    shader/terrain/treeimpostorfragshader.frag \
+    shader/terrain/treeimpostorvertshader.vert
 
 RESOURCES += \
     hellogl.qrc

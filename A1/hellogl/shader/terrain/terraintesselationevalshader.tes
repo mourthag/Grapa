@@ -18,7 +18,7 @@ uniform float widthScaling;
 uniform float heightMapSize;
 
 vec3 calculatePos(vec2 xzCoord) {
-    vec2 texCoord = xzCoord/2000.0;
+    vec2 texCoord = xzCoord/4096.0;
     float height = float(textureLod( heightMap, texCoord,  maxLogTessLevel - logTessLevel).r) * heightScaling;
     vec3 result = vec3(xzCoord.x, height, xzCoord.y);
     return result;

@@ -25,6 +25,7 @@ private:
     QOpenGLShaderProgram *terrainProgram;
     QOpenGLShaderProgram *treeDataProgram;
     QOpenGLShaderProgram *treeProgram;
+    QOpenGLShaderProgram *treeImpostorProgram;
     void loadShader();
     void setUpTreeBuffers();
     void createImpostorObjects();

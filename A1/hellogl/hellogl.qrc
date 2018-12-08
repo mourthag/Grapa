@@ -21,5 +21,7 @@
         <file>shader/default/phongfragshader.frag</file>
         <file>shader/default/phongvertshader.vert</file>
         <file>shader/terrain/treecompshader.comp</file>
+        <file>shader/terrain/treeimpostorfragshader.frag</file>
+        <file>shader/terrain/treeimpostorvertshader.vert</file>
     </qresource>
 </RCC>

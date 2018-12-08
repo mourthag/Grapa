@@ -4,7 +4,7 @@ static const GLfloat quad_UV[] = {
     0.0, 0.0,
     1.0, 0.0,
     0.0, 1.0,
-    1.0, 1.1
+    1.0, 1.0
 };
 
 static const GLuint quad_Ind[] = {

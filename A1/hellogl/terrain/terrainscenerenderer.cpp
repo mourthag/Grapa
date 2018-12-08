@@ -1,4 +1,10 @@
 #include "terrainscenerenderer.h"
+static const GLfloat quad_UV[] = {
+    0.0, 0.0,
+    1.0, 0.0,
+    0.0, 1.0,
+    1.0, 1.0
+};
 
 TerrainSceneRenderer::TerrainSceneRenderer() {
     numImpostorImages = 2;
@@ -22,6 +28,11 @@ void TerrainSceneRenderer::loadShader()
     treeProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shader/terrain/treevertshader.vert");
     treeProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shader/terrain/treefragshader.frag");
     treeProgram->link();
+
+    treeImpostorProgram = new QOpenGLShaderProgram();
+    treeImpostorProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shader/terrain/treeimpostorvertshader.vert");
+    treeImpostorProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shader/terrain/treeimpostorfragshader.frag");
+    treeImpostorProgram->link();
 }
 
 void TerrainSceneRenderer::setUpTreeBuffers()
@@ -74,7 +85,7 @@ void TerrainSceneRenderer::createImpostorObjects()
     GLenum DrawBuffers[2];
     for (int i = 0; i < numImpostorImages; ++i) {
             DrawBuffers[i] = GL_COLOR_ATTACHMENT0 + i; //Sets appropriate indices for each color buffer
-    f->glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+i, impostorTex, 0, i);
+            //f->glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+i, impostorTex, 0, i);
     }
 
     f->glDrawBuffers(numImpostorImages, DrawBuffers);
@@ -156,6 +167,7 @@ void TerrainSceneRenderer::drawScene(TerrainScene *scene) {
     treeDataProgram->bind();
     std::vector<GLuint> vertexCounts = scene->tree.getVertexCounts(20);
     treeDataProgram->setUniformValue("maxGeomTreeDistance", (GLfloat) scene->forrest.getMaxGeometryDistance());
+    treeDataProgram->setUniformValue("maxImpostorTreeDistance", (GLfloat) scene->forrest.getMaxImpostorDistance());
     GLint arrayLoc = treeDataProgram->uniformLocation("vertexCount");
     f->glUniform1uiv(arrayLoc, 20,  reinterpret_cast<GLuint *>(&vertexCounts.at(0)));
 
@@ -202,6 +214,21 @@ void TerrainSceneRenderer::drawScene(TerrainScene *scene) {
     }
 
     queryTime(2);
+
+    treeImpostorProgram->bind();
+    scene->setUpUniforms(treeImpostorProgram, false);
+    scene->setUpCameraUniforms(treeImpostorProgram);
+    scene->terrain.setHeightMapUniform(treeImpostorProgram);
+    f->glBindVertexArray(quadVAO);
+    f->glBindBuffer(GL_DRAW_INDIRECT_BUFFER, drawCommandBuffer);
+
+    f->glBindBuffer(GL_ARRAY_BUFFER, treeDataImpostorBuffer);
+    f->glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 0, 0);
+    f->glEnableVertexAttribArray(4);
+    f->glVertexAttribDivisor(4, 1);
+
+    f->glDrawElementsIndirect(GL_TRIANGLE_STRIP, GL_UNSIGNED_INT, (void*)0);
+    f->glBindVertexArray(0);
 
     logTimes();
 
