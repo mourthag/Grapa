@@ -20,6 +20,12 @@ public:
 
     void clear();
     void drawModel(QOpenGLShaderProgram *program);
+    QVector3D getBoundingBoxMinimum() {
+        return bbMin;
+    }
+    QVector3D getBoundingBoxMaximum() {
+        return bbMax;
+    }
 
     GLuint vao;
 
@@ -39,6 +45,9 @@ private:
     GLuint vbo;
     GLuint nbo;
     GLuint tcbo;
+
+    QVector3D bbMin;
+    QVector3D bbMax;
 
 
 };

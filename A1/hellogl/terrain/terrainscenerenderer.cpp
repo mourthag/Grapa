@@ -1,6 +1,7 @@
 #include "terrainscenerenderer.h"
 
 TerrainSceneRenderer::TerrainSceneRenderer() {
+    numImpostorImages = 2;
 
 }
 
@@ -66,6 +67,22 @@ void TerrainSceneRenderer::createImpostorObjects()
     f->glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA8,
                     640, 640, numImpostorImages,
                     0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+
+
+    f->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTex, 0);
+
+    GLenum DrawBuffers[2];
+    for (int i = 0; i < numImpostorImages; ++i) {
+            DrawBuffers[i] = GL_COLOR_ATTACHMENT0 + i; //Sets appropriate indices for each color buffer
+    f->glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+i, impostorTex, 0, i);
+    }
+
+    f->glDrawBuffers(numImpostorImages, DrawBuffers);
+
+    GLenum fbo_complete = f->glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    if(fbo_complete != GL_FRAMEBUFFER_COMPLETE)
+        qDebug() << "Framebuffer incomplete!";
+
     f->glBindFramebuffer(GL_FRAMEBUFFER, 0);
     f->glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 }
@@ -76,20 +93,45 @@ void TerrainSceneRenderer::initGL() {
 
     OpenGLFunctions *f = OpenGLFunctions::instance();
 
-
-
     loadShader();
 
     setUpTreeBuffers();
     createImpostorObjects();
 
+}
+
+void TerrainSceneRenderer::createImpostorTex(TerrainScene *scene) {
+
+    Tree *tree = scene->forrest.getTree();
+    OpenGLFunctions *f = OpenGLFunctions::instance();
+
     f->glBindFramebuffer(GL_FRAMEBUFFER, impostorFBO);
     f->glBindTexture(GL_TEXTURE_2D_ARRAY, impostorTex);
     phongProgram->bind();
+    QMatrix4x4 projMatrix;
+    QVector3D min;
+    QVector3D max;
+    QMatrix4x4 idMat;
+    QMatrix4x4 rotMat;
+    rotMat.rotate(-90, 1, 0, 0);
+    projMatrix.ortho(min.x(), max.x(), min.y(), max.y(), min.z(), max.z());
+    phongProgram->setUniformValue("projMatrix", projMatrix);
+    phongProgram->setUniformValue("modelMat", rotMat);
+    phongProgram->setUniformValue("normalMat", rotMat.normalMatrix());
+    phongProgram->setUniformValue("viewMat", idMat);
+    phongProgram->setUniformValue("lightPos", QVector3D(0,0,-1));
+    phongProgram->setUniformValue("lightColor", QVector3D(1,1,1));
+    phongProgram->setUniformValue("lightInt", (GLfloat) 1.0);
     for(int i = 0; i < numImpostorImages; i++) {
         f->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        f->glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_ARRAY, impostorTex, i);
+        //f->glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+i, GL_TEXTURE_2D_ARRAY, impostorTex, i);
+        for(int i =0; i< tree->meshes.size(); i++) {
 
+            f->glBindVertexArray(tree->meshes[i]->vao);
+            phongProgram->setUniformValue("materialIndex", tree->meshes[i]->materialIndex);
+            f->glDrawElements(GL_TRIANGLES, scene->forrest.getTree()->meshes[i]->num_verts, scene->forrest.getTree()->meshes[i]->index_type, (void*) scene->forrest.getTree()->meshes[i]->index_offset);
+            f->glBindVertexArray(0);
+        }
     }
 }
 
@@ -103,13 +145,13 @@ void TerrainSceneRenderer::drawScene(TerrainScene *scene) {
     f->glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, scene->forrest.getTreeDataBuffer());
 
     f->glBindBuffer(GL_SHADER_STORAGE_BUFFER, treeDataGeometryBuffer);
-    f->glBufferData(GL_SHADER_STORAGE_BUFFER, 4000000 * sizeof(GLfloat), NULL, GL_STATIC_DRAW);
+    f->glBufferData(GL_SHADER_STORAGE_BUFFER, scene->forrest.getNumTrees() * 4 * sizeof(GLfloat), NULL, GL_STATIC_DRAW);
 
     f->glBindBuffer(GL_SHADER_STORAGE_BUFFER, treeDataImpostorBuffer);
-    f->glBufferData(GL_SHADER_STORAGE_BUFFER, 4000000 * sizeof(GLfloat), NULL, GL_STATIC_DRAW);
+    f->glBufferData(GL_SHADER_STORAGE_BUFFER, scene->forrest.getNumTrees() * 4 * sizeof(GLfloat), NULL, GL_STATIC_DRAW);
 
     f->glBindBuffer(GL_SHADER_STORAGE_BUFFER, drawCommandBuffer);
-    f->glBufferData(GL_SHADER_STORAGE_BUFFER, 4000000 * sizeof(GLfloat), NULL, GL_STATIC_DRAW);
+    f->glBufferData(GL_SHADER_STORAGE_BUFFER, 1000 * sizeof(GLfloat), NULL, GL_STATIC_DRAW);
 
     treeDataProgram->bind();
     std::vector<GLuint> vertexCounts = scene->tree.getVertexCounts(20);

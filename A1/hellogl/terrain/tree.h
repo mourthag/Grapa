@@ -17,6 +17,9 @@ public:
 
     std::vector<OpenGLModel*> meshes;
 
+
+    QVector3D boundingBoxMin;
+    QVector3D boundingBoxMax;
 };
 
 #endif // TREE_H

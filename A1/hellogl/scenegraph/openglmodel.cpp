@@ -48,6 +48,8 @@ void OpenGLModel::loadGLTFAttribute(std::string name, tinygltf::Model *model, in
 
     tinygltf::Primitive prim = model->meshes[mesh].primitives[primitive];
 
+
+
     if(prim.attributes.find(name) == prim.attributes.end())
         return;
 
@@ -56,7 +58,14 @@ void OpenGLModel::loadGLTFAttribute(std::string name, tinygltf::Model *model, in
     tinygltf::Accessor accessor = model->accessors[attributeID];
     tinygltf::BufferView bufferView = model->bufferViews[accessor.bufferView];
     tinygltf::Buffer buffer = model->buffers[bufferView.buffer];
-
+    if(name == "POSITION") {
+        bbMin.setX(accessor.minValues.at(0));
+        bbMin.setY(accessor.minValues.at(1));
+        bbMin.setZ(accessor.minValues.at(2));
+        bbMax.setX(accessor.maxValues.at(0));
+        bbMax.setY(accessor.maxValues.at(1));
+        bbMax.setZ(accessor.maxValues.at(2));
+    }
     int size = accessor.type;
 
     OpenGLFunctions *f = OpenGLFunctions::instance();

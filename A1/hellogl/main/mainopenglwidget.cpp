@@ -326,6 +326,7 @@ void MainOpenGLWidget::loadModel(tinygltf::Model* gltf_model) {
     makeCurrent();
     terrainScene.setUpForrest();
     terrainScene.loadTree(*gltf_model);
+    terrainRenderer.createImpostorTex(&terrainScene);
     doneCurrent();
 
     update();

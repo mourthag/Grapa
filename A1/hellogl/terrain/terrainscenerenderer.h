@@ -11,6 +11,7 @@ public:
 
     void initGL();
     void drawScene(TerrainScene *scene);
+    void createImpostorTex(TerrainScene *scene);
 
 private:
     GLuint impostorFBO;

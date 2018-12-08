@@ -39,6 +39,7 @@ void Forrest::draw(QOpenGLShaderProgram *treeProg) {
     QMatrix4x4 rotMat;
     rotMat.rotate(-90, 1, 0, 0);
     treeProg->setUniformValue("modelMat", rotMat);
+    treeProg->setUniformValue("normalMat", rotMat.normalMatrix());
 
     for(int i=0; i < tree->meshes.size(); i++) {
         f->glBindVertexArray(tree->meshes[i]->vao);

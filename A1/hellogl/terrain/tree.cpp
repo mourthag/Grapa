@@ -13,7 +13,14 @@ void Tree::loadTree(tinygltf::Model *gltf_model, int meshIndex) {
         oglModel = new OpenGLModel();
         oglModel->loadGLTF(gltf_model, meshIndex, i, false);
         meshes.push_back(oglModel);
+        boundingBoxMin.setX(std::min(boundingBoxMin.x(), oglModel->getBoundingBoxMinimum().x()));
+        boundingBoxMin.setY(std::min(boundingBoxMin.y(), oglModel->getBoundingBoxMinimum().y()));
+        boundingBoxMin.setZ(std::min(boundingBoxMin.z(), oglModel->getBoundingBoxMinimum().z()));
+        boundingBoxMax.setX(std::max(boundingBoxMax.x(), oglModel->getBoundingBoxMaximum().x()));
+        boundingBoxMax.setY(std::max(boundingBoxMax.y(), oglModel->getBoundingBoxMaximum().y()));
+        boundingBoxMax.setZ(std::max(boundingBoxMax.z(), oglModel->getBoundingBoxMaximum().z()));
     }
+    qDebug() << boundingBoxMax << boundingBoxMin;
 }
 
 std::vector<GLuint> Tree::getVertexCounts(GLuint minSize) {
