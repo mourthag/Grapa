@@ -164,6 +164,7 @@ void TerrainSceneRenderer::drawScene(TerrainScene *scene) {
     f->glBindBuffer(GL_SHADER_STORAGE_BUFFER, drawCommandBuffer);
     f->glBufferData(GL_SHADER_STORAGE_BUFFER, 1000 * sizeof(GLfloat), NULL, GL_STATIC_DRAW);
 
+    queryTime(0);
     treeDataProgram->bind();
     std::vector<GLuint> vertexCounts = scene->tree.getVertexCounts(20);
     treeDataProgram->setUniformValue("maxGeomTreeDistance", (GLfloat) scene->forrest.getMaxGeometryDistance());
@@ -178,12 +179,12 @@ void TerrainSceneRenderer::drawScene(TerrainScene *scene) {
     f->glDispatchCompute(numInvocations, 1, 1);
     f->glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
-    queryTime(0);
+    queryTime(1);
     terrainProgram->bind();
     terrainProgram->setUniformValue("tessLevel", tesselation);
     setUpUniforms(terrainProgram, PhongUniforms);
     scene->drawTerrain(terrainProgram);
-    queryTime(1);
+    queryTime(2);
 
     treeProgram->bind();
     setUpUniforms(treeProgram, PhongUniforms);
@@ -213,7 +214,7 @@ void TerrainSceneRenderer::drawScene(TerrainScene *scene) {
         f->glBindVertexArray(0);
     }
 
-    queryTime(2);
+    queryTime(3);
 
     treeImpostorProgram->bind();
     scene->setUpUniforms(treeImpostorProgram, false);
@@ -229,6 +230,8 @@ void TerrainSceneRenderer::drawScene(TerrainScene *scene) {
 
     f->glDrawElementsIndirect(GL_TRIANGLE_STRIP, GL_UNSIGNED_INT, (void*)0);
     f->glBindVertexArray(0);
+    queryTime(4);
+    queryTime(5);
 
     logTimes();
 

@@ -62,7 +62,7 @@ protected:
 
     PerformanceChart *performanceLogger;
     long frameCounter;
-    static const auto NumQueries = 3;
+    static const auto NumQueries = 6;
     bool useQueryB;
     std::vector<GLuint> queryObjectsA;
     std::vector<GLuint64> queryResultsA;

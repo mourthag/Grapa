@@ -23,6 +23,12 @@ SceneRenderer::SceneRenderer()
 
     useQueryB = false;
     performanceLogger = new PerformanceChart();
+    performanceLogger->addSeries(NumQueries-1);
+    performanceLogger->setName(0, "Compute LOD");
+    performanceLogger->setName(1, "Terrain");
+    performanceLogger->setName(2, "Tree Geometry");
+    performanceLogger->setName(3, "Tree Impostor");
+    performanceLogger->setName(4, "Skybox");
 
     queryObjectsA = std::vector<GLuint>(NumQueries);
     queryObjectsB = std::vector<GLuint>(NumQueries);
@@ -173,14 +179,9 @@ void SceneRenderer::logTimes()
         else if(frameCounter > 0){
             f->glGetQueryObjectui64v(queryObjectsB[i], GL_QUERY_RESULT , queryResultsB.data() + i);
         }
-    }
-    if(frameCounter % 33 == 0) {
-
-        if(useQueryB)
-            performanceLogger->addData(frameCounter, queryResultsA[1] - queryResultsA[0], queryResultsA[2] - queryResultsA[1]);
-        else
-            performanceLogger->addData(frameCounter, queryResultsB[1] - queryResultsB[0], queryResultsB[2] - queryResultsB[1] );
-
+        if(i != 0 & frameCounter % 33 == 0) {
+            performanceLogger->addData(frameCounter, queryResultsA[i] - queryResultsA[i-1], i-1);
+        }
     }
 }
 
