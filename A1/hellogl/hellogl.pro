@@ -85,7 +85,9 @@ DISTFILES += \
     shader/terrain/treevertshader.vert \
     shader/terrain/treecompshader.comp \
     shader/terrain/treeimpostorfragshader.frag \
-    shader/terrain/treeimpostorvertshader.vert
+    shader/terrain/treeimpostorvertshader.vert \
+    shader/skybox/skyboxfragshader.frag \
+    shader/skybox/skyboxvertshader.vert
 
 RESOURCES += \
     hellogl.qrc

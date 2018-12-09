@@ -19,6 +19,7 @@ public slots:
     void updateStatusBar(QMatrix4x4 viewMat);
     void loadModel();
     void loadTerrain();
+    void loadSkybox();
     void updateLightPos();
     void updateLightCol();
 

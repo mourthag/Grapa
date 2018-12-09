@@ -23,5 +23,7 @@
         <file>shader/terrain/treecompshader.comp</file>
         <file>shader/terrain/treeimpostorfragshader.frag</file>
         <file>shader/terrain/treeimpostorvertshader.vert</file>
+        <file>shader/skybox/skyboxfragshader.frag</file>
+        <file>shader/skybox/skyboxvertshader.vert</file>
     </qresource>
 </RCC>

@@ -18,11 +18,14 @@ MainWindow::MainWindow(QWidget *parent)
 
     QMenu *fileMenu = menuBar->addMenu("&File");
 
-    QAction *openModelAction = fileMenu->addAction("&Open model...");
+    QAction *openModelAction = fileMenu->addAction("&Open Model...");
     connect(openModelAction, SIGNAL(triggered(bool)), this, SLOT(loadModel()));
 
     QAction *openTerrainAction = fileMenu->addAction("Open Terrain...");
     connect(openTerrainAction, SIGNAL(triggered(bool)), this, SLOT(loadTerrain()));
+
+    QAction *openSkyboxAction = fileMenu->addAction("Open Skybox...");
+    connect(openSkyboxAction, SIGNAL(triggered(bool)), this, SLOT(loadSkybox()));
 
     QAction *exitAction = fileMenu->addAction("E&xit");
     exitAction->setShortcut(QKeySequence("Ctrl+q"));
@@ -289,11 +292,20 @@ void MainWindow::loadModel() {
 
 void MainWindow::loadTerrain() {
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open Terrain"), "",
-                                                    tr("Models (*.pgm);;All files(*)"));
+                                                    tr("Terrains (*.pgm);;All files(*)"));
     if(fileName.isEmpty() || fileName.isNull())
         return;
 
     QFile pgmFile(fileName);
     //load terrain
     widget->loadTerrain(&pgmFile);
+}
+
+void MainWindow::loadSkybox() {
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open Skybox"), "",
+                                                    tr("Texture (*.jpg);;All files(*)"));
+    if(fileName.isEmpty() || fileName.isNull())
+        return;
+    QFile file(fileName);
+    widget->loadSkybox(file.fileName().section("/",0,-2));
 }

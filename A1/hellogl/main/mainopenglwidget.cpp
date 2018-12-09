@@ -322,11 +322,14 @@ QChartView* MainOpenGLWidget::getChartView() {
 
 void MainOpenGLWidget::loadModel(tinygltf::Model* gltf_model) {
 
-
+    makeCurrent();
+    terrainRenderer.createImpostorObjects();
     makeCurrent();
     terrainScene.setUpForrest();
+    makeCurrent();
     terrainScene.loadTree(*gltf_model);
-    terrainRenderer.createImpostorTex(&terrainScene);
+    makeCurrent();
+    terrainRenderer.createImpostorTex(&terrainScene, context());
     doneCurrent();
 
     update();
@@ -338,6 +341,12 @@ void MainOpenGLWidget::loadTerrain(QFile *pgmFile) {
 
     makeCurrent();
     terrainScene.loadTerrain(pgmFile);
+    doneCurrent();
+}
+
+void MainOpenGLWidget::loadSkybox(QString dir) {
+    makeCurrent();
+    terrainRenderer.loadSkybox(dir);
     doneCurrent();
 }
 
