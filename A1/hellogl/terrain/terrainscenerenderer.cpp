@@ -263,31 +263,29 @@ void TerrainSceneRenderer::loadSkybox(QString dir) {
     f->glBindTexture(GL_TEXTURE_CUBE_MAP,0);
 }
 
-void TerrainSceneRenderer::drawScene(TerrainScene *scene) {
-
-    OpenGLFunctions *f = OpenGLFunctions::instance();
-
-    if(!scene->wasLoaded)
-        return;
-
-    f->glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, scene->forrest.getTreeDataBuffer());
-
-    f->glBindBuffer(GL_SHADER_STORAGE_BUFFER, treeDataGeometryBuffer);
-    f->glBufferData(GL_SHADER_STORAGE_BUFFER, scene->forrest.getNumTrees() * 4 * sizeof(GLfloat), NULL, GL_STATIC_DRAW);
-
-    f->glBindBuffer(GL_SHADER_STORAGE_BUFFER, treeDataImpostorBuffer);
-    f->glBufferData(GL_SHADER_STORAGE_BUFFER, scene->forrest.getNumTrees() * 4 * sizeof(GLfloat), NULL, GL_STATIC_DRAW);
-
-    f->glBindBuffer(GL_SHADER_STORAGE_BUFFER, drawCommandBuffer);
-    f->glBufferData(GL_SHADER_STORAGE_BUFFER, 1000 * sizeof(GLfloat), NULL, GL_STATIC_DRAW);
-
-    queryTime(0);
+void TerrainSceneRenderer::executeLODCompute(TerrainScene *scene, OpenGLFunctions *f)
+{
     treeDataProgram->bind();
     std::vector<GLuint> vertexCounts = scene->tree.getVertexCounts(20);
-    treeDataProgram->setUniformValue("maxGeomTreeDistance", (GLfloat) scene->forrest.getMaxGeometryDistance());
-    treeDataProgram->setUniformValue("maxImpostorTreeDistance", (GLfloat) scene->forrest.getMaxImpostorDistance());
     GLint arrayLoc = treeDataProgram->uniformLocation("vertexCount");
     f->glUniform1uiv(arrayLoc, 20,  reinterpret_cast<GLuint *>(&vertexCounts.at(0)));
+
+    treeDataProgram->setUniformValue("frustumCullingEnabled", true);
+    treeDataProgram->setUniformValue("boundingSphere", scene->tree.boundingSphere);
+    std::vector<QVector4D> *planes = &scene->getCamera()->frustumPlanes;
+
+    treeDataProgram->setUniformValue("frustumRight", planes->at(0));
+    treeDataProgram->setUniformValue("frustumLeft", planes->at(1));
+    treeDataProgram->setUniformValue("frustumTop", planes->at(2));
+    treeDataProgram->setUniformValue("frustumBottom", planes->at(3));
+    treeDataProgram->setUniformValue("frustumNear", planes->at(4));
+    treeDataProgram->setUniformValue("frustumFar", planes->at(5));
+
+    treeDataProgram->setUniformValue("maxGeomTreeDistance", (GLfloat) scene->forrest.getMaxGeometryDistance());
+    treeDataProgram->setUniformValue("maxImpostorTreeDistance", (GLfloat) scene->forrest.getMaxImpostorDistance());
+
+    scene->setUpCameraUniforms(treeDataProgram);
+    scene->terrain.setHeightMapUniform(treeDataProgram);
 
     scene->setUpCameraUniforms(treeDataProgram);
     GLint workGroupSize[3];
@@ -295,14 +293,18 @@ void TerrainSceneRenderer::drawScene(TerrainScene *scene) {
     GLint numInvocations = scene->forrest.getNumTrees()/workGroupSize[0] + 1;
     f->glDispatchCompute(numInvocations, 1, 1);
     f->glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+}
 
-    queryTime(1);
+void TerrainSceneRenderer::drawTerrain(TerrainScene *scene)
+{
     terrainProgram->bind();
     terrainProgram->setUniformValue("tessLevel", tesselation);
     setUpUniforms(terrainProgram, PhongUniforms);
     scene->drawTerrain(terrainProgram);
-    queryTime(2);
+}
 
+void TerrainSceneRenderer::drawGeometryTrees(OpenGLFunctions *f, TerrainScene *scene)
+{
     treeProgram->bind();
     setUpUniforms(treeProgram, PhongUniforms);
     QMatrix4x4 test;
@@ -330,9 +332,10 @@ void TerrainSceneRenderer::drawScene(TerrainScene *scene) {
         f->glDrawElementsIndirect(GL_TRIANGLES, scene->forrest.getTree()->meshes[i]->index_type, (void*)((i+1) * 5 * sizeof(GLuint)));
         f->glBindVertexArray(0);
     }
+}
 
-    queryTime(3);
-
+void TerrainSceneRenderer::drawImpostorTrees(OpenGLFunctions *f, TerrainScene *scene)
+{
     treeImpostorProgram->bind();
     scene->setUpUniforms(treeImpostorProgram, false);
     scene->setUpCameraUniforms(treeImpostorProgram);
@@ -352,9 +355,10 @@ void TerrainSceneRenderer::drawScene(TerrainScene *scene) {
 
     f->glDrawElementsIndirect(GL_TRIANGLE_STRIP, GL_UNSIGNED_INT, (void*)0);
     f->glBindVertexArray(0);
+}
 
-    queryTime(4);
-
+void TerrainSceneRenderer::drawSkybox(TerrainScene *scene, OpenGLFunctions *f)
+{
     skyboxProgram->bind();
 
     skyboxProgram->setUniformValue("skyboxTexture", 7);
@@ -369,7 +373,41 @@ void TerrainSceneRenderer::drawScene(TerrainScene *scene) {
     f->glBindVertexArray(skyboxVAO);
     f->glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
     f->glBindVertexArray(0);
+}
 
+void TerrainSceneRenderer::drawScene(TerrainScene *scene) {
+
+    OpenGLFunctions *f = OpenGLFunctions::instance();
+
+    if(!scene->wasLoaded)
+        return;
+
+    f->glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, scene->forrest.getTreeDataBuffer());
+
+    f->glBindBuffer(GL_SHADER_STORAGE_BUFFER, treeDataGeometryBuffer);
+    f->glBufferData(GL_SHADER_STORAGE_BUFFER, scene->forrest.getNumTrees() * 4 * sizeof(GLfloat), NULL, GL_STATIC_DRAW);
+
+    f->glBindBuffer(GL_SHADER_STORAGE_BUFFER, treeDataImpostorBuffer);
+    f->glBufferData(GL_SHADER_STORAGE_BUFFER, scene->forrest.getNumTrees() * 4 * sizeof(GLfloat), NULL, GL_STATIC_DRAW);
+
+    f->glBindBuffer(GL_SHADER_STORAGE_BUFFER, drawCommandBuffer);
+    f->glBufferData(GL_SHADER_STORAGE_BUFFER, 1000 * sizeof(GLfloat), NULL, GL_STATIC_DRAW);
+
+    queryTime(0);
+
+    executeLODCompute(scene, f);
+    queryTime(1);
+
+    drawTerrain(scene);
+    queryTime(2);
+
+    drawGeometryTrees(f, scene);
+    queryTime(3);
+
+    drawImpostorTrees(f, scene);
+    queryTime(4);
+
+    drawSkybox(scene, f);
     queryTime(5);
 
     logTimes();

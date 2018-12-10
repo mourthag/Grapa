@@ -27,10 +27,14 @@ public:
     QVector3D position();
     QMatrix4x4 rotation();
 
+    std::vector<QVector4D> frustumPlanes;
+
 private:
     QVector3D camTranslation;
     QMatrix4x4 camRotation;
     QMatrix4x4 projMatrix;
+    void createFrustumPlanes();
+    QVector4D createPlane(QMatrix4x4 invMVP, QVector3D pointA, QVector3D pointB, QVector3D pointC);
 };
 
 #endif // CAMERA_H

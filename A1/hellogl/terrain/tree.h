@@ -20,6 +20,9 @@ public:
 
     QVector3D boundingBoxMin;
     QVector3D boundingBoxMax;
+    float boundingSphereRadius;
+    void calculateSphereRadius(QVector3D center);
+    QVector4D boundingSphere;
 };
 
 #endif // TREE_H

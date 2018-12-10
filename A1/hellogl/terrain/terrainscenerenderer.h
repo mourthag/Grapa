@@ -39,6 +39,11 @@ private:
     void loadShader();
     void setUpTreeBuffers();
     void setUpSkyBox();
+    void executeLODCompute(TerrainScene *scene, OpenGLFunctions *f);
+    void drawTerrain(TerrainScene *scene);
+    void drawGeometryTrees(OpenGLFunctions *f, TerrainScene *scene);
+    void drawImpostorTrees(OpenGLFunctions *f, TerrainScene *scene);
+    void drawSkybox(TerrainScene *scene, OpenGLFunctions *f);
 };
 
 #endif // TERRAINSCENERENDERER_H

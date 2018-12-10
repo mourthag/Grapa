@@ -20,6 +20,9 @@ void Tree::loadTree(tinygltf::Model *gltf_model, int meshIndex) {
         boundingBoxMax.setY(std::max(boundingBoxMax.y(), oglModel->getBoundingBoxMaximum().y()));
         boundingBoxMax.setZ(std::max(boundingBoxMax.z(), oglModel->getBoundingBoxMaximum().z()));
     }
+    QVector3D center = 0.5 * boundingBoxMin + 0.5 * boundingBoxMax;
+    calculateSphereRadius(center);
+    boundingSphere = QVector4D(center, boundingSphereRadius);
 }
 
 std::vector<GLuint> Tree::getVertexCounts(GLuint minSize) {
@@ -36,4 +39,16 @@ std::vector<GLuint> Tree::getVAOs() {
         vaos.push_back(meshes[i]->vao);
     }
     return vaos;
+}
+
+void Tree::calculateSphereRadius(QVector3D center) {
+    float maxDistance = 0;
+    for(int i=0; i< meshes.size(); ++i) {
+        std::vector<QVector3D> *data = &meshes[i]->vertices;
+        for(int j=0; j < data->size(); ++j) {
+            float distance = data->at(j).distanceToPoint(center);
+            maxDistance = std::max(distance, maxDistance);
+        }
+    }
+    boundingSphereRadius =  maxDistance;
 }

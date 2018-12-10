@@ -65,6 +65,8 @@ void OpenGLModel::loadGLTFAttribute(std::string name, tinygltf::Model *model, in
         bbMax.setX(accessor.maxValues.at(0));
         bbMax.setY(accessor.maxValues.at(1));
         bbMax.setZ(accessor.maxValues.at(2));
+
+        loadVertices(bufferView.byteOffset, bufferView.byteLength, &buffer.data);
     }
     int size = accessor.type;
 
@@ -96,6 +98,17 @@ void OpenGLModel::loadGLTFAttribute(std::string name, tinygltf::Model *model, in
 
     f->glVertexAttribPointer(glAttributeIndex, size, accessor.componentType, GL_FALSE, bufferView.byteStride, (void*)accessor.byteOffset);
     f->glEnableVertexAttribArray(glAttributeIndex);
+}
+
+void OpenGLModel::loadVertices(int offset, int length, std::vector<unsigned char> *rawData) {
+    for(int i = offset; i < length; i += 3 * sizeof(GLfloat)) {
+
+        GLfloat* value = new GLfloat[3];
+        memcpy(&value[0], &(*rawData)[i], 3 * sizeof(GLfloat));
+        QVector3D vert(value[0], value[1], value[2]);
+        vertices.push_back(vert);
+
+    }
 }
 
 void OpenGLModel::loadGLTFIndices(tinygltf::Model *model, int mesh, int primitive, bool additive) {
@@ -134,8 +147,6 @@ void OpenGLModel::loadGLTFIndices(tinygltf::Model *model, int mesh, int primitiv
         index_offset = accessor.byteOffset;
         num_verts = accessor.count;
     }
-
-
 }
 
 void OpenGLModel::convertBuffer(const int size, int offset, int stride, int length, std::vector<unsigned char> *data, std::vector<GLfloat> *convertedData) {

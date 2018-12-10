@@ -17,6 +17,19 @@ uniform float maxGeomTreeDistance;
 uniform float maxImpostorTreeDistance;
 uniform vec3 camPos;
 
+uniform usampler2D heightMap;
+uniform float heightScaling;
+
+uniform bool frustumCullingEnabled;
+
+uniform vec4 boundingSphere;
+uniform vec4 frustumTop;
+uniform vec4 frustumBottom;
+uniform vec4 frustumLeft;
+uniform vec4 frustumRight;
+uniform vec4 frustumNear;
+uniform vec4 frustumFar;
+
 struct IndirectDrawCommand
 {
 uint count ;
@@ -65,20 +78,51 @@ void main() {
 	
 	vec4 read = treeDataIn[readIndex];
 	vec3 gridPos = vec3(read.x, 0, read.y);
-	
-	if(length(gridPos - camPos) < maxGeomTreeDistance) {
-		uint writeIndex = atomicAdd(geomIndexGlobal, 1);
-		treeDataGeom[writeIndex] = read;
-		for(int i=0; i < 20; i++) {
-		atomicAdd(drawCommands[i+1].primCount, 1);
-		}
 
+	bool isVisible = true;
+	if(frustumCullingEnabled) {
+		
+		float height = float(texture( heightMap, read.xy/4096.0).r) * heightScaling;
+	
+		vec3 worldPos = vec3(gridPos.x, height, gridPos.z) + boundingSphere.xyz;
+		float boundingSphereRadius = -read.z * boundingSphere.w;
+		
+		if(dot(worldPos, frustumBottom.xyz) +  frustumBottom.w < boundingSphereRadius) {
+			isVisible = false;
+		}
+		if(dot(worldPos, frustumTop.xyz) +  frustumTop.w < boundingSphereRadius) {
+			isVisible = false;
+		}
+		if(dot(worldPos, frustumLeft.xyz) +  frustumLeft.w < boundingSphereRadius) {
+			isVisible = false;
+		}
+		if(dot(worldPos, frustumRight.xyz) +  frustumRight.w < boundingSphereRadius) {
+			isVisible = false;
+		}
+		if(dot(worldPos, frustumFar.xyz) +  frustumFar.w < boundingSphereRadius) {
+			isVisible = false;
+		}
+		if(dot(worldPos, frustumNear.xyz) +  frustumNear.w < boundingSphereRadius) {
+			isVisible = false;
+		}
+	
 	}
-        else if(length(gridPos - camPos) < maxImpostorTreeDistance) {
-		uint writeIndex = atomicAdd(impostorIndexGlobal, 1);
-		treeDataImpostor[writeIndex] = read;
-		atomicAdd(drawCommands[0].primCount, 1);
-	} 
+
+	if(isVisible) {
+		if(length(gridPos - camPos) < maxGeomTreeDistance) {
+			uint writeIndex = atomicAdd(geomIndexGlobal, 1);
+			treeDataGeom[writeIndex] = read;
+			for(int i=0; i < 20; i++) {
+			atomicAdd(drawCommands[i+1].primCount, 1);
+			}
+
+		}
+		else if(length(gridPos - camPos) < maxImpostorTreeDistance) {
+			uint writeIndex = atomicAdd(impostorIndexGlobal, 1);
+			treeDataImpostor[writeIndex] = read;
+			atomicAdd(drawCommands[0].primCount, 1);
+		} 
+	}
 	memoryBarrierShared();
 	barrier();
 

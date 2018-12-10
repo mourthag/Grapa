@@ -31,6 +31,7 @@ public:
 
     int materialIndex;
 
+    std::vector<QVector3D> vertices;
     GLenum index_type;
     size_t index_offset;
     int num_verts;
@@ -40,6 +41,7 @@ private:
     void loadGLTFIndices(tinygltf::Model *model, int mesh, int primitive, bool additive);
     void convertBuffer(int size, int offset, int stride, int length, std::vector<unsigned char> *data, std::vector<GLfloat> *convertedData);
     void adjustVBOSize(int numberElements);
+    void loadVertices(int offset, int length, std::vector<unsigned char> *rawData);
 
     GLuint ebo;
     GLuint vbo;
