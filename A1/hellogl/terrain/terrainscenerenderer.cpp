@@ -58,7 +58,11 @@ const GLuint skybox_index[ 36] =
 };
 
 TerrainSceneRenderer::TerrainSceneRenderer() {
-    numImpostorImages = 10;
+    numImpostorImages = 100;
+    terrainDrawEnabled = true;
+    tesselation = 1;
+    treeDrawEnabled = true;
+    frustumCullingEnabled = true;
 
 }
 
@@ -132,10 +136,11 @@ void TerrainSceneRenderer::createImpostorObjects()
     f->glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     f->glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_BASE_LEVEL, 0);
     f->glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAX_LEVEL, 0);
+
     f->glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     f->glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     f->glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA8,
-                    640, 640, numImpostorImages,
+                    impostorTexSize, impostorTexSize, numImpostorImages,
                     0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 
 
@@ -172,14 +177,24 @@ void TerrainSceneRenderer::createImpostorTex(TerrainScene *scene, QOpenGLContext
 
     f->glBindFramebuffer(GL_FRAMEBUFFER, impostorFBO);
     f->glBindTexture(GL_TEXTURE_2D_ARRAY, impostorTex);
-    f->glViewport(0,0,640,640);
+    f->glViewport(0,0,impostorTexSize,impostorTexSize);
     phongProgram->bind();
+    scene->setUpUniforms(phongProgram, true);
     QMatrix4x4 projMatrix;
     QVector3D min = scene->tree.boundingBoxMin;
     QVector3D max = scene->tree.boundingBoxMax;
+    QVector3D center = min * 0.5 + max * 0.5;
     QMatrix4x4 idMat;
     QMatrix4x4 rotMat;
     rotMat.rotate(-90, 1, 0, 0);
+
+    QMatrix4x4 transMat;
+
+    transMat.translate(center);
+
+    min = rotMat.map(min);
+    max = rotMat.map(max);
+
     projMatrix.ortho(min.x(), max.x(), min.y(), max.y(), min.z(), max.z());
     phongProgram->setUniformValue("projMat", projMatrix);
     phongProgram->setUniformValue("modelMat", rotMat);
@@ -189,8 +204,10 @@ void TerrainSceneRenderer::createImpostorTex(TerrainScene *scene, QOpenGLContext
     phongProgram->setUniformValue("lightColor", QVector3D(1,1,1));
     phongProgram->setUniformValue("lightInt", (GLfloat) 1.0);
     for(int i = 0; i < numImpostorImages; i++) {
-        f->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        f->glViewport(0,0,impostorTexSize,impostorTexSize);
         f->glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, impostorTex, 0, i);
+        f->glClearColor(1,1,1,0);
+        f->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         for(int i =0; i< tree->meshes.size(); i++) {
 
             f->glBindVertexArray(tree->meshes[i]->vao);
@@ -198,9 +215,10 @@ void TerrainSceneRenderer::createImpostorTex(TerrainScene *scene, QOpenGLContext
             f->glDrawElements(GL_TRIANGLES, scene->forrest.getTree()->meshes[i]->num_verts, scene->forrest.getTree()->meshes[i]->index_type, (void*) scene->forrest.getTree()->meshes[i]->index_offset);
             f->glBindVertexArray(0);
         }
-        context->swapBuffers(context->surface());
-        context->makeCurrent(context->surface());
         f->glFinish();
+        rotMat.rotate(360.0/(float)(numImpostorImages+1), 0, 0, 1);
+        phongProgram->setUniformValue("modelMat", rotMat);
+        phongProgram->setUniformValue("normalMat", rotMat.normalMatrix());
     }
     f->glBindFramebuffer(GL_FRAMEBUFFER, 0);
     f->glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
@@ -344,6 +362,7 @@ void TerrainSceneRenderer::drawImpostorTrees(OpenGLFunctions *f, TerrainScene *s
     treeImpostorProgram->setUniformValue("impostorTextures", 6);
     f->glActiveTexture(GL_TEXTURE6);
     f->glBindTexture(GL_TEXTURE_2D_ARRAY, impostorTex);
+    treeImpostorProgram->setUniformValue("numImpostors", numImpostorImages);
 
     f->glBindVertexArray(quadVAO);
     f->glBindBuffer(GL_DRAW_INDIRECT_BUFFER, drawCommandBuffer);

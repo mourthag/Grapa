@@ -6,6 +6,7 @@
 #include <QSlider>
 #include <QBoxLayout>
 #include <QGroupBox>
+#include <QSpinBox>
 #include <QCheckBox>
 
 #include "terrain/forrestdata.h"
@@ -49,6 +50,8 @@ private:
     QCheckBox *drawSkyboxCheckBox;
     QCheckBox *drawTreesCheckBox;
     QCheckBox *frustumCullingCheckBox;
+
+    QSpinBox *numImpostorSpingBox;
 
     ForrestData data;
     void createLODGroup();

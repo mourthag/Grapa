@@ -3,13 +3,14 @@
 in vec2 UV;
 layout (location = 4) in vec4 treeData;
 
-out vec4 vTreeData;
 out vec2 texCoord;
+flat out int rotIndex;
 
 uniform mat4 viewMat, projMat;
 uniform usampler2D heightMap;
 uniform vec3 camPos;
 uniform float heightScaling;
+uniform int numImpostors;
 
 const float DEG_TO_RAD = 3.141592653589793 / 180.0;
 
@@ -48,7 +49,9 @@ void main(void)
 
     vec3 vPos = vec3(viewMat * (rotationMat * scaleMat * vec4(UV - vec2(0.5,0), 0, 1.0) + wPosOffset));
 
-    vTreeData = treeData;
+    float angleDegrees = mod( angle/DEG_TO_RAD + treeData.w, 360.0);
+
+    rotIndex = int(numImpostors * angleDegrees / 360.0);
     texCoord = UV;
     gl_Position = projMat * vec4(vPos, 1.0);
 }

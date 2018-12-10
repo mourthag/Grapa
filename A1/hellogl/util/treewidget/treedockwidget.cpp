@@ -2,7 +2,7 @@
 
 void TreeDockWidget::createLODGroup()
 {
-    lodGroup = new QGroupBox(tr("Level of Detial"));
+    lodGroup = new QGroupBox(tr("Level of Detail"));
 
     QVBoxLayout *lodLayout = new QVBoxLayout;
     lodLayout->addWidget(new QLabel(tr("Max distance full geometry")));

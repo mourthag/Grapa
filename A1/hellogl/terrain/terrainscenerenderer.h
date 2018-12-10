@@ -27,6 +27,7 @@ private:
     GLuint skyboxVBO;
     GLuint skyboxEBO;
     GLuint impostorFBO;
+    GLuint impostorTempTex;
     GLuint impostorTex;
     int numImpostorImages;
 
@@ -49,6 +50,8 @@ private:
     void drawGeometryTrees(OpenGLFunctions *f, TerrainScene *scene);
     void drawImpostorTrees(OpenGLFunctions *f, TerrainScene *scene);
     void drawSkybox(TerrainScene *scene, OpenGLFunctions *f);
+
+    const int impostorTexSize = 640;
 };
 
 #endif // TERRAINSCENERENDERER_H
