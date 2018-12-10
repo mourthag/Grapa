@@ -53,7 +53,13 @@ public slots:
     void loadModel(tinygltf::Model *gltf_model);
     void loadTerrain(QFile *pgmFile);
     void loadSkybox(QString dir);
+
     void setForrestData(ForrestData data);
+    void setTerrainDrawEnabled(bool val);
+    void setTreeDrawEnabled(bool val);
+    void setSkyboxDrawEnabled(bool val);
+    void setFrustumCullingEnabled(bool val);
+
 
 
 

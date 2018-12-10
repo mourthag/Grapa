@@ -58,7 +58,7 @@ const GLuint skybox_index[ 36] =
 };
 
 TerrainSceneRenderer::TerrainSceneRenderer() {
-    numImpostorImages = 2;
+    numImpostorImages = 10;
 
 }
 
@@ -270,7 +270,7 @@ void TerrainSceneRenderer::executeLODCompute(TerrainScene *scene, OpenGLFunction
     GLint arrayLoc = treeDataProgram->uniformLocation("vertexCount");
     f->glUniform1uiv(arrayLoc, 20,  reinterpret_cast<GLuint *>(&vertexCounts.at(0)));
 
-    treeDataProgram->setUniformValue("frustumCullingEnabled", true);
+    treeDataProgram->setUniformValue("frustumCullingEnabled", frustumCullingEnabled);
     treeDataProgram->setUniformValue("boundingSphere", scene->tree.boundingSphere);
     std::vector<QVector4D> *planes = &scene->getCamera()->frustumPlanes;
 
@@ -398,16 +398,20 @@ void TerrainSceneRenderer::drawScene(TerrainScene *scene) {
     executeLODCompute(scene, f);
     queryTime(1);
 
-    drawTerrain(scene);
+    if(terrainDrawEnabled)
+        drawTerrain(scene);
     queryTime(2);
 
-    drawGeometryTrees(f, scene);
+    if(treeDrawEnabled)
+        drawGeometryTrees(f, scene);
     queryTime(3);
 
-    drawImpostorTrees(f, scene);
+    if(treeDrawEnabled)
+        drawImpostorTrees(f, scene);
     queryTime(4);
 
-    drawSkybox(scene, f);
+    if(skyboxDrawEnabled)
+        drawSkybox(scene, f);
     queryTime(5);
 
     logTimes();

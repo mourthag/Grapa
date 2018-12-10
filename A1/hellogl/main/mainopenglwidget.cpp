@@ -217,7 +217,6 @@ void MainOpenGLWidget::keyPressEvent(QKeyEvent *event) {
         cam->translate(up);
     }
 
-
     update();
     cameraUpdated(cam->viewMatrix());
 }
@@ -318,6 +317,22 @@ void MainOpenGLWidget::pauseAnimation() {
 
 QChartView* MainOpenGLWidget::getChartView() {
     return terrainRenderer.getLogger()->getChartView();
+}
+
+void MainOpenGLWidget::setTerrainDrawEnabled(bool val) {
+    terrainRenderer.terrainDrawEnabled = val;
+}
+
+void MainOpenGLWidget::setTreeDrawEnabled(bool val) {
+    terrainRenderer.treeDrawEnabled = val;
+}
+
+void MainOpenGLWidget::setSkyboxDrawEnabled(bool val) {
+    terrainRenderer.skyboxDrawEnabled = val;
+}
+
+void MainOpenGLWidget::setFrustumCullingEnabled(bool val) {
+    terrainRenderer.frustumCullingEnabled = val;
 }
 
 void MainOpenGLWidget::loadModel(tinygltf::Model* gltf_model) {

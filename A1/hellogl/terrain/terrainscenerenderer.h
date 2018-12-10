@@ -17,6 +17,11 @@ public:
     void createImpostorObjects();
     void loadSkybox(QString dir);
 
+    bool frustumCullingEnabled;
+    bool terrainDrawEnabled;
+    bool treeDrawEnabled;
+    bool skyboxDrawEnabled;
+
 private:
     GLuint skyboxVAO;
     GLuint skyboxVBO;

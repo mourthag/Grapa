@@ -216,6 +216,10 @@ MainWindow::MainWindow(QWidget *parent)
     connect(pauseAnimationAction, SIGNAL(triggered(bool)), widget, SLOT(pauseAnimation()));
 
     connect(treeDataWidget, SIGNAL(dataChanged(ForrestData)), widget, SLOT(setForrestData(ForrestData)));
+    connect(treeDataWidget, SIGNAL(drawTerrainChanged(bool)), widget, SLOT(setTerrainDrawEnabled(bool)));
+    connect(treeDataWidget, SIGNAL(drawTreesChanged(bool)), widget, SLOT(setTreeDrawEnabled(bool)));
+    connect(treeDataWidget, SIGNAL(drawSkyboxChanged(bool)), widget, SLOT(setSkyboxDrawEnabled(bool)));
+    connect(treeDataWidget, SIGNAL(frustumCullingChanged(bool)), widget, SLOT(setFrustumCullingEnabled(bool)));
 
     widget->resetCamera();
     //adjust slider here to init correct value in widget

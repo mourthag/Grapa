@@ -6,6 +6,7 @@
 #include <QSlider>
 #include <QBoxLayout>
 #include <QGroupBox>
+#include <QCheckBox>
 
 #include "terrain/forrestdata.h"
 
@@ -17,26 +18,45 @@ public:
 
 signals:
     void dataChanged(ForrestData newData);
+    void drawTerrainChanged(bool val);
+    void drawTreesChanged(bool val);
+    void drawSkyboxChanged(bool val);
+    void frustumCullingChanged(bool val);
 
 public slots:
-    void numTreesChanged(int val);
-    void maxGeometryDistanceChanged(int val);
-    void maxImpostorDistanceChanged(int val);
+    void changeNumTrees(int val);
+    void changeMaxGeometryDistance(int val);
+    void changeMaxImpostorDistance(int val);
+    void changeDrawTerrain(bool val);
+    void changeDrawTrees(bool val);
+    void changeDrawSkybox(bool val);
+    void changeFrustumCulling(bool val);
 
 private:
     QVBoxLayout *layout;
 
     QGroupBox *lodGroup;
     QGroupBox *treeGroup;
+    QGroupBox *terrainGroup;
+    QGroupBox *skyboxGroup;
+    QGroupBox *frustumCullingGroup;
 
     QSlider *numTreesSlider;
     QSlider *maxGeometryDistanceSlider;
     QSlider *maxImpostorDistanceSlider;
 
+    QCheckBox *drawTerrainCheckBox;
+    QCheckBox *drawSkyboxCheckBox;
+    QCheckBox *drawTreesCheckBox;
+    QCheckBox *frustumCullingCheckBox;
+
     ForrestData data;
     void createLODGroup();
     void createTreesGroup();
     void connectInterface();
+    void createTerrainGroup();
+    void createFrustumCullingGroup();
+    void createSkyboxGroup();
 };
 
 #endif // TREEDOCKWIDGET_H
