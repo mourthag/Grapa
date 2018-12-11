@@ -220,6 +220,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(treeDataWidget, SIGNAL(drawTreesChanged(bool)), widget, SLOT(setTreeDrawEnabled(bool)));
     connect(treeDataWidget, SIGNAL(drawSkyboxChanged(bool)), widget, SLOT(setSkyboxDrawEnabled(bool)));
     connect(treeDataWidget, SIGNAL(frustumCullingChanged(bool)), widget, SLOT(setFrustumCullingEnabled(bool)));
+    connect(treeDataWidget, SIGNAL(numImpostorsChanged(int)), widget, SLOT(setNumImpostors(int)));
 
     widget->resetCamera();
     //adjust slider here to init correct value in widget

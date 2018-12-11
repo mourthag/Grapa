@@ -13,7 +13,8 @@ public:
 
     void initGL();
     void drawScene(TerrainScene *scene);
-    void createImpostorTex(TerrainScene *scene, QOpenGLContext *context);
+    void setNumImpostors(int val);
+    void createImpostorTex(TerrainScene *scene);
     void createImpostorObjects();
     void loadSkybox(QString dir);
 

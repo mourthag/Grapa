@@ -23,6 +23,7 @@ signals:
     void drawTreesChanged(bool val);
     void drawSkyboxChanged(bool val);
     void frustumCullingChanged(bool val);
+    void numImpostorsChanged(int val);
 
 public slots:
     void changeNumTrees(int val);
@@ -32,6 +33,7 @@ public slots:
     void changeDrawTrees(bool val);
     void changeDrawSkybox(bool val);
     void changeFrustumCulling(bool val);
+    void changeNumImpostors(int val);
 
 private:
     QVBoxLayout *layout;
@@ -51,7 +53,7 @@ private:
     QCheckBox *drawTreesCheckBox;
     QCheckBox *frustumCullingCheckBox;
 
-    QSpinBox *numImpostorSpingBox;
+    QSpinBox *numImpostorSpinBox;
 
     ForrestData data;
     void createLODGroup();

@@ -7,7 +7,6 @@ MainOpenGLWidget::MainOpenGLWidget(QWidget *parent) : QOpenGLWidget(parent)
 
     setFocusPolicy(Qt::StrongFocus);
 
-
     //update at ~60FPS
     QTimer *timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(update()));
@@ -335,6 +334,14 @@ void MainOpenGLWidget::setFrustumCullingEnabled(bool val) {
     terrainRenderer.frustumCullingEnabled = val;
 }
 
+void MainOpenGLWidget::setNumImpostors(int val) {
+    makeCurrent();
+    terrainRenderer.setNumImpostors(val);
+    terrainRenderer.createImpostorTex(&terrainScene);
+    doneCurrent();
+    update();
+}
+
 void MainOpenGLWidget::loadModel(tinygltf::Model* gltf_model) {
 
     makeCurrent();
@@ -344,7 +351,7 @@ void MainOpenGLWidget::loadModel(tinygltf::Model* gltf_model) {
     makeCurrent();
     terrainScene.loadTree(*gltf_model);
     makeCurrent();
-    terrainRenderer.createImpostorTex(&terrainScene, context());
+    terrainRenderer.createImpostorTex(&terrainScene);
     doneCurrent();
 
     update();

@@ -17,6 +17,12 @@ void TreeDockWidget::createLODGroup()
     maxImpostorDistanceSlider->setRange(0, 10000);
     lodLayout->addWidget(maxImpostorDistanceSlider);
 
+    lodLayout->addWidget(new QLabel(tr("Number of impostors")));
+
+    numImpostorSpinBox = new QSpinBox();
+    numImpostorSpinBox->setRange(1, 120);
+    lodLayout->addWidget(numImpostorSpinBox);
+
     lodGroup->setLayout(lodLayout);
 }
 
@@ -44,6 +50,7 @@ void TreeDockWidget::connectInterface()
 {
     connect(maxGeometryDistanceSlider, SIGNAL(valueChanged(int)), this, SLOT(changeMaxGeometryDistance(int)));
     connect(maxImpostorDistanceSlider, SIGNAL(valueChanged(int)), this, SLOT(changeMaxImpostorDistance(int)));
+    connect(numImpostorSpinBox, SIGNAL(valueChanged(int)), this, SLOT(changeNumImpostors(int)));
     connect(numTreesSlider, SIGNAL(valueChanged(int)), this, SLOT(changeNumTrees(int)));
     connect(drawTerrainCheckBox, SIGNAL(toggled(bool)), this, SLOT(changeDrawTerrain(bool)));
     connect(drawTreesCheckBox, SIGNAL(toggled(bool)), this, SLOT(changeDrawTrees(bool)));
@@ -140,4 +147,8 @@ void TreeDockWidget::changeDrawSkybox(bool val) {
 
 void TreeDockWidget::changeFrustumCulling(bool val) {
     frustumCullingChanged(val);
+}
+
+void TreeDockWidget::changeNumImpostors(int val) {
+    numImpostorsChanged(val);
 }

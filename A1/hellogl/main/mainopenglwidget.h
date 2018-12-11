@@ -59,6 +59,7 @@ public slots:
     void setTreeDrawEnabled(bool val);
     void setSkyboxDrawEnabled(bool val);
     void setFrustumCullingEnabled(bool val);
+    void setNumImpostors(int val);
 
 
 

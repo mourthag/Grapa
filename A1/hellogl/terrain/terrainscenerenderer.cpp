@@ -58,7 +58,7 @@ const GLuint skybox_index[ 36] =
 };
 
 TerrainSceneRenderer::TerrainSceneRenderer() {
-    numImpostorImages = 100;
+    numImpostorImages = 1;
     terrainDrawEnabled = true;
     tesselation = 1;
     treeDrawEnabled = true;
@@ -94,6 +94,15 @@ void TerrainSceneRenderer::loadShader()
     skyboxProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shader/skybox/skyboxfragshader.frag");
     skyboxProgram->link();
 
+}
+
+void TerrainSceneRenderer::setNumImpostors(int val) {
+    numImpostorImages = val;
+    OpenGLFunctions *f = OpenGLFunctions::instance();
+    f->glBindTexture(GL_TEXTURE_2D_ARRAY, impostorTex);
+    f->glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA8,
+                    impostorTexSize, impostorTexSize, numImpostorImages,
+                    0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 }
 
 void TerrainSceneRenderer::setUpTreeBuffers()
@@ -170,7 +179,7 @@ void TerrainSceneRenderer::initGL() {
 
 }
 
-void TerrainSceneRenderer::createImpostorTex(TerrainScene *scene, QOpenGLContext *context) {
+void TerrainSceneRenderer::createImpostorTex(TerrainScene *scene) {
 
     Tree *tree = scene->forrest.getTree();
     OpenGLFunctions *f = OpenGLFunctions::instance();
