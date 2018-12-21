@@ -49,7 +49,7 @@ void main(void)
 
     vec3 vPos = vec3(viewMat * (rotationMat * scaleMat * vec4(UV - vec2(0.5,0), 0, 1.0) + wPosOffset));
 
-    float angleDegrees = mod( angle/DEG_TO_RAD + treeData.w, 360.0);
+    float angleDegrees = mod( treeData.w - angle/DEG_TO_RAD, 360.0);
 
     rotIndex = int(numImpostors * angleDegrees / 360.0);
     texCoord = UV;

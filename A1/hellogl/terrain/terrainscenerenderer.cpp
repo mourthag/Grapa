@@ -190,8 +190,8 @@ void TerrainSceneRenderer::createImpostorTex(TerrainScene *scene) {
     phongProgram->bind();
     scene->setUpUniforms(phongProgram, true);
     QMatrix4x4 projMatrix;
-    QVector3D min = scene->tree.boundingBoxMin;
-    QVector3D max = scene->tree.boundingBoxMax;
+    QVector3D min = 1.2 * scene->tree.boundingBoxMin;
+    QVector3D max = 1.2 * scene->tree.boundingBoxMax;
     QVector3D center = min * 0.5 + max * 0.5;
     QMatrix4x4 idMat;
     QMatrix4x4 rotMat;
@@ -217,11 +217,11 @@ void TerrainSceneRenderer::createImpostorTex(TerrainScene *scene) {
         f->glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, impostorTex, 0, i);
         f->glClearColor(1,1,1,0);
         f->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        for(int i =0; i< tree->meshes.size(); i++) {
+        for(int j =0; j< tree->meshes.size(); j++) {
 
-            f->glBindVertexArray(tree->meshes[i]->vao);
-            phongProgram->setUniformValue("materialIndex", tree->meshes[i]->materialIndex);
-            f->glDrawElements(GL_TRIANGLES, scene->forrest.getTree()->meshes[i]->num_verts, scene->forrest.getTree()->meshes[i]->index_type, (void*) scene->forrest.getTree()->meshes[i]->index_offset);
+            f->glBindVertexArray(tree->meshes[j]->vao);
+            phongProgram->setUniformValue("materialIndex", tree->meshes[j]->materialIndex);
+            f->glDrawElements(GL_TRIANGLES, scene->forrest.getTree()->meshes[j]->num_verts, scene->forrest.getTree()->meshes[j]->index_type, (void*) scene->forrest.getTree()->meshes[j]->index_offset);
             f->glBindVertexArray(0);
         }
         f->glFinish();
