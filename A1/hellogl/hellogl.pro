@@ -40,7 +40,10 @@ SOURCES += \
     scenegraph/camera.cpp \
     terrain/terrainscenerenderer.cpp \
     util/treewidget/treedockwidget.cpp \
-    util/openglfunctions.cpp
+    util/openglfunctions.cpp \
+    snowterrain/snowterrain.cpp \
+    snowterrain/snowterrainscenerenderer.cpp \
+    snowterrain/snowterrainscene.cpp
 
 HEADERS += \
     json.hpp \
@@ -64,7 +67,10 @@ HEADERS += \
     terrain/terrainscenerenderer.h \
     util/treewidget/treedockwidget.h \
     terrain/forrestdata.h \
-    util/openglfunctions.h
+    util/openglfunctions.h \
+    snowterrain/snowterrain.h \
+    snowterrain/snowterrainscenerenderer.h \
+    snowterrain/snowterrainscene.h
 
 DISTFILES += \
     shader/default/phongfragshader.frag \
@@ -87,7 +93,10 @@ DISTFILES += \
     shader/terrain/treeimpostorfragshader.frag \
     shader/terrain/treeimpostorvertshader.vert \
     shader/skybox/skyboxfragshader.frag \
-    shader/skybox/skyboxvertshader.vert
+    shader/snowterrain/snowterrainvertshader.vert \
+    shader/snowterrain/snowterrainfragshader.frag \
+    shader/snowterrain/snowterraintesselationcontrolshader.tcs \
+    shader/snowterrain/snowterraintesselationevalshader.tes \
 
 RESOURCES += \
     hellogl.qrc

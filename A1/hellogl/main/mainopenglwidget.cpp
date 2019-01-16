@@ -31,10 +31,11 @@ void MainOpenGLWidget::initializeGL() {
 
     OpenGLFunctions::initGL();
 
-    makeCurrent();
     terrainRenderer.initGL();
-    doneCurrent();
+    terrainScene.initGL();
+
     terrainRenderer.setRenderMode(SceneRenderer::Phong);
+
 
 }
 

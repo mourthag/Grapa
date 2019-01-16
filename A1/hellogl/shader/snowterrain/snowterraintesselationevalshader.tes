@@ -8,6 +8,7 @@ patch in int logTessLevel;
 out vec3 tePosition;
 out vec3 teNormal;
 out vec2 UV;
+out float snowHeight;
 
 uniform mat4 viewMat, projMat;
 uniform mat3 normalMat;
@@ -17,7 +18,10 @@ uniform float heightScaling;
 uniform float widthScaling;
 uniform float heightMapSize;
 
-uniform sampler2DArray snowMap;
+uniform sampler2DArray snowMaps;
+uniform int patchNumber;
+uniform float snowStartHeight;
+uniform float snowGrowthRate;
 
 vec3 calculatePos(vec2 xzCoord) {
     vec2 texCoord = xzCoord/4096.0;
@@ -45,6 +49,10 @@ void main() {
     teNormal = worldNormal;
 
     UV = vec2(worldPos.x, worldPos.z) + vec2(worldPos.y, worldPos.x) * heightScaling;
+
+    float snowFactor = max(tePosition.y - snowStartHeight, 0) * snowGrowthRate;
+    snowHeight = texture(snowMaps, vec3(u, v, patchNumber)).r * snowFactor;
+    tePosition += vec3(0, snowHeight, 0);
 
     gl_Position = projMat * viewMat * vec4(tePosition, 1.0);
 

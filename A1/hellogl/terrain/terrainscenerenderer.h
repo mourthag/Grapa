@@ -23,7 +23,7 @@ public:
     bool treeDrawEnabled;
     bool skyboxDrawEnabled;
 
-private:
+protected:
     GLuint skyboxVAO;
     GLuint skyboxVBO;
     GLuint skyboxEBO;

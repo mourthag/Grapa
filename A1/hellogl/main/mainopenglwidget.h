@@ -18,6 +18,9 @@
 #include "terrain/terrainscene.h"
 #include "terrain/terrainscenerenderer.h"
 
+#include "snowterrain/snowterrainscene.h"
+#include "snowterrain/snowterrainscenerenderer.h"
+
 #define TINYGLTF_NO_STB_IMAGE_WRITE
 #include <tiny_gltf.h>
 
@@ -30,8 +33,8 @@ public:
     ~MainOpenGLWidget();
 
     QChartView* getChartView();
-    TerrainScene terrainScene;
-    TerrainSceneRenderer terrainRenderer;
+    SnowTerrainScene terrainScene;
+    SnowTerrainSceneRenderer terrainRenderer;
 
 public slots:
     void resetCamera();

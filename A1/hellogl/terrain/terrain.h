@@ -46,6 +46,7 @@ private:
 
     void readInt(QDataStream *stream, int *result);
     void createHeightMap(int width, QDataStream *stream, int height);
+    void setUpMaterialUniforms(QOpenGLShaderProgram *prog);
 };
 
 #endif // TERRAIN_H
