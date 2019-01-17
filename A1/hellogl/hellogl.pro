@@ -43,7 +43,8 @@ SOURCES += \
     util/openglfunctions.cpp \
     snowterrain/snowterrain.cpp \
     snowterrain/snowterrainscenerenderer.cpp \
-    snowterrain/snowterrainscene.cpp
+    snowterrain/snowterrainscene.cpp \
+    snowterrain/snowfallrenderer.cpp
 
 HEADERS += \
     json.hpp \
@@ -70,7 +71,8 @@ HEADERS += \
     util/openglfunctions.h \
     snowterrain/snowterrain.h \
     snowterrain/snowterrainscenerenderer.h \
-    snowterrain/snowterrainscene.h
+    snowterrain/snowterrainscene.h \
+    snowterrain/snowfallrenderer.h
 
 DISTFILES += \
     shader/default/phongfragshader.frag \

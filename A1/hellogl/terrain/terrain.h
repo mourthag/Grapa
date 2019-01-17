@@ -31,7 +31,7 @@ protected:
 
 private:
     const int vertsPerRow = 50;
-    const int rowLength = 1000;
+    const int rowLength = 4096;
     const int numpatches = 4 * (vertsPerRow - 1) * (vertsPerRow -1);
     const float distanceBetweenVerts = (float)rowLength / (float)(vertsPerRow-1);
 

@@ -8,10 +8,9 @@ MainOpenGLWidget::MainOpenGLWidget(QWidget *parent) : QOpenGLWidget(parent)
     setFocusPolicy(Qt::StrongFocus);
 
     //update at ~60FPS
-    QTimer *timer = new QTimer(this);
-    connect(timer, SIGNAL(timeout()), this, SLOT(update()));
-    timer->start(16);
-
+    QTimer *fpsTimer = new QTimer(this);
+    connect(fpsTimer, SIGNAL(timeout()), this, SLOT(update()));
+    fpsTimer->start(16);
 
     //set up data and shading
     isWireframe = false;

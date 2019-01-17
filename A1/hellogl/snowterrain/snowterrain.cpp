@@ -6,8 +6,8 @@ void SnowTerrain::initGL() {
     f->glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &numLayers);
     f->glGetIntegerv(GL_MAX_TEXTURE_SIZE, &texSize);
 
-    texSize = 1024;
-    numLayers = 20;
+    texSize = 512;
+    numLayers = 50*50;
     qDebug() << numLayers << texSize;
 
     snowHeightMaps.clear();
@@ -36,14 +36,39 @@ void SnowTerrain::initGL() {
     }
     updateTexture();
 
+    QTimer *snowTimer = new QTimer();
+    QObject::connect(snowTimer, &QTimer::timeout, [ = ]() {
+        replenishSnow();
+    } );
+    snowTimer->start(10000);
+
+
+
 }
 
 void SnowTerrain::updateTexture() {
     OpenGLFunctions *f = OpenGLFunctions::instance();
+    f->glBindTexture(GL_TEXTURE_2D_ARRAY, snowHeightMapsTexture);
     for(int i = 0; i < numLayers; i++) {
         f->glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, texSize, texSize, 1, GL_RGB, GL_UNSIGNED_BYTE, snowHeightMaps[i].bits());
 
     }
+}
+
+void SnowTerrain::replenishSnow() {
+    Qt::BrushStyle patterns[3] {Qt::Dense2Pattern, Qt::Dense6Pattern, Qt::Dense7Pattern};
+    for(int i = 0; i < snowHeightMaps.size(); i++) {
+        int random = rand() % 3;
+
+        Qt::BrushStyle pattern = patterns[random];
+
+        QPainter painter;
+        painter.begin(&snowHeightMaps[i]);
+        painter.setBrush(QBrush(QColor(255,255,255,100), pattern));
+        painter.drawRect(0, 0, texSize, texSize);
+    }
+    snowHeightMaps[0].save("test.png");
+    updateTexture();
 }
 
 void SnowTerrain::drawTerrain(QOpenGLShaderProgram *prog, QVector3D camPos) {
@@ -55,7 +80,7 @@ void SnowTerrain::drawTerrain(QOpenGLShaderProgram *prog, QVector3D camPos) {
     f->glBindTexture(GL_TEXTURE_2D_ARRAY, snowHeightMapsTexture);
     prog->setUniformValue("patchNumber", 0);
     prog->setUniformValue("snowStartHeight", (GLfloat)50.0);
-    prog->setUniformValue("snowGrowthRate", (GLfloat)0.1);
+    prog->setUniformValue("snowGrowthRate", (GLfloat)1.0);
 
     Terrain::drawTerrain(prog, camPos);
 }

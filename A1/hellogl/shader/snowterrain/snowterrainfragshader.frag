@@ -2,6 +2,7 @@
 in vec3 tePosition;
 in vec3 teNormal;
 in vec2 UV;
+in vec2 patchUV;
 in float snowHeight;
 
 out vec4 frag;
@@ -39,6 +40,9 @@ uniform float heightScaling;
 //2-sandMaterial
 //3-stoneMaterial
 uniform sampler2DArray materialTextures;
+
+uniform sampler2DArray snowMaps;
+uniform int patchNumber;
 
 void main(void)
 {
@@ -82,7 +86,11 @@ void main(void)
     float n = slopeMixedShininess;
     vec4 sPart = ks * light * pow(max(dot(reflection, viewDir), 0.0), n);
 
-    float snowInterp = snowHeight * 10000;
-    vec4 col = mix(aPart + dPart + sPart, vec4(1,1,1,1), snowInterp);
-    frag = col;
+    vec4 snow = texture(snowMaps, vec3 (patchUV, patchNumber)).bgra;
+    //snow = vec4(1,1,1,1) - snow;
+
+    float snowInterp = min(snowHeight, 1.0) * clamp(snow.r, 0.0, 0.01) * 100.0;
+
+    vec4 col = aPart + dPart + sPart;
+    frag = col * (1-snowInterp) + vec4(1,1,1,1) * snowInterp;
 }

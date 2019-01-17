@@ -8,6 +8,7 @@ patch in int logTessLevel;
 out vec3 tePosition;
 out vec3 teNormal;
 out vec2 UV;
+out vec2 patchUV;
 out float snowHeight;
 
 uniform mat4 viewMat, projMat;
@@ -34,6 +35,7 @@ void main() {
 
     float u = gl_TessCoord.x;
     float v = gl_TessCoord.y;
+    patchUV = vec2(u,v);
     vec3 p1 = mix(tcPosition[0], tcPosition[1], u);
     vec3 p2 = mix(tcPosition[3], tcPosition[2], u);
 
