@@ -161,6 +161,7 @@ MainWindow::MainWindow(QWidget *parent)
     //slider for tesselation level
     tesselationSlider = new QSlider();
     tesselationSlider->setMinimum(1);
+    tesselationSlider->setMaximum(150);
     tesselationSlider->setOrientation(Qt::Horizontal);
     toolBar->addWidget(tesselationSlider);
 

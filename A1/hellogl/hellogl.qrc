@@ -25,5 +25,9 @@
         <file>shader/terrain/treeimpostorvertshader.vert</file>
         <file>shader/skybox/skyboxfragshader.frag</file>
         <file>shader/skybox/skyboxvertshader.vert</file>
+        <file>shader/snowterrain/snowterrainfragshader.frag</file>
+        <file>shader/snowterrain/snowterraintesselationevalshader.tes</file>
+        <file>shader/snowterrain/snowterrainvertshader.vert</file>
+        <file>shader/snowterrain/snowterraintesselationcontrolshader.tcs</file>
     </qresource>
 </RCC>

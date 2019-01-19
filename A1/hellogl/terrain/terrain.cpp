@@ -119,10 +119,11 @@ float Terrain::getHeight(QVector2D gridPos) {
     if(heights.size() == 0)
         return 0;
 
-    int x = std::max(std::min((int)(gridPos.x() + 0.5), heightMapSize-1), 0);
-    int y = std::max(std::min((int)(gridPos.y() + 0.5), heightMapSize-1), 0);
+    int x = std::max(std::min((int)(gridPos.x() + 0.0), heightMapSize-1), 0);
+    int y = std::max(std::min((int)(gridPos.y() + 0.0), heightMapSize-1), 0);
 
-    int index = x * heightMapSize + y;
+
+    int index = x + heightMapSize * y;
     float height = (float)heights.at(index);
     return height;
 
@@ -136,13 +137,15 @@ QVector3D Terrain::getNormal(QVector2D gridPos) {
     float heightX = getHeight(neighbourXGrid);
     float heightZ = getHeight(neighbourZGrid);
 
+
     QVector3D pos(gridPos.x(), heightPos, gridPos.y());
     QVector3D neighbourX(neighbourXGrid.x(), heightX, neighbourXGrid.y());
     QVector3D neighbourZ(neighbourZGrid.x(), heightZ, neighbourZGrid.y());
 
-    QVector3D normal = QVector3D::crossProduct(
+    QVector3D normal = -QVector3D::crossProduct(
                                      neighbourX-pos,
                                      neighbourZ-pos);
+
     normal.normalize();
     return normal;
 }
@@ -159,6 +162,29 @@ void Terrain::setHeightMapUniform(QOpenGLShaderProgram *prog) {
     f->glActiveTexture(GL_TEXTURE4);
     f->glBindTexture(GL_TEXTURE_2D, heightMap);
 
+}
+
+void Terrain::setUpMaterialUniforms(QOpenGLShaderProgram *prog)
+{
+    prog->setUniformValue("rockShininess", (GLfloat)12.0);
+    prog->setUniformValue("rockSpecular", QVector3D(0.2, 0.2, 0.2));
+    prog->setUniformValue("rockSlope", (GLfloat)0.5);
+    prog->setUniformValue("rockMargin", (GLfloat)0.1);
+
+    prog->setUniformValue("rockShininess", (GLfloat)12.0);
+    prog->setUniformValue("rockSpecular", QVector3D(0.2, 0.2, 0.2));
+    prog->setUniformValue("stoneSlope", (GLfloat)0.8);
+    prog->setUniformValue("stoneMargin", (GLfloat)0.18);
+
+    prog->setUniformValue("sandShininess", (GLfloat)20.0);
+    prog->setUniformValue("sandSpecular", QVector3D(0.1, 0.1, 0.1));
+    prog->setUniformValue("sandHeight", (GLfloat)17.0);
+    prog->setUniformValue("sandMargin", (GLfloat)1.5);
+
+    prog->setUniformValue("gravelShininess", (GLfloat)10.0);
+    prog->setUniformValue("gravelSpecular", QVector3D(0.1, 0.1, 0.1));
+    prog->setUniformValue("gravelHeight", (GLfloat)20.5);
+    prog->setUniformValue("gravelMargin", (GLfloat)1.5);
 }
 
 void Terrain::drawTerrain(QOpenGLShaderProgram *prog, QVector3D camPos) {
@@ -183,28 +209,9 @@ void Terrain::drawTerrain(QOpenGLShaderProgram *prog, QVector3D camPos) {
     prog->setUniformValue("patchSize", distanceBetweenVerts);
     prog->setUniformValue("heightMapSize", (GLfloat)heightMapSize);
 
-    prog->setUniformValue("rockShininess", (GLfloat)12.0);
-    prog->setUniformValue("rockSpecular", QVector3D(0.5, 0.5, 0.5));
-    prog->setUniformValue("rockSlope", (GLfloat)0.5);
-    prog->setUniformValue("rockMargin", (GLfloat)0.1);
-
-    prog->setUniformValue("rockShininess", (GLfloat)120.0);
-    prog->setUniformValue("rockSpecular", QVector3D(0.5, 0.5, 0.5));
-    prog->setUniformValue("stoneSlope", (GLfloat)0.8);
-    prog->setUniformValue("stoneMargin", (GLfloat)0.18);
-
-    prog->setUniformValue("sandShininess", (GLfloat)20.0);
-    prog->setUniformValue("sandSpecular", QVector3D(0.1, 0.1, 0.1));
-    prog->setUniformValue("sandHeight", (GLfloat)17.0);
-    prog->setUniformValue("sandMargin", (GLfloat)1.5);
-
-    prog->setUniformValue("gravelShininess", (GLfloat)10.0);
-    prog->setUniformValue("gravelSpecular", QVector3D(0.1, 0.1, 0.1));
-    prog->setUniformValue("gravelHeight", (GLfloat)20.5);
-    prog->setUniformValue("gravelMargin", (GLfloat)1.5);
+    setUpMaterialUniforms(prog);
 
     f->glBindVertexArray(vao);
-
     f->glPatchParameteri(GL_PATCH_VERTICES, 4);
     f->glDrawElements(GL_PATCHES, numpatches, GL_UNSIGNED_INT, 0 );
     f->glBindVertexArray(0);

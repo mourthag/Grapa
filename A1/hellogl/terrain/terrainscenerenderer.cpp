@@ -181,7 +181,7 @@ void TerrainSceneRenderer::initGL() {
 
 void TerrainSceneRenderer::createImpostorTex(TerrainScene *scene) {
 
-    Tree *tree = scene->forrest.getTree();
+    Tree *tree = &scene->tree;
     OpenGLFunctions *f = OpenGLFunctions::instance();
 
     f->glBindFramebuffer(GL_FRAMEBUFFER, impostorFBO);
@@ -190,8 +190,8 @@ void TerrainSceneRenderer::createImpostorTex(TerrainScene *scene) {
     phongProgram->bind();
     scene->setUpUniforms(phongProgram, true);
     QMatrix4x4 projMatrix;
-    QVector3D min = scene->tree.boundingBoxMin;
-    QVector3D max = scene->tree.boundingBoxMax;
+    QVector3D min = 1.2 * tree->boundingBoxMin;
+    QVector3D max = 1.2 * tree->boundingBoxMax;
     QVector3D center = min * 0.5 + max * 0.5;
     QMatrix4x4 idMat;
     QMatrix4x4 rotMat;
@@ -221,7 +221,7 @@ void TerrainSceneRenderer::createImpostorTex(TerrainScene *scene) {
 
             f->glBindVertexArray(tree->meshes[j]->vao);
             phongProgram->setUniformValue("materialIndex", tree->meshes[j]->materialIndex);
-            f->glDrawElements(GL_TRIANGLES, scene->forrest.getTree()->meshes[j]->num_verts, scene->forrest.getTree()->meshes[j]->index_type, (void*) scene->forrest.getTree()->meshes[j]->index_offset);
+            f->glDrawElements(GL_TRIANGLES, tree->meshes[j]->num_verts, tree->meshes[j]->index_type, (void*) tree->meshes[j]->index_offset);
             f->glBindVertexArray(0);
         }
         //f->glFinish();
@@ -292,7 +292,18 @@ void TerrainSceneRenderer::loadSkybox(QString dir) {
 
 void TerrainSceneRenderer::executeLODCompute(TerrainScene *scene, OpenGLFunctions *f)
 {
+    f->glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, scene->forrest.getTreeDataBuffer());
+
+    f->glBindBuffer(GL_SHADER_STORAGE_BUFFER, treeDataGeometryBuffer);
+    f->glBufferData(GL_SHADER_STORAGE_BUFFER, scene->forrest.getNumTrees() * 4 * sizeof(GLfloat), NULL, GL_STATIC_DRAW);
+
+    f->glBindBuffer(GL_SHADER_STORAGE_BUFFER, treeDataImpostorBuffer);
+    f->glBufferData(GL_SHADER_STORAGE_BUFFER, scene->forrest.getNumTrees() * 4 * sizeof(GLfloat), NULL, GL_STATIC_DRAW);
+
+    f->glBindBuffer(GL_SHADER_STORAGE_BUFFER, drawCommandBuffer);
+    f->glBufferData(GL_SHADER_STORAGE_BUFFER, 1000 * sizeof(GLfloat), NULL, GL_STATIC_DRAW);
     treeDataProgram->bind();
+
     std::vector<GLuint> vertexCounts = scene->tree.getVertexCounts(20);
     GLint arrayLoc = treeDataProgram->uniformLocation("vertexCount");
     f->glUniform1uiv(arrayLoc, 20,  reinterpret_cast<GLuint *>(&vertexCounts.at(0)));
@@ -344,7 +355,7 @@ void TerrainSceneRenderer::drawGeometryTrees(OpenGLFunctions *f, TerrainScene *s
     scene->setUpCameraUniforms(treeProgram);
     scene->terrain.setHeightMapUniform(treeProgram);
 
-    Tree* tree = scene->forrest.getTree();
+    Tree* tree = &scene->tree;
     for(int i =0; i< tree->meshes.size(); i++) {
 
         f->glBindVertexArray(tree->meshes[i]->vao);
@@ -356,7 +367,7 @@ void TerrainSceneRenderer::drawGeometryTrees(OpenGLFunctions *f, TerrainScene *s
         f->glVertexAttribDivisor(4, 1);
 
         treeProgram->setUniformValue("materialIndex", tree->meshes[i]->materialIndex);
-        f->glDrawElementsIndirect(GL_TRIANGLES, scene->forrest.getTree()->meshes[i]->index_type, (void*)((i+1) * 5 * sizeof(GLuint)));
+        f->glDrawElementsIndirect(GL_TRIANGLES, scene->tree.meshes[i]->index_type, (void*)((i+1) * 5 * sizeof(GLuint)));
         f->glBindVertexArray(0);
     }
 }
@@ -409,17 +420,6 @@ void TerrainSceneRenderer::drawScene(TerrainScene *scene) {
 
     if(!scene->wasLoaded)
         return;
-
-    f->glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, scene->forrest.getTreeDataBuffer());
-
-    f->glBindBuffer(GL_SHADER_STORAGE_BUFFER, treeDataGeometryBuffer);
-    f->glBufferData(GL_SHADER_STORAGE_BUFFER, scene->forrest.getNumTrees() * 4 * sizeof(GLfloat), NULL, GL_STATIC_DRAW);
-
-    f->glBindBuffer(GL_SHADER_STORAGE_BUFFER, treeDataImpostorBuffer);
-    f->glBufferData(GL_SHADER_STORAGE_BUFFER, scene->forrest.getNumTrees() * 4 * sizeof(GLfloat), NULL, GL_STATIC_DRAW);
-
-    f->glBindBuffer(GL_SHADER_STORAGE_BUFFER, drawCommandBuffer);
-    f->glBufferData(GL_SHADER_STORAGE_BUFFER, 1000 * sizeof(GLfloat), NULL, GL_STATIC_DRAW);
 
     queryTime(0);
 

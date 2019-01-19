@@ -82,7 +82,7 @@ void main() {
 	bool isVisible = true;
 	if(frustumCullingEnabled) {
 		
-		float height = float(texture( heightMap, read.xy/4096.0).r) * heightScaling;
+                float height = float(texture( heightMap, read.xy/4096.0).r) * heightScaling;
 	
 		vec3 worldPos = vec3(gridPos.x, height, gridPos.z) + boundingSphere.xyz;
 		float boundingSphereRadius = -read.z * boundingSphere.w;
