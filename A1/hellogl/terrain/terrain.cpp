@@ -119,10 +119,11 @@ float Terrain::getHeight(QVector2D gridPos) {
     if(heights.size() == 0)
         return 0;
 
-    int x = std::max(std::min((int)(gridPos.x() + 0.5), heightMapSize-1), 0);
-    int y = std::max(std::min((int)(gridPos.y() + 0.5), heightMapSize-1), 0);
+    int x = std::max(std::min((int)(gridPos.x() + 0.0), heightMapSize-1), 0);
+    int y = std::max(std::min((int)(gridPos.y() + 0.0), heightMapSize-1), 0);
 
-    int index = x * heightMapSize + y;
+
+    int index = x + heightMapSize * y;
     float height = (float)heights.at(index);
     return height;
 
@@ -136,13 +137,15 @@ QVector3D Terrain::getNormal(QVector2D gridPos) {
     float heightX = getHeight(neighbourXGrid);
     float heightZ = getHeight(neighbourZGrid);
 
+
     QVector3D pos(gridPos.x(), heightPos, gridPos.y());
     QVector3D neighbourX(neighbourXGrid.x(), heightX, neighbourXGrid.y());
     QVector3D neighbourZ(neighbourZGrid.x(), heightZ, neighbourZGrid.y());
 
-    QVector3D normal = QVector3D::crossProduct(
+    QVector3D normal = -QVector3D::crossProduct(
                                      neighbourX-pos,
                                      neighbourZ-pos);
+
     normal.normalize();
     return normal;
 }
@@ -168,7 +171,7 @@ void Terrain::setUpMaterialUniforms(QOpenGLShaderProgram *prog)
     prog->setUniformValue("rockSlope", (GLfloat)0.5);
     prog->setUniformValue("rockMargin", (GLfloat)0.1);
 
-    prog->setUniformValue("rockShininess", (GLfloat)120.0);
+    prog->setUniformValue("rockShininess", (GLfloat)12.0);
     prog->setUniformValue("rockSpecular", QVector3D(0.2, 0.2, 0.2));
     prog->setUniformValue("stoneSlope", (GLfloat)0.8);
     prog->setUniformValue("stoneMargin", (GLfloat)0.18);

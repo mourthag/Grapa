@@ -13,7 +13,9 @@ class SnowTerrain : public Terrain
 
 public:
     void initGL();
-    void updateTexture();
+    void updateTexture(QVector2D camPos, int radius);
+
+    void loadFromFile(QFile *pgmFile);
 
     void drawTerrain(QOpenGLShaderProgram *prog, QVector3D camPos);
 
@@ -21,9 +23,19 @@ public slots:
 
     void replenishSnow();
 
-private:
-    std::vector<QImage> snowHeightMaps;
+protected:
+    void generatePatches();
+    void createSnowFallMaps();
 
+private:
+    int gridPosToPatch(int x, int y) {return x + y * terrainPatchesPerRow;}
+
+    int terrainPatchesPerRow = (vertsPerRow - 1) * (heightMapSize + rowLength - 1) / rowLength; // Not floor
+
+    std::vector<QImage> snowHeightMaps;
+    std::vector<QImage> snowFallMaps;
+
+    GLuint patchBuffer;
     GLuint snowHeightMapsTexture;
 
     GLint numLayers;

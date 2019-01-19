@@ -45,7 +45,7 @@ void main(void)
     vec4 rockDiffuse = texture(materialTextures, vec3(UV, 0)).bgra;
     vec4 gravelDiffuse = texture(materialTextures, vec3(UV, 1)).bgra;
     vec4 sandDiffuse = texture(materialTextures, vec3(UV, 2)).bgra;
-    vec4 stoneDiffuse = texture(materialTextures, vec3(UV, 3)).bgra;
+    vec4 stoneDiffuse = texture(materialTextures, vec3(UV/2.0, 3)).bgra;
 
     float heightInterpolation = smoothstep(sandHeight, sandHeight + sandMargin, tePosition.y);
     float rockStoneInterpolation = smoothstep(rockSlope, rockSlope + rockMargin, abs(teNormal.y));

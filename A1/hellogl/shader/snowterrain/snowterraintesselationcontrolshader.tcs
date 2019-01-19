@@ -2,9 +2,11 @@
 
 layout(vertices = 4) out;
 in vec3 vPosition[];
+in int vPatchNumber[];
 out vec3 tcPosition[];
 patch out int maxLogTessLevel;
 patch out int logTessLevel;
+patch out int tcPatchNumber;
 
 uniform mat4 viewMat;
 uniform int tessLevel;
@@ -24,6 +26,7 @@ void main() {
     float nextPatchX;
     float nextPatchZ;
     if(gl_InvocationID == 0) {
+        tcPatchNumber = min(vPatchNumber[0], min(vPatchNumber[1], min(vPatchNumber[2], vPatchNumber[3])));
         gl_TessLevelInner[0] = level;
         gl_TessLevelInner[1] = level;
         logTessLevel = int(log2(level));

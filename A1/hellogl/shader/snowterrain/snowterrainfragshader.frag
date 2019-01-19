@@ -4,6 +4,7 @@ in vec3 teNormal;
 in vec2 UV;
 in vec2 patchUV;
 in float snowHeight;
+flat in int patchNumber;
 
 out vec4 frag;
 
@@ -33,16 +34,19 @@ uniform float stoneShininess;
 uniform float stoneSlope;
 uniform float stoneMargin;
 
+//uniform vec3 snowSpecular;
+//uniform float snowShininess;
+
 uniform float heightScaling;
 
 //0-rockMaterial
 //1-gravelMaterial
 //2-sandMaterial
 //3-stoneMaterial
+//4-snowMaterial
 uniform sampler2DArray materialTextures;
 
 uniform sampler2DArray snowMaps;
-uniform int patchNumber;
 
 void main(void)
 {
@@ -51,6 +55,7 @@ void main(void)
     vec4 gravelDiffuse = texture(materialTextures, vec3(UV, 1)).bgra;
     vec4 sandDiffuse = texture(materialTextures, vec3(UV, 2)).bgra;
     vec4 stoneDiffuse = texture(materialTextures, vec3(UV, 3)).bgra;
+    vec4 snowDiffuse = texture(materialTextures, vec3(UV, 4)).bgra;
 
     float heightInterpolation = smoothstep(sandHeight, sandHeight + sandMargin, tePosition.y);
     float rockStoneInterpolation = smoothstep(rockSlope, rockSlope + rockMargin, abs(teNormal.y));
@@ -86,11 +91,11 @@ void main(void)
     float n = slopeMixedShininess;
     vec4 sPart = ks * light * pow(max(dot(reflection, viewDir), 0.0), n);
 
-    vec4 snow = texture(snowMaps, vec3 (patchUV, patchNumber)).bgra;
+    vec4 snow = texture(snowMaps, vec3 (patchUV, patchNumber)).bgra * snowDiffuse;
     //snow = vec4(1,1,1,1) - snow;
 
     float snowInterp = min(snowHeight, 1.0) * clamp(snow.r, 0.0, 0.01) * 100.0;
 
     vec4 col = aPart + dPart + sPart;
-    frag = col * (1-snowInterp) + vec4(1,1,1,1) * snowInterp;
+    frag = col * (1-snowInterp) + snow * snowInterp;
 }
