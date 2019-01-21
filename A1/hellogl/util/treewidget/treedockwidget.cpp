@@ -56,6 +56,7 @@ void TreeDockWidget::connectInterface()
     connect(drawTreesCheckBox, SIGNAL(toggled(bool)), this, SLOT(changeDrawTrees(bool)));
     connect(drawSkyboxCheckBox, SIGNAL(toggled(bool)), this, SLOT(changeDrawSkybox(bool)));
     connect(frustumCullingCheckBox, SIGNAL(toggled(bool)), this, SLOT(changeFrustumCulling(bool)));
+    connect(minSnowHeightSlider, SIGNAL(valueChanged(int)), this, SLOT(changeMinSnowHeight(int)));
 }
 
 void TreeDockWidget::createTerrainGroup()
@@ -66,6 +67,11 @@ void TreeDockWidget::createTerrainGroup()
     drawTerrainCheckBox = new QCheckBox(tr("Draw terrain"));
     drawTerrainCheckBox->setChecked(true);
     terrainLayout->addWidget(drawTerrainCheckBox);
+    terrainLayout->addWidget(new QLabel(tr("Snow starting height")));
+
+    minSnowHeightSlider = new QSlider(Qt::Horizontal);
+    minSnowHeightSlider->setRange(0,1000);
+    terrainLayout->addWidget(minSnowHeightSlider);
 
     terrainGroup->setLayout(terrainLayout);
 }
@@ -151,4 +157,8 @@ void TreeDockWidget::changeFrustumCulling(bool val) {
 
 void TreeDockWidget::changeNumImpostors(int val) {
     numImpostorsChanged(val);
+}
+
+void TreeDockWidget::changeMinSnowHeight(int val) {
+    minSnowHeightChanged((float)val/4.0);
 }

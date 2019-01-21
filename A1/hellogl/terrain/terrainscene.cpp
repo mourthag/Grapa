@@ -27,7 +27,7 @@ float TerrainScene::setUpCameraUniforms(QOpenGLShaderProgram *terrainProg)
 {
     QVector3D camPos = camera.position();
     float cameraHeight = camPos.y();
-    camPos.setY(0);
+    //camPos.setY(0);
     terrainProg->setUniformValue("camPos", camPos);
     terrainProg->setUniformValue("normalMat", camera.viewMatrix().normalMatrix());
     terrainProg->setUniformValue("heightScaling", terrainHeightScaling);

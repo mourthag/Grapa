@@ -6,7 +6,7 @@ void SnowTerrainScene::initGL() {
     QTimer *snowTimer = new QTimer();
     QObject::connect(snowTimer, &QTimer::timeout, [ = ]() {
         snowTerrain.replenishSnow();
-        snowTerrain.updateTexture(QVector2D(camera.position()), 4);
+        snowTerrain.updateTexture(QVector2D(camera.position()), 10);
     } );
     snowTimer->start(10000);
 }
@@ -20,12 +20,13 @@ void SnowTerrainScene::changeForrestParameter(ForrestData data) {
     forrest.setData(data, &snowTerrain);
 }
 
+
 void SnowTerrainScene::setUpForrest() {
     forrest.generateTreeData(&snowTerrain);
-
+    
 }
 void SnowTerrainScene::drawForrest(QOpenGLShaderProgram *treeProg) {
-
+    
     if(!wasLoaded)
             return;
 

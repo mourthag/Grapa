@@ -38,7 +38,7 @@ void main(void)
     vec2 gridPos = treeData.xy/4096.0;
 
     vec3 normal = vec3( 0,0,-1);
-    vec3 newNormal = normalize(vec3(camPos - vec3(treeData.x, 0, treeData.y)));
+    vec3 newNormal = normalize(vec3(camPos - vec3(treeData.x, camPos.y, treeData.y)));
     float angle = atan(newNormal.x, newNormal.z) - atan(normal.x , normal.z);
 
     mat4 rotationMat = rotateY(angle);

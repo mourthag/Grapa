@@ -1,7 +1,6 @@
 #version 400
-
-in vec2 pos;
-in int patchOffset;
+layout (location = 0) in vec2 pos;
+layout (location = 1) in vec2 patchOffset;
 out vec3 vPosition;
 out int vPatchNumber;
 
@@ -12,8 +11,9 @@ uniform int patchesPerRow;
 
 void main(void)
 {
-    vec2 basePatchPos = vec2(camPos.x, camPos.z)/patchSize;
-    vPatchNumber = int(basePatchPos.x + patchesPerRow * basePatchPos.y + patchOffset);
+    int patchX = clamp(int(patchOffset.x + int(camPos.x)/patchSize), 0, patchesPerRow * patchesPerRow );
+    int patchZ = clamp(int(patchOffset.y + int(camPos.z)/patchSize), 0, patchesPerRow * patchesPerRow );
+    vPatchNumber =  patchZ * patchesPerRow + patchX;
 
 
     vPosition = vec3(modelMat * vec4(pos.x, 0 , pos.y, 1.0));

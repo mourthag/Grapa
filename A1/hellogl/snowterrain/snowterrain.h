@@ -19,6 +19,14 @@ public:
 
     void drawTerrain(QOpenGLShaderProgram *prog, QVector3D camPos);
 
+    void setSnowUniforms(QOpenGLShaderProgram *prog);
+
+    float getMinimumSnowHeight() const;
+    void setMinimumSnowHeight(float value);
+
+    float getSnowGrowthRate() const;
+    void setSnowGrowthRate(float value);
+
 public slots:
 
     void replenishSnow();
@@ -27,10 +35,12 @@ protected:
     void generatePatches();
     void createSnowFallMaps();
 
-private:
+    float minimumSnowHeight;
+    float snowGrowthRate;
+
     int gridPosToPatch(int x, int y) {return x + y * terrainPatchesPerRow;}
 
-    int terrainPatchesPerRow = (vertsPerRow - 1) * (heightMapSize + rowLength - 1) / rowLength; // Not floor
+    int terrainPatchesPerRow = (vertsPerRow ) * (heightMapSize + rowLength - 1) / rowLength; // Not floor
 
     std::vector<QImage> snowHeightMaps;
     std::vector<QImage> snowFallMaps;

@@ -15,9 +15,9 @@ public:
     void drawForrest(QOpenGLShaderProgram *treeProg);
     void setUpForrest();
 
-
 public slots:
     void changeForrestParameter(ForrestData data);
+
 };
 
 #endif // SNOWTERRAINSCENE_H

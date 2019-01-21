@@ -74,7 +74,7 @@ void SnowTerrain::generatePatches() {
 
     std::vector<GLfloat> vertices;
     std::vector<GLuint> indices;
-    std::vector<GLint> patchOffsets;
+    std::vector<GLfloat> patchOffsets;
 
     float offset = (vertsPerRow - 1.0) / 2.0;
 
@@ -85,9 +85,10 @@ void SnowTerrain::generatePatches() {
             vertices.push_back(pos.x());
             vertices.push_back(pos.y());
 
-            int patchOffsetX = row - ((vertsPerRow + 1) / 2);
-            int patchOffsetY = column - ((vertsPerRow + 1) / 2);
-            patchOffsets.push_back(gridPosToPatch(patchOffsetX, patchOffsetY));
+            int patchOffsetX = pos.x() / distanceBetweenVerts;
+            int patchOffsetZ = pos.y() / distanceBetweenVerts;
+            patchOffsets.push_back(patchOffsetX);
+            patchOffsets.push_back(patchOffsetZ);
 
             if(row != vertsPerRow - 1 && column != vertsPerRow -1) {
                 int index = column * vertsPerRow + row;
@@ -108,8 +109,8 @@ void SnowTerrain::generatePatches() {
     f->glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * indices.size(), &indices.at(0), GL_STATIC_DRAW);
 
     f->glBindBuffer(GL_ARRAY_BUFFER, patchBuffer);
-    f->glBufferData(GL_ARRAY_BUFFER, sizeof(GLint) * patchOffsets.size(), &patchOffsets.at(0), GL_STATIC_DRAW);
-    f->glVertexAttribPointer(1, 1, GL_INT, GL_FALSE, 0, 0);
+    f->glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * patchOffsets.size(), &patchOffsets.at(0), GL_STATIC_DRAW);
+    f->glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0);
     f->glEnableVertexAttribArray(1);
 
     f->glBindVertexArray(0);
@@ -118,6 +119,10 @@ void SnowTerrain::generatePatches() {
 }
 
 void SnowTerrain::initGL() {
+
+    minimumSnowHeight = 50.0;
+    snowGrowthRate = 0.1;
+
     OpenGLFunctions *f = OpenGLFunctions::instance();
 
 
@@ -129,8 +134,8 @@ void SnowTerrain::initGL() {
     f->glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &numLayers);
     f->glGetIntegerv(GL_MAX_TEXTURE_SIZE, &texSize);
 
-    texSize = 128;
-    numLayers = vertsPerRow * vertsPerRow;
+    texSize = 256;
+    numLayers = terrainPatchesPerRow * terrainPatchesPerRow;
     qDebug() << numLayers << texSize;
 
     snowHeightMaps.clear();
@@ -166,8 +171,8 @@ void SnowTerrain::createSnowFallMaps() {
 
     float pixelOffestInWorld = (float)distanceBetweenVerts / (float)texSize;
 
-    for(int y = 0; y < terrainPatchesPerRow; y++) {
-        for(int x = 0; x < terrainPatchesPerRow; x++) {
+    for(int y = 0; y < terrainPatchesPerRow  ; y++) {
+        for(int x = 0; x < terrainPatchesPerRow ; x++) {
 
             QVector2D baseWorldPos(x * distanceBetweenVerts, y *distanceBetweenVerts);
             int patch = gridPosToPatch(x, y);
@@ -186,24 +191,47 @@ void SnowTerrain::createSnowFallMaps() {
     }
 }
 
+float SnowTerrain::getSnowGrowthRate() const
+{
+    return snowGrowthRate;
+}
+
+void SnowTerrain::setSnowGrowthRate(float value)
+{
+    snowGrowthRate = value;
+}
+
+float SnowTerrain::getMinimumSnowHeight() const
+{
+    return minimumSnowHeight;
+}
+
+void SnowTerrain::setMinimumSnowHeight(float value)
+{
+    minimumSnowHeight = value;
+}
+
 void SnowTerrain::updateTexture(QVector2D camPos, int radius) {
 
     QVector2D baseGridPos = camPos / distanceBetweenVerts;
 
     OpenGLFunctions *f = OpenGLFunctions::instance();
     f->glBindTexture(GL_TEXTURE_2D_ARRAY, snowHeightMapsTexture);
-    for(int i = baseGridPos.y() - radius; i < baseGridPos.y() + radius; i++) {
-        for(int j = baseGridPos.x() - radius; j < baseGridPos.x() + radius; j++) {
-            if(i < 0 || j < 0) {
+
+    for(int i = 0; i < terrainPatchesPerRow; i++) {
+        for(int j = 0; j < terrainPatchesPerRow; j++) {
+            if(i < 0 || j < 0 || j >= terrainPatchesPerRow || i >= terrainPatchesPerRow) {
                 continue;
             }
+            int patch = gridPosToPatch(j, i);
 
+            qDebug() << patch << "loaded into memory";
             f->glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0,
-                               0, 0, gridPosToPatch(j, i),
+                               0, 0, patch,
                                texSize, texSize, 1,
                                GL_RGB,
                                GL_UNSIGNED_BYTE,
-                               snowHeightMaps[i].bits());
+                               snowHeightMaps[patch].bits());
         }
 
     }
@@ -220,16 +248,25 @@ void SnowTerrain::replenishSnow() {
     }
 }
 
-void SnowTerrain::drawTerrain(QOpenGLShaderProgram *prog, QVector3D camPos) {
-
+void SnowTerrain::setSnowUniforms(QOpenGLShaderProgram *prog)
+{
     OpenGLFunctions *f = OpenGLFunctions::instance();
 
     prog->setUniformValue("snowMaps", 8);
     f->glActiveTexture(GL_TEXTURE8);
     f->glBindTexture(GL_TEXTURE_2D_ARRAY, snowHeightMapsTexture);
+    prog->setUniformValue("snowSpecular", QVector3D(0.1,0.1,0.1));
+    prog->setUniformValue("snowShininess", (GLfloat)5.0);
+    prog->setUniformValue("snowStartHeight", (GLfloat)minimumSnowHeight);
+    prog->setUniformValue("snowGrowthRate", (GLfloat)snowGrowthRate);
+}
+
+void SnowTerrain::drawTerrain(QOpenGLShaderProgram *prog, QVector3D camPos) {
+
+
+    setSnowUniforms(prog);
+
     prog->setUniformValue("patchesPerRow", terrainPatchesPerRow);
-    prog->setUniformValue("snowStartHeight", (GLfloat)50.0);
-    prog->setUniformValue("snowGrowthRate", (GLfloat)0.1);
 
     Terrain::drawTerrain(prog, camPos);
 }

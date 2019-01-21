@@ -29,7 +29,7 @@ vec3 calculatePos(vec2 xzCoord, vec2 patchUVs) {
     vec2 texCoord = xzCoord/4096.0;
     float height = float(textureLod( heightMap, texCoord,  maxLogTessLevel - logTessLevel).r) * heightScaling;
     float snowFactor = max(height - snowStartHeight, 0) * snowGrowthRate;
-    float snowHeightOffset = texture(snowMaps, vec3(patchUVs, tcPatchNumber)).r * snowFactor;
+    float snowHeightOffset = texture(snowMaps, vec3(1-patchUVs.y, 1-patchUVs.x, tcPatchNumber)).r * snowFactor;
     vec3 result = vec3(xzCoord.x, height + snowHeightOffset, xzCoord.y);
     return result;
 }

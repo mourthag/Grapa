@@ -24,6 +24,7 @@ signals:
     void drawSkyboxChanged(bool val);
     void frustumCullingChanged(bool val);
     void numImpostorsChanged(int val);
+    void minSnowHeightChanged(float val);
 
 public slots:
     void changeNumTrees(int val);
@@ -34,6 +35,7 @@ public slots:
     void changeDrawSkybox(bool val);
     void changeFrustumCulling(bool val);
     void changeNumImpostors(int val);
+    void changeMinSnowHeight(int val);
 
 private:
     QVBoxLayout *layout;
@@ -43,10 +45,12 @@ private:
     QGroupBox *terrainGroup;
     QGroupBox *skyboxGroup;
     QGroupBox *frustumCullingGroup;
+    QGroupBox *particleGroupBox;
 
     QSlider *numTreesSlider;
     QSlider *maxGeometryDistanceSlider;
     QSlider *maxImpostorDistanceSlider;
+    QSlider *minSnowHeightSlider;
 
     QCheckBox *drawTerrainCheckBox;
     QCheckBox *drawSkyboxCheckBox;

@@ -99,6 +99,11 @@ DISTFILES += \
     shader/snowterrain/snowterrainfragshader.frag \
     shader/snowterrain/snowterraintesselationcontrolshader.tcs \
     shader/snowterrain/snowterraintesselationevalshader.tes \
+    shader/snowterrain/snowtreefragshader.frag \
+    shader/snowterrain/snowtreevertshader.vert \
+    shader/snowterrain/snowparticlefragshader.frag \
+    shader/snowterrain/snowparticlevertshader.vert \
+
 
 RESOURCES += \
     hellogl.qrc

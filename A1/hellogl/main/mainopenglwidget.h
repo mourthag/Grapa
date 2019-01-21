@@ -63,6 +63,7 @@ public slots:
     void setSkyboxDrawEnabled(bool val);
     void setFrustumCullingEnabled(bool val);
     void setNumImpostors(int val);
+    void setMinSnowHeight(float val);
 
 
 

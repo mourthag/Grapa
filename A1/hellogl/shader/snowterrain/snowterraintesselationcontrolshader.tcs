@@ -14,13 +14,16 @@ uniform vec3 camPos;
 uniform float patchSize;
 
 int getTessLevel(float distance) {
-    return int(tessLevel * exp(-distance / 500.0));
+    return int(tessLevel * exp(-distance / 200.0));
 }
 
 void main() {
 
     vec3 mid = mix(vPosition[0], vPosition[2], 0.5);
-    float distance = length(camPos - mid);
+    vec3 flatCamPos = camPos;
+    flatCamPos.y = 0;
+    mid.y = 0;
+    float distance = length(flatCamPos - mid);
     int level = getTessLevel(distance);
 
     float nextPatchX;
@@ -51,7 +54,7 @@ void main() {
     }
 
     vec3 nextPatchPos = mid + patchSize * vec3(nextPatchX, 0 , nextPatchZ);
-    int nextPatchLevel = getTessLevel(length(camPos - nextPatchPos));
+    int nextPatchLevel = getTessLevel(length(flatCamPos - nextPatchPos));
 
     tcPosition[gl_InvocationID] = vPosition[gl_InvocationID];
 

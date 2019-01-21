@@ -29,5 +29,10 @@
         <file>shader/snowterrain/snowterraintesselationevalshader.tes</file>
         <file>shader/snowterrain/snowterrainvertshader.vert</file>
         <file>shader/snowterrain/snowterraintesselationcontrolshader.tcs</file>
+        <file>shader/snowterrain/snowtreefragshader.frag</file>
+        <file>shader/snowterrain/snowtreevertshader.vert</file>
+        <file>img/snowflake.png</file>
+        <file>shader/snowterrain/snowparticlefragshader.frag</file>
+        <file>shader/snowterrain/snowparticlevertshader.vert</file>
     </qresource>
 </RCC>
