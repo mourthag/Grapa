@@ -224,7 +224,7 @@ void TerrainSceneRenderer::createImpostorTex(TerrainScene *scene) {
             f->glDrawElements(GL_TRIANGLES, tree->meshes[j]->num_verts, tree->meshes[j]->index_type, (void*) tree->meshes[j]->index_offset);
             f->glBindVertexArray(0);
         }
-        f->glFinish();
+        //f->glFinish();
         rotMat.rotate(360.0/(float)(numImpostorImages+1), 0, 0, 1);
         phongProgram->setUniformValue("modelMat", rotMat);
         phongProgram->setUniformValue("normalMat", rotMat.normalMatrix());
