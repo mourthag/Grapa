@@ -4,6 +4,9 @@
 #include <terrain/terrain.h>
 #include <util/openglfunctions.h>
 #include <QImage>
+#include <QGraphicsBlurEffect>
+#include <QGraphicsScene>
+#include <QGraphicsPixmapItem>
 #include <QPainter>
 #include <QTimer>
 #include <QObject>
@@ -29,9 +32,11 @@ public:
 
 public slots:
 
-    void replenishSnow();
+    void replenishSnow(QVector2D camPos, int radius);
 
 protected:
+    QImage applyBlurToImage(QImage src);
+
     void generatePatches();
     void createSnowFallMaps();
 
@@ -40,7 +45,7 @@ protected:
 
     int gridPosToPatch(int x, int y) {return x + y * terrainPatchesPerRow;}
 
-    int terrainPatchesPerRow = (vertsPerRow ) * (heightMapSize + rowLength - 1) / rowLength; // Not floor
+    int terrainPatchesPerRow; // Not floor
 
     std::vector<QImage> snowHeightMaps;
     std::vector<QImage> snowFallMaps;

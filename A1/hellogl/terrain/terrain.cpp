@@ -166,13 +166,13 @@ void Terrain::setHeightMapUniform(QOpenGLShaderProgram *prog) {
 
 void Terrain::setUpMaterialUniforms(QOpenGLShaderProgram *prog)
 {
-    prog->setUniformValue("rockShininess", (GLfloat)12.0);
-    prog->setUniformValue("rockSpecular", QVector3D(0.2, 0.2, 0.2));
+    prog->setUniformValue("rockShininess", (GLfloat)1.0);
+    prog->setUniformValue("rockSpecular", QVector3D(1,1,1));
     prog->setUniformValue("rockSlope", (GLfloat)0.5);
     prog->setUniformValue("rockMargin", (GLfloat)0.1);
 
-    prog->setUniformValue("rockShininess", (GLfloat)12.0);
-    prog->setUniformValue("rockSpecular", QVector3D(0.2, 0.2, 0.2));
+    prog->setUniformValue("rockShininess", (GLfloat)1.0);
+    prog->setUniformValue("rockSpecular", QVector3D(1,1,1));
     prog->setUniformValue("stoneSlope", (GLfloat)0.8);
     prog->setUniformValue("stoneMargin", (GLfloat)0.18);
 

@@ -16,6 +16,12 @@ public:
     void drawParticles(QOpenGLShaderProgram *prog);
     void setHeight(float height, float minSnowHeight, float snowGrowth);
 
+    int getNumParticles() const;
+    void setNumParticles(int value);
+
+    int getNumMinParticles() const;
+    void setNumMinParticles(int value);
+
 protected:
 
     int numParticles = 5000;

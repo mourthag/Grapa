@@ -64,7 +64,9 @@ public slots:
     void setFrustumCullingEnabled(bool val);
     void setNumImpostors(int val);
     void setMinSnowHeight(float val);
-
+    void setMinParticles(int val);
+    void setMaxParticles(int val);
+    void setSnowGrowthRate(float val);
 
 
 

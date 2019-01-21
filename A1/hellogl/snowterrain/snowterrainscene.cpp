@@ -5,10 +5,11 @@ void SnowTerrainScene::initGL() {
 
     QTimer *snowTimer = new QTimer();
     QObject::connect(snowTimer, &QTimer::timeout, [ = ]() {
-        snowTerrain.replenishSnow();
-        snowTerrain.updateTexture(QVector2D(camera.position()), 10);
+        QVector2D campos(camera.position().x(), camera.position().z());
+        snowTerrain.replenishSnow(campos, 7);
+        snowTerrain.updateTexture(campos, 7);
     } );
-    snowTimer->start(10000);
+    snowTimer->start(1000);
 }
 
 void SnowTerrainScene::loadTerrain(QFile *pgmFile) {

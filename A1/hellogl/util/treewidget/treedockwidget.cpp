@@ -57,6 +57,9 @@ void TreeDockWidget::connectInterface()
     connect(drawSkyboxCheckBox, SIGNAL(toggled(bool)), this, SLOT(changeDrawSkybox(bool)));
     connect(frustumCullingCheckBox, SIGNAL(toggled(bool)), this, SLOT(changeFrustumCulling(bool)));
     connect(minSnowHeightSlider, SIGNAL(valueChanged(int)), this, SLOT(changeMinSnowHeight(int)));
+    connect(minParticleSlider, SIGNAL(valueChanged(int)), this, SLOT(changeMinParticle(int)));
+    connect(maxParticleSlider, SIGNAL(valueChanged(int)), this, SLOT(changeMaxParticle(int)));
+    connect(snowGrowthRateSlider, SIGNAL(valueChanged(int)), this, SLOT(changeSnowGrowthRate(int)));
 }
 
 void TreeDockWidget::createTerrainGroup()
@@ -71,7 +74,15 @@ void TreeDockWidget::createTerrainGroup()
 
     minSnowHeightSlider = new QSlider(Qt::Horizontal);
     minSnowHeightSlider->setRange(0,1000);
+    minSnowHeightSlider->setValue(200);
     terrainLayout->addWidget(minSnowHeightSlider);
+
+    terrainLayout->addWidget(new QLabel(tr("Snow increase rate")));
+
+    snowGrowthRateSlider = new QSlider(Qt::Horizontal);
+    snowGrowthRateSlider->setRange(0,100);
+    snowGrowthRateSlider->setValue(4);
+    terrainLayout->addWidget(snowGrowthRateSlider);
 
     terrainGroup->setLayout(terrainLayout);
 }
@@ -102,6 +113,29 @@ void TreeDockWidget::createSkyboxGroup()
     skyboxGroup->setLayout(skyboxLayout);
 }
 
+void TreeDockWidget::createParticleGroup()
+{
+    particleGroup = new QGroupBox(tr("Snow Particles"));
+
+    QVBoxLayout *particleBoxLayout = new QVBoxLayout;
+
+    particleBoxLayout->addWidget(new QLabel(tr("Minimum number of particles")));
+
+    minParticleSlider = new QSlider(Qt::Horizontal);
+    minParticleSlider->setRange(0, 1000000);
+    minParticleSlider->setValue(100);
+    particleBoxLayout->addWidget(minParticleSlider);
+
+    particleBoxLayout->addWidget(new QLabel(tr("Maximum number of particles")));
+
+    maxParticleSlider = new QSlider(Qt::Horizontal);
+    maxParticleSlider->setRange(1, 1000000);
+    maxParticleSlider->setValue(5000);
+    particleBoxLayout->addWidget(maxParticleSlider);
+
+    particleGroup->setLayout(particleBoxLayout);
+}
+
 TreeDockWidget::TreeDockWidget(QWidget *parent) : QWidget(parent)
 {
 
@@ -110,9 +144,11 @@ TreeDockWidget::TreeDockWidget(QWidget *parent) : QWidget(parent)
     createLODGroup();
     createFrustumCullingGroup();
     createSkyboxGroup();
+    createParticleGroup();
 
     layout = new QVBoxLayout;
     layout->addWidget(terrainGroup);
+    layout->addWidget(particleGroup);
     layout->addWidget(treeGroup);
     layout->addWidget(lodGroup);
     layout->addWidget(frustumCullingGroup);
@@ -161,4 +197,16 @@ void TreeDockWidget::changeNumImpostors(int val) {
 
 void TreeDockWidget::changeMinSnowHeight(int val) {
     minSnowHeightChanged((float)val/4.0);
+}
+
+void TreeDockWidget::changeSnowGrowthRate(int val) {
+    snowGrowthRateChanged((float)val/40.0);
+}
+
+void TreeDockWidget::changeMinParticle(int val) {
+    minParticleChanged(val);
+}
+
+void TreeDockWidget::changeMaxParticle(int val) {
+    maxParticleChanged(val);
 }

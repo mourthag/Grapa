@@ -269,15 +269,6 @@ void TerrainSceneRenderer::loadSkybox(QString dir) {
     QImage pos_y(dir + "/teide_up.jpg");
     QImage pos_z(dir + "/teide_ft.jpg");
 
-    QMatrix rot;
-    rot.rotate(90);
-    neg_x = neg_x.transformed(rot);
-    rot.rotate(90);
-    pos_z = pos_z.transformed(rot);
-    pos_y = pos_y.transformed(rot);
-    rot.rotate(90);
-    pos_x = pos_x.transformed(rot);
-
     OpenGLFunctions *f = OpenGLFunctions::instance();
 
     f->glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTex);

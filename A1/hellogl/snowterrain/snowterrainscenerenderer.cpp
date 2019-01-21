@@ -164,6 +164,11 @@ void SnowTerrainSceneRenderer::drawParticles(SnowTerrainScene *scene) {
     particleRenderer.drawParticles(particleProgram);
 }
 
+SnowFallRenderer *SnowTerrainSceneRenderer::getParticleRenderer()
+{
+    return &particleRenderer;
+}
+
 void SnowTerrainSceneRenderer::drawScene(SnowTerrainScene *scene) {
     OpenGLFunctions *f = OpenGLFunctions::instance();
 
@@ -192,6 +197,7 @@ void SnowTerrainSceneRenderer::drawScene(SnowTerrainScene *scene) {
     queryTime(5);
 
     drawParticles(scene);
+    queryTime(6);
 
     logTimes();
 

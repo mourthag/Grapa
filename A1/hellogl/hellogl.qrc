@@ -34,5 +34,6 @@
         <file>img/snowflake.png</file>
         <file>shader/snowterrain/snowparticlefragshader.frag</file>
         <file>shader/snowterrain/snowparticlevertshader.vert</file>
+        <file>img/footprint.png</file>
     </qresource>
 </RCC>

@@ -61,7 +61,7 @@ void main(void)
 
     vec4 snow = texture(snowMaps, vec3 (1-patchUV.y, 1-patchUV.x, patchNumber)).bgra;
 
-    float snowInterp = min(snowHeight, 1.0) * clamp(snow.r, 0.0, 0.01) * 100.0;
+    float snowInterp = min(snowHeight * 3.0, 1.0);
 
     float heightInterpolation = smoothstep(sandHeight, sandHeight + sandMargin, tePosition.y);
     float rockStoneInterpolation = smoothstep(rockSlope, rockSlope + rockMargin, abs(teNormal.y));
@@ -90,10 +90,10 @@ void main(void)
     float fallOff = 1.0/ (pow(length(vPos-vLightPos),0.2));
     vec4 light = vec4(lightColor,1.0) * lightInt * fallOff;
 
-    vec4 kd =  1.0 * snowMixedDiffuse;
+    vec4 kd =  0.5 * snowMixedDiffuse;
     vec4 dPart = kd * light * max(dot(normal, lightDir), 0.0);
 
-    vec4 ka = 0.3 * snowMixedDiffuse;
+    vec4 ka = 0.5 * snowMixedDiffuse;
     vec4 aPart = ka * light;
 
     vec4 ks = vec4(snowMixedSpecular,1.0);
@@ -101,6 +101,6 @@ void main(void)
     vec4 sPart = ks * light * pow(max(dot(reflection, viewDir), 0.0), n);
 
 
-    vec4 col = aPart + dPart + sPart;
+    vec4 col = aPart + dPart + sPart ;
     frag = col;
 }

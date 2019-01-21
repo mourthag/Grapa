@@ -25,6 +25,9 @@ signals:
     void frustumCullingChanged(bool val);
     void numImpostorsChanged(int val);
     void minSnowHeightChanged(float val);
+    void snowGrowthRateChanged(float val);
+    void minParticleChanged(int val);
+    void maxParticleChanged(int val);
 
 public slots:
     void changeNumTrees(int val);
@@ -36,6 +39,9 @@ public slots:
     void changeFrustumCulling(bool val);
     void changeNumImpostors(int val);
     void changeMinSnowHeight(int val);
+    void changeSnowGrowthRate(int val);
+    void changeMinParticle(int val);
+    void changeMaxParticle(int val);
 
 private:
     QVBoxLayout *layout;
@@ -45,12 +51,15 @@ private:
     QGroupBox *terrainGroup;
     QGroupBox *skyboxGroup;
     QGroupBox *frustumCullingGroup;
-    QGroupBox *particleGroupBox;
+    QGroupBox *particleGroup;
 
     QSlider *numTreesSlider;
     QSlider *maxGeometryDistanceSlider;
     QSlider *maxImpostorDistanceSlider;
     QSlider *minSnowHeightSlider;
+    QSlider *snowGrowthRateSlider;
+    QSlider *minParticleSlider;
+    QSlider *maxParticleSlider;
 
     QCheckBox *drawTerrainCheckBox;
     QCheckBox *drawSkyboxCheckBox;
@@ -66,6 +75,7 @@ private:
     void createTerrainGroup();
     void createFrustumCullingGroup();
     void createSkyboxGroup();
+    void createParticleGroup();
 };
 
 #endif // TREEDOCKWIDGET_H

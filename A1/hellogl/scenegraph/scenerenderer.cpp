@@ -29,6 +29,7 @@ SceneRenderer::SceneRenderer()
     performanceLogger->setName(2, "Tree Geometry");
     performanceLogger->setName(3, "Tree Impostor");
     performanceLogger->setName(4, "Skybox");
+    performanceLogger->setName(5, "Particles");
 
     queryObjectsA = std::vector<GLuint>(NumQueries);
     queryObjectsB = std::vector<GLuint>(NumQueries);

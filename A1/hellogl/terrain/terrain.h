@@ -29,7 +29,7 @@ public:
 protected:
     void generatePatches();
 
-    const int vertsPerRow = 41;
+    const int vertsPerRow = 45;
     const int rowLength = 4096;
     const int numpatches = 4 * (vertsPerRow - 1) * (vertsPerRow -1);
     const float distanceBetweenVerts = (float)rowLength / (float)(vertsPerRow-1);

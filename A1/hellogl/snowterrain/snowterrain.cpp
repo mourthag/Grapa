@@ -68,6 +68,7 @@ void SnowTerrain::loadFromFile(QFile *pgmFile) {
 }
 
 void SnowTerrain::generatePatches() {
+
     OpenGLFunctions *f = OpenGLFunctions::instance();
 
     f->glBindVertexArray(vao);
@@ -123,6 +124,9 @@ void SnowTerrain::initGL() {
     minimumSnowHeight = 50.0;
     snowGrowthRate = 0.1;
 
+    heightMapSize = 4096;
+    terrainPatchesPerRow = (vertsPerRow - 1) * (heightMapSize) / rowLength;
+
     OpenGLFunctions *f = OpenGLFunctions::instance();
 
 
@@ -151,7 +155,7 @@ void SnowTerrain::initGL() {
     QImage blackImage(texSize, texSize, QImage::Format_RGB888);
     blackImage.fill(Qt::black);
     QImage whiteImage(texSize, texSize, QImage::Format_RGBA8888);
-    whiteImage.fill(Qt::white);
+    whiteImage.fill(Qt::black);
 
     f->glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGB8, texSize, texSize, numLayers,
                  0,
@@ -167,6 +171,23 @@ void SnowTerrain::initGL() {
     }
 }
 
+QImage SnowTerrain::applyBlurToImage(QImage src)
+{
+    if(src.isNull()) return QImage();          //No need to do anything else!
+    QGraphicsBlurEffect *blur = new QGraphicsBlurEffect;
+    blur->setBlurRadius(2);
+    QGraphicsScene scene;
+    QGraphicsPixmapItem item;
+    item.setPixmap(QPixmap::fromImage(src));
+    item.setGraphicsEffect(blur);
+    scene.addItem(&item);
+    QImage res(src.size(), QImage::Format_ARGB32);
+    res.fill(Qt::transparent);
+    QPainter ptr(&res);
+    scene.render(&ptr, QRectF(), QRectF( 0, 0, src.width(), src.height()) );
+    return res;
+}
+
 void SnowTerrain::createSnowFallMaps() {
 
     float pixelOffestInWorld = (float)distanceBetweenVerts / (float)texSize;
@@ -179,10 +200,15 @@ void SnowTerrain::createSnowFallMaps() {
 
             for(int v = 0; v < texSize; v++) {
                 for(int u = 0; u < texSize; u++) {
+                    if(u <= 0 || v <= 0 || u >= texSize - 1 || v >= texSize - 1) {
+                        snowFallMaps[patch].setPixelColor(u, v, QColor(255, 255, 255, 25.5/4.0));
+                        continue;
+                    }
+
                     QVector2D uv(u,v);
                     float slope = std::max(getNormal(baseWorldPos + pixelOffestInWorld * uv).y(), 0.f);
 
-                    snowFallMaps[patch].setPixelColor(u, v, QColor(255, 255, 255, slope * 255));
+                    snowFallMaps[patch].setPixelColor(u, v, QColor(255, 255, 255, 25.5 * std::sqrt(slope)));
 
                 }
             }
@@ -218,14 +244,13 @@ void SnowTerrain::updateTexture(QVector2D camPos, int radius) {
     OpenGLFunctions *f = OpenGLFunctions::instance();
     f->glBindTexture(GL_TEXTURE_2D_ARRAY, snowHeightMapsTexture);
 
-    for(int i = 0; i < terrainPatchesPerRow; i++) {
-        for(int j = 0; j < terrainPatchesPerRow; j++) {
+    for(int i = baseGridPos.y() - radius; i < baseGridPos.y() + radius; i++) {
+        for(int j = baseGridPos.x() - radius; j < baseGridPos.x() + radius; j++) {
             if(i < 0 || j < 0 || j >= terrainPatchesPerRow || i >= terrainPatchesPerRow) {
                 continue;
             }
             int patch = gridPosToPatch(j, i);
 
-            qDebug() << patch << "loaded into memory";
             f->glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0,
                                0, 0, patch,
                                texSize, texSize, 1,
@@ -238,13 +263,25 @@ void SnowTerrain::updateTexture(QVector2D camPos, int radius) {
     f->glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 }
 
-void SnowTerrain::replenishSnow() {
-    for(int i = 0; i < snowHeightMaps.size(); i++) {
+void SnowTerrain::replenishSnow(QVector2D camPos, int radius) {
 
+    QVector2D baseGridPos = camPos / distanceBetweenVerts;
 
-        QPainter painter;
-        painter.begin(&snowHeightMaps[i]);
-        painter.drawImage(QPoint(0,0), snowFallMaps[i]);
+    OpenGLFunctions *f = OpenGLFunctions::instance();
+    f->glBindTexture(GL_TEXTURE_2D_ARRAY, snowHeightMapsTexture);
+
+    for(int i = baseGridPos.y() - radius; i < baseGridPos.y() + radius; i++) {
+        for(int j = baseGridPos.x() - radius; j < baseGridPos.x() + radius; j++) {
+            if(i < 0 || j < 0 || j >= terrainPatchesPerRow || i >= terrainPatchesPerRow) {
+                continue;
+            }
+            int patch = gridPosToPatch(j, i);
+
+            QPainter painter;
+            painter.begin(&snowHeightMaps[patch]);
+            painter.drawImage(QPoint(0,0), snowFallMaps[patch]);
+            painter.end();
+        }
     }
 }
 
@@ -256,7 +293,7 @@ void SnowTerrain::setSnowUniforms(QOpenGLShaderProgram *prog)
     f->glActiveTexture(GL_TEXTURE8);
     f->glBindTexture(GL_TEXTURE_2D_ARRAY, snowHeightMapsTexture);
     prog->setUniformValue("snowSpecular", QVector3D(0.1,0.1,0.1));
-    prog->setUniformValue("snowShininess", (GLfloat)5.0);
+    prog->setUniformValue("snowShininess", (GLfloat)0.5);
     prog->setUniformValue("snowStartHeight", (GLfloat)minimumSnowHeight);
     prog->setUniformValue("snowGrowthRate", (GLfloat)snowGrowthRate);
 }

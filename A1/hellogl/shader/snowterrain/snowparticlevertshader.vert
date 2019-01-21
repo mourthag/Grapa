@@ -15,6 +15,13 @@ uniform vec3 camPos;
 
 const float DEG_TO_RAD = 3.141592653589793 / 180.0;
 
+mat3 scale(float factor) {
+    return mat3(
+                factor, 0.0, 0.0,
+                0.0, factor, 0.0,
+                0.0, 0.0, factor );
+}
+
 mat4 rotateY(float rad) {
     float c = cos(rad);
     float s = sin(rad);
@@ -57,7 +64,7 @@ void main(void)
 
     mat4 rotationMat = rotateY(particleData.w);
 
-    vec3 wPos = particleData.xyz + vec3(UV.x - 0.05,  UV.y - 0.05, 0.0);
+    vec3 wPos = particleData.xyz + scale(0.01) * vec3(UV.x - 0.5,  UV.y - 0.5, 0.0);
     vec3 rotWPos = vec3(rotationMat * vec4(wPos ,1.0));
 
     vec3 opWPos = particleData.xyz;
@@ -75,6 +82,6 @@ void main(void)
     rotWPos = rotOpWPos + offset;
 
     vec3 vPos = vec3(viewMat * vec4(rotWPos, 1.0));
-    texCoord = UV * 10.0;
+    texCoord = UV;
     gl_Position = projMat * vec4(vPos, 1.0);
 }

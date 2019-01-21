@@ -76,7 +76,7 @@ void MainOpenGLWidget::resizeGL(int w, int h) {
 
     //projection matrix
     QMatrix4x4 projMatrix;
-    projMatrix.perspective(45.0, (float)w/(float)h, 0.9, 10000);
+    projMatrix.perspective(45.0f, (float)w/(float)h, 0.1f, 10000);
     cam->setProjectionMatrix(projMatrix);
     cameraUpdated(cam->viewMatrix());
 }
@@ -344,6 +344,21 @@ void MainOpenGLWidget::setNumImpostors(int val) {
 
 void MainOpenGLWidget::setMinSnowHeight(float val) {
     terrainScene.snowTerrain.setMinimumSnowHeight(val);
+}
+
+void MainOpenGLWidget::setMinParticles(int val) {
+    terrainRenderer.getParticleRenderer()->setNumMinParticles(val);
+}
+
+void MainOpenGLWidget::setMaxParticles(int val) {
+    makeCurrent();
+    terrainRenderer.getParticleRenderer()->setNumParticles(val);
+    doneCurrent();
+}
+
+void MainOpenGLWidget::setSnowGrowthRate(float val) {
+    terrainScene.snowTerrain.setSnowGrowthRate(val);
+
 }
 
 void MainOpenGLWidget::loadModel(tinygltf::Model* gltf_model) {

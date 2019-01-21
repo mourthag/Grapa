@@ -12,6 +12,8 @@ public:
     void initGL();
     void drawScene(SnowTerrainScene *scene);
 
+    SnowFallRenderer *getParticleRenderer();
+
 protected:
     void loadShader();
     void drawTerrain(SnowTerrainScene *scene);

@@ -17,8 +17,8 @@ struct ForrestData
 
     ForrestData() {
         numTrees = 1;
-        minScale = 2;
-        maxScale = 4;
+        minScale = 7;
+        maxScale = 9;
     }
 };
 

@@ -1,10 +1,10 @@
 #include "snowfallrenderer.h"
 
 static const GLfloat quad_UV[] = {
-    0.0, 0.0,
-    0.1, 0.0,
-    0.0, 0.1,
-    0.1, 0.1
+    0.0f, 0.0f,
+    1.0f, 0.0f,
+    0.0f, 1.0f,
+    1.0f, 1.0f
 };
 
 static const GLuint quad_Ind[] = {
@@ -17,8 +17,11 @@ void SnowFallRenderer::initGL() {
 
     radius = 10;
 
-    windDirection = QVector3D(0.5, 0,0.5);
-    fallingSpeed = 0.60;
+    float randX = (float)(rand() % 100) / 100.0;
+    float randY = (float)(rand() % 100) / 100.0;
+
+    windDirection = QVector3D(randX - 0.5, 0,randY - 0.5);
+    fallingSpeed = 0.35f;
 
     OpenGLFunctions *f = OpenGLFunctions::instance();
 
@@ -70,6 +73,28 @@ void SnowFallRenderer::setHeight(float height, float minSnowHeight, float snowGr
     }
 }
 
+int SnowFallRenderer::getNumParticles() const
+{
+    return numParticles;
+}
+
+void SnowFallRenderer::setNumParticles(int value)
+{
+    numParticles = value;
+    createRandomParticles();
+    updateBuffer();
+}
+
+int SnowFallRenderer::getNumMinParticles() const
+{
+    return numMinParticles;
+}
+
+void SnowFallRenderer::setNumMinParticles(int value)
+{
+    numMinParticles = value;
+}
+
 void SnowFallRenderer::updateBuffer() {
 
     OpenGLFunctions *f = OpenGLFunctions::instance();
@@ -119,7 +144,7 @@ void SnowFallRenderer::drawParticles(QOpenGLShaderProgram *prog) {
     f->glBindTexture(GL_TEXTURE_2D, snowflakeTex);
 
     f->glBindVertexArray(particleVAO);
-    f->glDrawElementsInstanced(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_INT, 0, numActiveParticles);
+    f->glDrawElementsInstanced(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_INT, 0, std::min(numActiveParticles, numParticles));
     f->glBindVertexArray(0);
 
 }

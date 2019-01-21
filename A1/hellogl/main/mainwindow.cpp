@@ -223,6 +223,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(treeDataWidget, SIGNAL(frustumCullingChanged(bool)), widget, SLOT(setFrustumCullingEnabled(bool)));
     connect(treeDataWidget, SIGNAL(numImpostorsChanged(int)), widget, SLOT(setNumImpostors(int)));
     connect(treeDataWidget, SIGNAL(minSnowHeightChanged(float)), widget, SLOT(setMinSnowHeight(float)));
+    connect(treeDataWidget, SIGNAL(minParticleChanged(int)), widget, SLOT(setMinParticles(int)));
+    connect(treeDataWidget, SIGNAL(maxParticleChanged(int)), widget, SLOT(setMaxParticles(int)));
+    connect(treeDataWidget, SIGNAL(snowGrowthRateChanged(float)), widget, SLOT(setSnowGrowthRate(float)));
 
     widget->resetCamera();
     //adjust slider here to init correct value in widget
