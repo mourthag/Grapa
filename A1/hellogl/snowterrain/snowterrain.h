@@ -20,9 +20,10 @@ public:
 
     void loadFromFile(QFile *pgmFile);
 
+    void setSnowUniforms(QOpenGLShaderProgram *prog);
     void drawTerrain(QOpenGLShaderProgram *prog, QVector3D camPos);
 
-    void setSnowUniforms(QOpenGLShaderProgram *prog);
+    void leaveFootprint(QVector3D pos);
 
     float getMinimumSnowHeight() const;
     void setMinimumSnowHeight(float value);
@@ -49,6 +50,8 @@ protected:
 
     std::vector<QImage> snowHeightMaps;
     std::vector<QImage> snowFallMaps;
+
+    QImage footprintImg;
 
     GLuint patchBuffer;
     GLuint snowHeightMapsTexture;

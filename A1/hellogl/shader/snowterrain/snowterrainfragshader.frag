@@ -59,9 +59,7 @@ void main(void)
     vec4 stoneDiffuse = texture(materialTextures, vec3(UV, 3)).bgra;
     vec4 snowDiffuse = texture(materialTextures, vec3(UV, 4)).bgra;
 
-    vec4 snow = texture(snowMaps, vec3 (1-patchUV.y, 1-patchUV.x, patchNumber)).bgra;
-
-    float snowInterp = min(snowHeight * 3.0, 1.0);
+    float snowInterp = min(snowHeight , 1.0);
 
     float heightInterpolation = smoothstep(sandHeight, sandHeight + sandMargin, tePosition.y);
     float rockStoneInterpolation = smoothstep(rockSlope, rockSlope + rockMargin, abs(teNormal.y));

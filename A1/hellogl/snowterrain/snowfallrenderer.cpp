@@ -68,7 +68,7 @@ void SnowFallRenderer::setHeight(float height, float minSnowHeight, float snowGr
         return;
     }
     else {
-        numActiveParticles = numMinParticles + snowGrowth * (height - minSnowHeight);
+        numActiveParticles = numMinParticles + snowGrowth * (numParticles - numMinParticles) * (height - minSnowHeight);
         numActiveParticles = std::min(numActiveParticles, numParticles);
     }
 }

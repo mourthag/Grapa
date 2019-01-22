@@ -121,6 +121,8 @@ void SnowTerrain::generatePatches() {
 
 void SnowTerrain::initGL() {
 
+    footprintImg = QImage(":/img/footprint.png");
+
     minimumSnowHeight = 50.0;
     snowGrowthRate = 0.1;
 
@@ -205,7 +207,7 @@ void SnowTerrain::createSnowFallMaps() {
                         continue;
                     }
 
-                    QVector2D uv(u,v);
+                    QVector2D uv(texSize - 1 - v, texSize - 1 - u);
                     float slope = std::max(getNormal(baseWorldPos + pixelOffestInWorld * uv).y(), 0.f);
 
                     snowFallMaps[patch].setPixelColor(u, v, QColor(255, 255, 255, 25.5 * std::sqrt(slope)));
@@ -215,6 +217,23 @@ void SnowTerrain::createSnowFallMaps() {
         }
 
     }
+}
+
+void SnowTerrain::leaveFootprint(QVector3D pos) {
+    int gridPosX = pos.x() / distanceBetweenVerts;
+    int gridPosZ = pos.z() / distanceBetweenVerts;
+    int patch = gridPosToPatch(gridPosX, gridPosZ);
+
+
+    float pixelOffestInWorld = (float)distanceBetweenVerts / (float)texSize;
+    int u = (pos.x() - gridPosX * distanceBetweenVerts) / pixelOffestInWorld;
+    int v = (pos.z() - gridPosZ * distanceBetweenVerts) / pixelOffestInWorld;
+
+    QPainter painter;
+    painter.begin(&snowHeightMaps[patch]);
+    painter.drawImage(texSize - 1 - v - (footprintImg.width() / 2.0), texSize - 1 - u - (footprintImg.height() / 2.0), footprintImg);
+    painter.end();
+
 }
 
 float SnowTerrain::getSnowGrowthRate() const

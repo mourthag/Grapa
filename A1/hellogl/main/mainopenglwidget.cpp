@@ -265,7 +265,7 @@ void MainOpenGLWidget::setLightCol(QVector3D color) {
 
 void MainOpenGLWidget::setLightIntensity(int i) {
 
-    terrainRenderer.getLight()->lightInt = i;
+    terrainRenderer.getLight()->lightInt = (float)i/100.0;
     update();
 }
 

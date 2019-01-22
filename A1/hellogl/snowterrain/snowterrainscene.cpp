@@ -6,10 +6,16 @@ void SnowTerrainScene::initGL() {
     QTimer *snowTimer = new QTimer();
     QObject::connect(snowTimer, &QTimer::timeout, [ = ]() {
         QVector2D campos(camera.position().x(), camera.position().z());
-        snowTerrain.replenishSnow(campos, 7);
-        snowTerrain.updateTexture(campos, 7);
+        snowTerrain.replenishSnow(campos, 9);
+        snowTerrain.updateTexture(campos, 9);
     } );
     snowTimer->start(1000);
+
+    QTimer *footprintTimer = new QTimer();
+    QObject::connect(footprintTimer, &QTimer::timeout, [ = ]() {
+        snowTerrain.leaveFootprint(camera.position());
+    } );
+    footprintTimer->start(350);
 }
 
 void SnowTerrainScene::loadTerrain(QFile *pgmFile) {

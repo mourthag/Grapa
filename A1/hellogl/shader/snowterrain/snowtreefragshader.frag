@@ -53,7 +53,7 @@ void main(void)
         discard;
     vec4 dPart = kd * fallOff * lightInt * max(dot(normal, lightDir), 0.0);
 
-    vec4 ka = 0.1 * kd;
+    vec4 ka = 0.5 * kd;
     vec4 aPart = ka * fallOff * lightInt;
 
     vec4 ks = vec4(mat.specularFactor,1.0) * texture(matTextures, vec3(texCoord, mat.specularTexture));

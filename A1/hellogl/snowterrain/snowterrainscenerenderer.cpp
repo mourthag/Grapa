@@ -160,7 +160,7 @@ void SnowTerrainSceneRenderer::drawParticles(SnowTerrainScene *scene) {
     scene->setUpCameraUniforms(particleProgram);
     scene->setUpUniforms(particleProgram, false);
 
-    particleRenderer.setHeight(scene->getCamera()->position().y(), scene->snowTerrain.getMinimumSnowHeight(), 50.0);
+    particleRenderer.setHeight(scene->getCamera()->position().y(), scene->snowTerrain.getMinimumSnowHeight(), scene->snowTerrain.getSnowGrowthRate());
     particleRenderer.drawParticles(particleProgram);
 }
 
