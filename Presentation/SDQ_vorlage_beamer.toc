@@ -12,10 +12,10 @@
 \defcounter {refsection}{0}\relax 
 \beamer@subsectionintoc {2}{1}{Particle System}{3}{0}{2}
 \defcounter {refsection}{0}\relax 
-\beamer@subsectionintoc {2}{2}{Volumetric Snow}{4}{0}{2}
+\beamer@subsectionintoc {2}{2}{Volumetric Snow}{5}{0}{2}
 \defcounter {refsection}{0}\relax 
-\beamer@subsectionintoc {2}{3}{Refill system}{5}{0}{2}
+\beamer@subsectionintoc {2}{3}{Refill system}{8}{0}{2}
 \defcounter {refsection}{0}\relax 
-\beamer@subsectionintoc {2}{4}{Footprints \& snowy trees}{6}{0}{2}
+\beamer@subsectionintoc {2}{4}{Footprints \& snowy trees}{9}{0}{2}
 \defcounter {refsection}{0}\relax 
-\beamer@sectionintoc {3}{Performance}{7}{0}{3}
+\beamer@sectionintoc {3}{Performance}{12}{0}{3}
